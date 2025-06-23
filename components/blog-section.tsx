@@ -3,53 +3,7 @@
 import { forwardRef } from "react"
 import Link from "next/link"
 
-interface BlogPost {
-  id: string
-  title: string
-  excerpt: string
-  date: string
-  category: string
-  readTime: string
-  image: string
-  author: string
-  tags: string[]
-}
-
-const BLOG_POSTS: BlogPost[] = [
-  {
-    id: "annapurna-behind-story",
-    title: "안나푸르나에서 보내는 편지, 그 뒷이야기",
-    excerpt: "히말라야 트레킹 중 마주한 예상치 못한 순간들과 책에 담지 못한 에피소드들을 공유합니다.",
-    date: "2025.01.15",
-    category: "책 이야기",
-    readTime: "5분",
-    image: "/images/annapurna-letter.jpg",
-    author: "이상민",
-    tags: ["히말라야", "트레킹", "여행에세이", "안나푸르나"],
-  },
-  {
-    id: "travel-writing-tips",
-    title: "여행을 글로 남기는 법",
-    excerpt: "그동안의 여행 글쓰기 경험을 바탕으로 기억에 남는 여행기를 쓰는 실용적인 팁들을 나눕니다.",
-    date: "2025.01.10",
-    category: "글쓰기",
-    readTime: "7분",
-    image: "/images/gil-eseo-mannada.jpg",
-    author: "이상민",
-    tags: ["글쓰기", "여행기", "에세이", "창작"],
-  },
-  {
-    id: "family-travel-philosophy",
-    title: "아이와 함께하는 여행의 철학",
-    excerpt: "여행이 단순한 휴가를 넘어 아이의 성장과 가족 관계에 미치는 깊은 영향에 대한 생각을 나눕니다.",
-    date: "2025.01.05",
-    category: "육아 & 여행",
-    readTime: "6분",
-    image: "/images/jarago-sipeun-ai.jpg",
-    author: "이상민",
-    tags: ["가족여행", "육아", "성장", "교육"],
-  },
-]
+import { BLOG_POSTS } from "@/lib/blog-data"
 
 export const BlogSection = forwardRef<HTMLElement>((props, ref) => {
   return (
@@ -62,7 +16,7 @@ export const BlogSection = forwardRef<HTMLElement>((props, ref) => {
             <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-accent-orange" />
           </h2>
           <p className="text-text-gray text-lg mt-8 max-w-2xl mx-auto">
-            {"나누다컴퍼니가 미처 책으로 담지 못한 이야기들, 책에 대한 생각들, \n그리고 나누고 싶은 어떤 순간들을 글로 담아 전합니다."}
+            {"나누다컴퍼니가 미처 책으로 담지 못한 이야기들, 일상의 생각들을 글로 담아 전합니다."}
           </p>
         </div>
 
@@ -130,4 +84,5 @@ export const BlogSection = forwardRef<HTMLElement>((props, ref) => {
 
 BlogSection.displayName = "BlogSection"
 
-export { BLOG_POSTS }
+export { BLOG_POSTS } from "@/lib/blog-data"
+export { BOOKS_DATA } from "@/lib/books-data"

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 
 interface SideNavigationProps {
   activeSection: number
@@ -13,11 +14,22 @@ export function SideNavigation({ activeSection, onSectionClick, onEmailClick }: 
 
   return (
     <nav className="fixed left-0 top-0 h-screen w-20 bg-primary-dark/90 backdrop-blur-xl z-50 flex flex-col items-center justify-between py-8 border-r border-accent-orange/10">
-      <div
-        className="text-accent-orange font-playfair font-light text-sm tracking-widest"
-        style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
-      >
-        생각을나누다
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 relative">
+          <Image
+            src="/images/nanuda_logo.png"
+            alt="생각을 나누다 로고"
+            fill
+            className="object-contain brightness-0 invert"
+            priority
+          />
+        </div>
+        <div
+          className="text-accent-orange font-playfair font-light text-sm tracking-widest"
+          style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
+        >
+          생각을나누다
+        </div>
       </div>
 
       <div className="flex flex-col gap-4">

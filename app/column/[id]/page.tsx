@@ -1,89 +1,64 @@
-"use client"
-
-import { useParams } from "next/navigation"
-import { useEffect } from "react"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 import { CustomCursor } from "@/components/custom-cursor"
-import { BLOG_POSTS } from "@/components/blog-section"
+import { BLOG_POSTS } from "@/lib/blog-data"
+import { getBlogPostContent, getAllBlogPostIds } from "@/lib/markdown"
+import { Metadata } from "next"
 
-// SEO를 위한 메타데이터 (실제 구현시 Next.js metadata API 사용)
-const generateMetadata = (post: any) => ({
-  title: `${post.title} | 나누다 칼럼`,
-  description: post.excerpt,
-  keywords: post.tags.join(", "),
-  author: post.author,
-  publishedTime: post.date,
-})
+interface PageProps {
+  params: Promise<{ id: string }>
+}
 
-export default function ColumnDetailPage() {
-  const params = useParams()
-  const post = BLOG_POSTS.find((p) => p.id === params.id)
+export async function generateStaticParams() {
+  const paths = getAllBlogPostIds()
+  return paths.map((path) => ({
+    id: path.params.id,
+  }))
+}
 
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [params.id])
-
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params
+  const post = BLOG_POSTS.find((p) => p.id === id)
+  
   if (!post) {
-    return (
-      <div className="min-h-screen bg-primary-dark text-text-light flex items-center justify-center">
-        <CustomCursor />
-        <div className="text-center">
-          <h1 className="text-4xl font-playfair mb-4">칼럼을 찾을 수 없습니다</h1>
-          <Link href="/column" className="text-accent-orange hover:underline cursor-pointer">
-            칼럼 목록으로 돌아가기
-          </Link>
-        </div>
-      </div>
-    )
+    return {
+      title: "칼럼을 찾을 수 없습니다",
+    }
   }
 
-  // 샘플 칼럼 내용 (실제로는 CMS나 마크다운에서 가져올 예정)
-  const sampleContent = {
-    "annapurna-behind-story": {
-      content: `
-        <p>안나푸르나 베이스캠프로 향하는 길에서 만난 가장 인상 깊었던 순간은 책에 담지 못한 이야기들이 많습니다.</p>
-        
-        <h2>예상치 못한 만남</h2>
-        <p>고도 3,000미터를 넘어서면서 숨이 가빠지기 시작했을 때, 한 네팔 할머니를 만났습니다. 그분은 70세가 넘은 나이에도 매일 이 길을 오르내리며 생계를 이어가고 계셨죠.</p>
-        
-        <blockquote>"산은 우리에게 겸손함을 가르쳐준다"</blockquote>
-        
-        <p>할머니의 이 말씀이 지금도 제 마음에 깊이 남아있습니다. 히말라야의 웅장함 앞에서 느꼈던 인간의 작음, 그리고 그 작은 존재가 보여주는 강인함에 대해 생각해보게 되었습니다.</p>
-        
-        <h2>책에 담지 못한 이야기</h2>
-        <p>실제로는 더 많은 에피소드들이 있었지만, 책의 분량과 흐름상 포함시키지 못한 이야기들이 있습니다. 이런 이야기들을 칼럼을 통해 조금씩 나누어보려 합니다.</p>
-      `,
+  return {
+    title: `${post.title} | 나누다 칼럼`,
+    description: post.excerpt,
+    keywords: post.tags.join(", "),
+    authors: [{ name: post.author }],
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
+      type: "article",
+      publishedTime: post.date,
+      authors: [post.author],
     },
-    "travel-writing-tips": {
-      content: `
-        <p>10년간 여행을 다니며 글을 써온 경험을 바탕으로, 기억에 남는 여행기를 쓰는 방법을 나누어보겠습니다.</p>
-        
-        <h2>1. 오감으로 기록하기</h2>
-        <p>여행지에서 보고, 듣고, 냄새 맡고, 맛보고, 만진 모든 감각을 기록해두세요. 나중에 글을 쓸 때 생생함을 되살려주는 중요한 단서가 됩니다.</p>
-        
-        <h2>2. 사람과의 만남에 집중하기</h2>
-        <p>풍경은 사진으로도 충분히 전달되지만, 사람과의 만남에서 얻은 감동은 글로만 전달할 수 있습니다.</p>
-        
-        <h2>3. 실패와 당황스러웠던 순간들</h2>
-        <p>완벽한 여행보다는 예상치 못한 상황들, 실수들, 그리고 그것을 통해 배운 것들이 더 흥미로운 이야기가 됩니다.</p>
-      `,
-    },
-    "family-travel-philosophy": {
-      content: `
-        <p>아이와 함께하는 여행은 단순한 휴가가 아닙니다. 그것은 아이의 세계관을 넓혀주고, 가족 간의 유대감을 깊게 만드는 특별한 경험입니다.</p>
-        
-        <h2>여행이 아이에게 주는 선물</h2>
-        <p>새로운 환경에서 아이들은 적응력을 기르고, 다양성을 받아들이는 법을 배웁니다. 이는 책으로는 배울 수 없는 살아있는 교육입니다.</p>
-        
-        <h2>부모도 함께 성장하는 시간</h2>
-        <p>아이의 눈으로 세상을 다시 보게 되면서, 어른인 우리도 새로운 발견을 하게 됩니다. 아이의 순수한 호기심이 우리의 고정관념을 깨뜨려주죠.</p>
-        
-        <blockquote>"아이는 여행에서 세상을 배우고, 부모는 아이에게서 세상을 다시 배운다"</blockquote>
-      `,
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
     },
   }
+}
 
-  const content = sampleContent[post.id as keyof typeof sampleContent]?.content || "<p>콘텐츠를 준비 중입니다.</p>"
+export default async function ColumnDetailPage({ params }: PageProps) {
+  const { id } = await params
+  const post = BLOG_POSTS.find((p) => p.id === id)
+  
+  if (!post) {
+    notFound()
+  }
+
+  // 마크다운 파일에서 콘텐츠 읽기
+  const markdownContent = await getBlogPostContent(id)
+  const content = markdownContent?.contentHtml || "<p>콘텐츠를 준비 중입니다.</p>"
 
   return (
     <div className="min-h-screen bg-primary-dark text-text-light">
@@ -141,12 +116,8 @@ export default function ColumnDetailPage() {
 
         {/* Content */}
         <div
-          className="prose prose-lg prose-invert max-w-none"
+          className="prose prose-lg prose-invert max-w-none [&>h1]:text-3xl [&>h1]:font-playfair [&>h1]:font-normal [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:mb-4 [&>h2]:mt-10 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mb-3 [&>h3]:mt-8 [&>p]:mb-6 [&>p]:leading-relaxed [&>blockquote]:border-l-4 [&>blockquote]:border-accent-orange [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-text-gray [&>blockquote]:my-8 [&>ul]:mb-6 [&>ul]:pl-6 [&>li]:mb-2 [&>strong]:text-accent-orange [&>img]:rounded-lg [&>img]:my-8"
           dangerouslySetInnerHTML={{ __html: content }}
-          style={{
-            lineHeight: "1.8",
-            fontSize: "1.125rem",
-          }}
         />
 
         {/* Share & Navigation */}

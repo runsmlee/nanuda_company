@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useRef, useState } from "react"
 import { BookModal } from "./book-modal"
-import { BOOKS_DATA } from "./books-catalog-modal"
+import { BOOKS_DATA } from "../lib/books-data"
 
 interface Book {
   id: string
@@ -51,36 +51,16 @@ export const BooksSection = forwardRef<HTMLElement>((props, ref) => {
     }
   }
 
+  // BOOKS_DATA에서 사이드바에 표시할 책들을 선택
   const sidebarBooks = [
-    {
-      id: "meet-on-the-road",
-      title: "Meet On The Road",
-      subtitle: "A Journey through South America (English Edition)",
-      price: "$12.99",
-      image: "/images/meet-on-the-road.jpg",
-    },
-    {
-      id: "han-geoleum",
-      title: "한 걸음에 모든 행복이 닮겨있다",
-      subtitle: "가족과 함께한 세계여행",
-      price: "15,000원",
-      image: "/images/han-geoleum.png",
-    },
-    {
-      id: "jarago-sipeun-ai",
-      title: "자라고 싶은 아이, 아이이고 싶은 어른",
-      subtitle: "아빠와 아들의 올레길 여행",
-      price: "13,000원",
-      image: "/images/jarago-sipeun-ai.jpg",
-    },
-    {
-      id: "gil-eseo-mannada",
-      title: "길에서 만나다",
-      subtitle: "남미여행의 기록",
-      price: "17,800원",
-      image: "/images/gil-eseo-mannada.jpg",
-    },
-  ]
+    BOOKS_DATA.find(book => book.id === "meet-on-the-road"),
+    BOOKS_DATA.find(book => book.id === "han-geoleum"),
+    BOOKS_DATA.find(book => book.id === "jarago-sipeun-ai"),
+    BOOKS_DATA.find(book => book.id === "gil-eseo-mannada"),
+  ].filter(Boolean) // undefined 값 제거
+
+  // 안나푸르나 책 정보 가져오기
+  const annapurnaBook = BOOKS_DATA.find(book => book.id === "annapurna-letter")
 
   return (
     <>
@@ -115,9 +95,9 @@ export const BooksSection = forwardRef<HTMLElement>((props, ref) => {
             <div className="p-12 transform skew-y-1">
               <h3 className="font-playfair text-3xl font-normal mb-4 text-text-light">안나푸르나에서 보내는 편지</h3>
               <div className="flex gap-8 mb-6">
-                <span className="text-accent-orange font-medium">10,500원</span>
-                <span className="text-accent-orange font-medium">2년전</span>
-                <span className="text-accent-orange font-medium">여행 에세이</span>
+                <span className="text-accent-orange font-medium">{annapurnaBook?.price}</span>
+                <span className="text-accent-orange font-medium">{annapurnaBook?.publishDate}</span>
+                <span className="text-accent-orange font-medium">{annapurnaBook?.category}</span>
               </div>
               <p className="text-text-gray leading-relaxed mb-8">
                 5년 만에 다시 여행길에 오른 저자가 포터나 가이드 없이 안나푸르나 지역을 한 달간 트레킹하며 두 아이에게
@@ -132,23 +112,25 @@ export const BooksSection = forwardRef<HTMLElement>((props, ref) => {
           </article>
 
           <div className="lg:col-span-5 space-y-8">
-            {sidebarBooks.map((book, index) => (
-              <article
-                key={index}
-                onClick={() => handleBookClick(book.id)}
-                className="bg-secondary-dark overflow-hidden border-l-4 border-accent-orange transition-all duration-300 hover:translate-x-4 hover:bg-gray-700 cursor-pointer animate-on-scroll opacity-0 translate-y-12 flex h-40"
-                style={{ animationDelay: `${index * 0.2}s` }}
-              >
-                <div className="w-32 h-full flex-shrink-0">
-                  <img src={book.image || "/placeholder.svg"} alt={book.title} className="w-full h-full object-cover" />
-                </div>
-                <div className="p-6 flex-1 flex flex-col justify-center">
-                  <h4 className="text-lg font-semibold mb-2">{book.title}</h4>
-                  <p className="text-text-gray text-sm mb-4 line-clamp-2">{book.subtitle}</p>
-                  <div className="text-accent-orange font-semibold text-xl">{book.price}</div>
-                </div>
-              </article>
-            ))}
+            {sidebarBooks.map((book, index) => 
+              book ? (
+                <article
+                  key={index}
+                  onClick={() => handleBookClick(book.id)}
+                  className="bg-secondary-dark overflow-hidden border-l-4 border-accent-orange transition-all duration-300 hover:translate-x-4 hover:bg-gray-700 cursor-pointer animate-on-scroll opacity-0 translate-y-12 flex h-40"
+                  style={{ animationDelay: `${index * 0.2}s` }}
+                >
+                  <div className="w-32 h-full flex-shrink-0">
+                    <img src={book.image || "/placeholder.svg"} alt={book.title} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col justify-center">
+                    <h4 className="text-lg font-semibold mb-2">{book.title}</h4>
+                    <p className="text-text-gray text-sm mb-4 line-clamp-2">{book.subtitle}</p>
+                    <div className="text-accent-orange font-semibold text-xl">{book.price}</div>
+                  </div>
+                </article>
+              ) : null
+            )}
           </div>
         </div>
       </section>

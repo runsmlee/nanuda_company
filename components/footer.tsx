@@ -1,45 +1,71 @@
 "use client"
 
-import { forwardRef } from "react"
+import { forwardRef, useState } from "react"
+import Image from "next/image"
+import { EmailModal } from "./email-modal"
 
 export const Footer = forwardRef<HTMLElement>((props, ref) => {
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
+
   return (
-    <footer ref={ref} className="bg-primary-dark py-16 px-8 lg:px-16 border-t border-accent-orange/10">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 mb-12">
-        <div>
-          <div className="font-playfair text-3xl text-accent-orange mb-4">생각을나누다</div>
-          <p className="text-text-gray leading-relaxed">
-            나누다컴퍼니는 여행의 소중한 경험과 감동을 책으로 담아 많은 사람들과 나눕니다. 
-          </p>
-        </div>
+    <>
+      <footer ref={ref} className="bg-primary-dark py-16 px-8 lg:px-16 border-t border-accent-orange/10">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12">
+            <div>
+              {/* 로고 */}
+              <div className="mb-6">
+                <Image
+                  src="/images/nanuda_logo.png"
+                  alt="나누다컴퍼니 로고"
+                  width={150}
+                  height={50}
+                  className="brightness-0 invert" // 로고를 흰색으로 변환
+                />
+              </div>
+              
+              <div className="font-playfair text-3xl text-accent-orange mb-4">생각을나누다</div>
+              <p className="text-text-gray leading-relaxed mb-6">
+                우리 모두가 작가입니다
+              </p>
 
-        <div>
-          <h4 className="text-accent-orange font-medium mb-6">도서</h4>
-          <div className="space-y-4">
-            {["신간 도서", "베스트셀러", "전체 도서", "도서 주문"].map((link) => (
-              <a key={link} href="#" className="block text-text-gray hover:text-accent-orange transition-colors">
-                {link}
-              </a>
-            ))}
+              {/* 회사 기본 정보 */}
+              <div className="text-text-gray text-sm space-y-1">
+                <p>회사: 나누다컴퍼니</p>
+                <p>대표: 이상민, 정예원</p>
+                <p>이메일: simon@nanudacompany.com</p>
+                <p>사업자등록번호: 109-96-78318</p>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-accent-orange font-medium mb-6">문의하기</h4>
+              <div className="space-y-4">
+                <button
+                  onClick={() => setIsEmailModalOpen(true)}
+                  className="block text-text-gray hover:text-accent-orange transition-colors cursor-pointer text-left"
+                >
+                  출판 문의
+                </button>
+                <p className="text-text-gray text-sm">
+                  당신의 이야기를 책으로 만들고 싶으신가요?<br />
+                  언제든 편하게 문의해 주세요.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-accent-orange/10 pt-8 text-center text-text-gray">
+            <p>© 2025 Nanuda Company. All rights reserved.</p>
           </div>
         </div>
+      </footer>
 
-        <div>
-          <h4 className="text-accent-orange font-medium mb-6">연결</h4>
-          <div className="space-y-4">
-            {["블로그", "인스타그램", "출판 문의", "여행 상담"].map((link) => (
-              <a key={link} href="#" className="block text-text-gray hover:text-accent-orange transition-colors">
-                {link}
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t border-accent-orange/10 pt-8 text-center text-text-gray">
-        <p>© 2025 Nanuda Company. All right reserved.    </p>
-      </div>
-    </footer>
+      <EmailModal 
+        isOpen={isEmailModalOpen} 
+        onClose={() => setIsEmailModalOpen(false)} 
+      />
+    </>
   )
 })
 

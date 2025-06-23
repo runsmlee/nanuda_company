@@ -49,7 +49,7 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
     const body = encodeURIComponent(
       `안녕하세요,\n\n보내는 사람: ${formData.name}\n이메일: ${formData.email}\n\n${formData.message}`,
     )
-    const mailtoLink = `mailto:runsmlee@gmail.com?subject=${subject}&body=${body}`
+    const mailtoLink = `mailto:simon@nanudacompany.com?subject=${subject}&body=${body}`
 
     // Open email client
     window.location.href = mailtoLink
