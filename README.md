@@ -205,8 +205,8 @@ vercel
 
 ## 📞 연락처
 
-- **이메일**: contact@nanuda.co.kr
-- **웹사이트**: [https://nanuda.co.kr](https://nanuda.co.kr)
+- **이메일**: simon@nanudacompany.com
+- **웹사이트**: [https://nanudacopmany.com](https://nanudacopmany.com)
 - **인스타그램**: [@mindful_journey_one](https://www.instagram.com/mindful_journey_one/)
 
 ## 🙏 감사의 말

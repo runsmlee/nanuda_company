@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   creator: '생각을나누다',
   publisher: '생각을나누다',
   openGraph: {
-    title: '출판 생각을나누다 - 나누다컴퍼니',
+    title: '도서출판 생각을나누다 - 나누다컴퍼니',
     description: '우리의 가치 있는 경험과 생각을 담은 여행 에세이. 길에서 만나다, 자라고 싶은 아이 아이이고 싶은 어른, 한 걸음에 모든 행복이 담겨있다, 안나푸르나에서 보내는 편지 등',
     url: 'https://nanuda.co.kr',
     siteName: '생각을 나누다',
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: '출판 생각을나누다 - 나누다컴퍼니',
+    title: '도서출판 생각을나누다 - 나누다컴퍼니',
     description: '우리의 가치 있는 경험과 생각을 담은 여행 에세이',
     images: ['/images/nanuda_logo.png'],
   },
