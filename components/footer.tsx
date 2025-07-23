@@ -1,10 +1,11 @@
 "use client"
 
-import { forwardRef, useState } from "react"
+import { forwardRef, useState, lazy, Suspense, memo } from "react"
 import Image from "next/image"
-import { EmailModal } from "./email-modal"
 
-export const Footer = forwardRef<HTMLElement>((props, ref) => {
+const EmailModal = lazy(() => import('./email-modal').then(module => ({ default: module.EmailModal })))
+
+export const Footer = memo(forwardRef<HTMLElement>((props, ref) => {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
 
   return (
@@ -44,7 +45,7 @@ export const Footer = forwardRef<HTMLElement>((props, ref) => {
               <div className="space-y-4">
                 <button
                   onClick={() => setIsEmailModalOpen(true)}
-                  className="block text-text-gray hover:text-accent-orange transition-colors cursor-pointer text-left py-2 px-0 min-h-[44px] flex items-center"
+                  className="flex items-center text-text-gray hover:text-accent-orange transition-colors cursor-pointer text-left py-2 px-0 min-h-[44px]"
                 >
                   출판 문의
                 </button>
@@ -62,12 +63,14 @@ export const Footer = forwardRef<HTMLElement>((props, ref) => {
         </div>
       </footer>
 
-      <EmailModal 
-        isOpen={isEmailModalOpen} 
-        onClose={() => setIsEmailModalOpen(false)} 
-      />
+      <Suspense fallback={null}>
+        <EmailModal 
+          isOpen={isEmailModalOpen} 
+          onClose={() => setIsEmailModalOpen(false)} 
+        />
+      </Suspense>
     </>
   )
-})
+}))
 
 Footer.displayName = "Footer"

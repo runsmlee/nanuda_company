@@ -1,8 +1,10 @@
 "use client"
 
-import { forwardRef, useEffect, useRef, useState } from "react"
-import { BookModal } from "./book-modal"
+import { forwardRef, useEffect, useRef, useState, lazy, Suspense, memo } from "react"
+import Image from "next/image"
 import { BOOKS_DATA } from "../lib/books-data"
+
+const BookModal = lazy(() => import('./book-modal').then(module => ({ default: module.BookModal })))
 
 interface Book {
   id: string
@@ -20,7 +22,7 @@ interface Book {
   naverLink?: string
 }
 
-export const BooksSection = forwardRef<HTMLElement>((props, ref) => {
+export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
   const observerRef = useRef<IntersectionObserver | null>(null)
   const [selectedBook, setSelectedBook] = useState<Book | null>(null)
   const [isBookModalOpen, setIsBookModalOpen] = useState(false)
@@ -85,10 +87,13 @@ export const BooksSection = forwardRef<HTMLElement>((props, ref) => {
             className="lg:col-span-7 bg-secondary-dark overflow-hidden relative transform -skew-y-1 transition-all duration-400 hover:skew-y-0 hover:scale-105 animate-on-scroll opacity-0 translate-y-12 cursor-pointer"
           >
             <div className="h-96 relative overflow-hidden">
-              <img
+              <Image
                 src="/images/annapurna-letter.jpg"
                 alt="안나푸르나에서 보내는 편지"
-                className="w-full h-full object-cover"
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 60vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
@@ -120,8 +125,14 @@ export const BooksSection = forwardRef<HTMLElement>((props, ref) => {
                   className="bg-secondary-dark overflow-hidden border-l-4 border-accent-orange transition-all duration-300 hover:translate-x-4 hover:bg-gray-700 cursor-pointer animate-on-scroll opacity-0 translate-y-12 flex h-40"
                   style={{ animationDelay: `${index * 0.2}s` }}
                 >
-                  <div className="w-32 h-full flex-shrink-0">
-                    <img src={book.image || "/placeholder.svg"} alt={book.title} className="w-full h-full object-cover" />
+                  <div className="w-32 h-full flex-shrink-0 relative">
+                    <Image 
+                      src={book.image || "/placeholder.svg"} 
+                      alt={book.title} 
+                      fill
+                      className="object-cover"
+                      sizes="128px"
+                    />
                   </div>
                   <div className="p-6 flex-1 flex flex-col justify-center">
                     <h4 className="text-base sm:text-lg font-semibold mb-2">{book.title}</h4>
@@ -135,9 +146,11 @@ export const BooksSection = forwardRef<HTMLElement>((props, ref) => {
         </div>
       </section>
 
-      <BookModal book={selectedBook} isOpen={isBookModalOpen} onClose={() => setIsBookModalOpen(false)} />
+      <Suspense fallback={null}>
+        <BookModal book={selectedBook} isOpen={isBookModalOpen} onClose={() => setIsBookModalOpen(false)} />
+      </Suspense>
     </>
   )
-})
+}))
 
 BooksSection.displayName = "BooksSection"

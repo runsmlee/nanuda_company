@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { BOOKS_DATA, type Book } from "@/lib/books-data"
 
@@ -56,8 +57,15 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Book Cover */}
           <div className="space-y-8">
-            <div className="aspect-[3/4] rounded-lg overflow-hidden shadow-2xl max-w-md mx-auto">
-              <img src={book.image || "/placeholder.svg"} alt={`${book.title} 표지`} className="w-full h-full object-cover" />
+            <div className="aspect-[3/4] rounded-lg overflow-hidden shadow-2xl max-w-md mx-auto relative">
+              <Image 
+                src={book.image || "/placeholder.svg"} 
+                alt={`${book.title} 표지`} 
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
             </div>
 
             {/* Purchase Section */}
@@ -181,11 +189,13 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
               .slice(0, 3)
               .map((relatedBook) => (
                 <Link key={relatedBook.id} href={`/books/${relatedBook.id}`} className="group cursor-pointer">
-                  <div className="aspect-[3/4] rounded-lg overflow-hidden mb-4">
-                    <img
+                  <div className="aspect-[3/4] rounded-lg overflow-hidden mb-4 relative">
+                    <Image
                       src={relatedBook.image || "/placeholder.svg"}
                       alt={`${relatedBook.title} 표지`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, 33vw"
                     />
                   </div>
                   <h4 className="font-semibold mb-2 group-hover:text-accent-orange transition-colors">
@@ -254,11 +264,14 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                   )}
 
                   {/* Image */}
-                  <div className="relative">
-                    <img
+                  <div className="relative max-w-4xl max-h-[90vh]">
+                    <Image
                       src={getImageSrc()}
                       alt={`${book.title} 미리보기 ${selectedImage}페이지`}
-                      className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                      width={800}
+                      height={600}
+                      className="object-contain rounded-lg shadow-2xl"
+                      sizes="(max-width: 768px) 100vw, 800px"
                     />
                     
                     {/* Page Counter */}

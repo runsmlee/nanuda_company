@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 
 interface Book {
@@ -79,8 +80,14 @@ export function BookModal({ book, isOpen, onClose }: BookModalProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
           {/* Book Cover */}
           <div className="space-y-6">
-            <div className="aspect-[3/4] rounded-lg overflow-hidden shadow-2xl">
-              <img src={book.image || "/placeholder.svg"} alt={book.title} className="w-full h-full object-cover" />
+            <div className="aspect-[3/4] rounded-lg overflow-hidden shadow-2xl relative">
+              <Image 
+                src={book.image || "/placeholder.svg"} 
+                alt={book.title} 
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
             </div>
 
             {/* Purchase Buttons */}

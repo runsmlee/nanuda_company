@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { notFound } from "next/navigation"
 import { CustomCursor } from "@/components/custom-cursor"
 import { BLOG_POSTS } from "@/lib/blog-data"
@@ -117,8 +118,15 @@ export default async function ColumnDetailPage({ params }: PageProps) {
       <article className="max-w-4xl mx-auto px-6 py-16">
         {/* Header */}
         <header className="mb-12">
-          <div className="aspect-[16/9] rounded-lg overflow-hidden mb-8">
-            <img src={post.image || "/placeholder.svg"} alt={post.title} className="w-full h-full object-cover" />
+          <div className="aspect-[16/9] rounded-lg overflow-hidden mb-8 relative">
+            <Image 
+              src={post.image || "/placeholder.svg"} 
+              alt={post.title} 
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 896px"
+            />
           </div>
 
           <div className="space-y-4">
@@ -182,11 +190,13 @@ export default async function ColumnDetailPage({ params }: PageProps) {
               .map((relatedPost) => (
                 <Link key={relatedPost.id} href={`/column/${relatedPost.id}`} className="group cursor-pointer">
                   <div className="bg-secondary-dark rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300">
-                    <div className="aspect-[16/9] overflow-hidden">
-                      <img
+                    <div className="aspect-[16/9] overflow-hidden relative">
+                      <Image
                         src={relatedPost.image || "/placeholder.svg"}
                         alt={relatedPost.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                        sizes="(max-width: 768px) 100vw, 50vw"
                       />
                     </div>
                     <div className="p-6">

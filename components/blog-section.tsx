@@ -1,11 +1,12 @@
 "use client"
 
-import { forwardRef } from "react"
+import { forwardRef, memo } from "react"
+import Image from "next/image"
 import Link from "next/link"
 
 import { BLOG_POSTS } from "@/lib/blog-data"
 
-export const BlogSection = forwardRef<HTMLElement>((props, ref) => {
+export const BlogSection = memo(forwardRef<HTMLElement>((props, ref) => {
   return (
     <section ref={ref} className="py-32 px-8 lg:px-16 bg-secondary-dark relative">
       <div className="max-w-6xl mx-auto">
@@ -29,10 +30,12 @@ export const BlogSection = forwardRef<HTMLElement>((props, ref) => {
                 }`}
               >
                 <div className="aspect-[4/3] overflow-hidden rounded-lg mb-6 relative">
-                  <img
+                  <Image
                     src={post.image || "/placeholder.svg"}
                     alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    sizes="(max-width: 1024px) 100vw, 33vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <div className="absolute top-4 right-4 bg-black/80 px-3 py-1 rounded-full">
@@ -80,7 +83,7 @@ export const BlogSection = forwardRef<HTMLElement>((props, ref) => {
       </div>
     </section>
   )
-})
+}))
 
 BlogSection.displayName = "BlogSection"
 
