@@ -20,6 +20,7 @@ export const Footer = forwardRef<HTMLElement>((props, ref) => {
                   alt="나누다컴퍼니 로고"
                   width={150}
                   height={50}
+                  priority
                   className="brightness-0 invert" // 로고를 흰색으로 변환
                 />
               </div>

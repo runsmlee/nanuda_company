@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://nanudacompany.com.kr'),
   title: '생각을나누다 | 여행기 출판',
   description: '출판사 생각을나누다는 우리의 가치 있는 경험과 생각을 담습니다. 우리의 이야기가 누군가에게 영감의 씨앗이 됩니다. 길에서 만나다, 자라고 싶은 아이 아이이고 싶은 어른, 한 걸음에 모든 행복이 담겨있다, 안나푸르나에서 보내는 편지, Meet On The Road 등 감동적인 여행 에세이를 만나보세요.',
   keywords: [
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: '도서출판 생각을나누다 - 나누다컴퍼니',
     description: '우리의 가치 있는 경험과 생각을 담은 여행 에세이. 길에서 만나다, 자라고 싶은 아이 아이이고 싶은 어른, 한 걸음에 모든 행복이 담겨있다, 안나푸르나에서 보내는 편지 등',
-    url: 'https://nanuda.co.kr',
+    url: 'https://nanudacompany.com',
     siteName: '생각을 나누다',
     images: [
       {
@@ -65,9 +66,9 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-verification-code',
+    google: 'google-site-verification=X8oYSjNwvMWdubK0XZudGSaVI6pT1OciHfD52nnPDI0',  // 실제 Google Search Console에서 제공받은 코드로 교체 필요
     other: {
-      'naver-site-verification': 'your-naver-verification-code',
+      'naver-site-verification': 'naver04883e7ad65c3ae3e35e250b13a451a4',  // 기존 Naver 검증 파일명과 일치
     },
   },
 }
@@ -91,8 +92,8 @@ export default function RootLayout({
               "@type": "Organization",
               "name": "나누다컴퍼니",
               "alternateName": "생각을나누다",
-              "url": "https://nanuda.co.kr",
-              "logo": "https://nanuda.co.kr/images/nanuda_logo.png",
+              "url": "https://nanudacompany.com.kr",
+              "logo": "https://nanudacompany.com.kr/images/nanuda_logo.png",
               "description": "생각을나누다는 우리의 가치 있는 경험과 생각을 담습니다. 우리의 이야기가 누군가에게 영감의 씨앗이 됩니다.",
               "foundingDate": "2021",
               "founder": {

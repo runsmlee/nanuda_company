@@ -7,7 +7,15 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    unoptimized: false,  // 이미지 최적화 활성화
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'nanudacompany.com',
+        port: '',
+        pathname: '/images/**',
+      }
+    ],
   },
 }
 

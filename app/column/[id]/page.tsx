@@ -60,9 +60,43 @@ export default async function ColumnDetailPage({ params }: PageProps) {
   const markdownContent = await getBlogPostContent(id)
   const content = markdownContent?.contentHtml || "<p>콘텐츠를 준비 중입니다.</p>"
 
+  // Article 구조화 데이터 생성
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": post.title,
+    "description": post.excerpt,
+    "image": [post.image],
+    "datePublished": post.date,
+    "dateModified": post.date,
+    "author": {
+      "@type": "Person",
+      "name": post.author
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "생각을나누다",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://nanudacompany.com.kr/images/nanuda_logo.png"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://nanudacompany.com.kr/column/${post.id}`
+    },
+    "articleSection": post.category,
+    "keywords": post.tags.join(", ")
+  }
+
   return (
-    <div className="min-h-screen bg-primary-dark text-text-light">
-      <CustomCursor />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="min-h-screen bg-primary-dark text-text-light">
+        <CustomCursor />
 
       {/* Navigation */}
       <nav className="p-6 border-b border-text-gray/20">
@@ -167,6 +201,7 @@ export default async function ColumnDetailPage({ params }: PageProps) {
           </div>
         </div>
       </article>
-    </div>
+      </div>
+    </>
   )
 }
