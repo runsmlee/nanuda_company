@@ -79,12 +79,12 @@ export default async function ColumnDetailPage({ params }: PageProps) {
       "name": "생각을나누다",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://nanudacompany.com.kr/images/nanuda_logo.png"
+        "url": "https://nanudacompany.com/images/nanuda_logo.png"
       }
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://nanudacompany.com.kr/column/${post.id}`
+      "@id": `https://nanudacompany.com/column/${post.id}`
     },
     "articleSection": post.category,
     "keywords": post.tags.join(", ")
