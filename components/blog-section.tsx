@@ -10,12 +10,12 @@ export const BlogSection = forwardRef<HTMLElement>((props, ref) => {
     <section ref={ref} className="py-32 px-8 lg:px-16 bg-secondary-dark relative">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-24">
-          <h2 className="font-playfair text-6xl font-light mb-4 relative inline-block">
+          <h2 className="font-playfair text-4xl sm:text-5xl md:text-6xl font-light mb-4 relative inline-block">
             글을 나누다
             <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-accent-orange" />
             <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-accent-orange" />
           </h2>
-          <p className="text-text-gray text-lg mt-8 max-w-2xl mx-auto">
+          <p className="text-text-gray text-base sm:text-lg mt-6 sm:mt-8 max-w-2xl mx-auto">
             {"나누다컴퍼니가 미처 책으로 담지 못한 이야기들, 일상의 생각들을 글로 담아 전합니다."}
           </p>
         </div>
@@ -46,10 +46,10 @@ export const BlogSection = forwardRef<HTMLElement>((props, ref) => {
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-xl font-semibold leading-tight group-hover:text-accent-orange transition-colors">
+                  <h3 className="text-lg sm:text-xl font-semibold leading-tight group-hover:text-accent-orange transition-colors">
                     {post.title}
                   </h3>
-                  <p className="text-text-gray leading-relaxed text-sm">{post.excerpt}</p>
+                  <p className="text-text-gray leading-relaxed text-xs sm:text-sm">{post.excerpt}</p>
 
                   <div className="flex items-center justify-between pt-2">
                     <span className="text-text-gray text-sm">by {post.author}</span>
@@ -71,7 +71,7 @@ export const BlogSection = forwardRef<HTMLElement>((props, ref) => {
         <div className="text-center">
           <Link
             href="/column"
-            className="inline-flex items-center gap-3 px-8 py-4 border-2 border-accent-orange text-accent-orange font-medium hover:bg-accent-orange hover:text-white transition-all duration-300 cursor-pointer"
+            className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 border-2 border-accent-orange text-accent-orange font-medium text-base hover:bg-accent-orange hover:text-white transition-all duration-300 cursor-pointer"
           >
             모든 칼럼 보기
             <span>→</span>

@@ -35,7 +35,7 @@ export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
     <>
       <section ref={ref} className="min-h-screen flex items-center justify-center px-8 lg:px-16 relative">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="font-playfair text-6xl lg:text-8xl font-light mb-8 leading-tight">
+          <h1 className="font-playfair text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light mb-6 sm:mb-8 leading-tight">
             여행의
             <br />
             <span className="text-accent-orange">순간들을</span>
@@ -43,7 +43,7 @@ export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
             나누다
           </h1>
           
-          <p className="text-xl lg:text-2xl text-text-gray mb-12 font-light leading-relaxed max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl lg:text-2xl text-text-gray mb-8 sm:mb-10 lg:mb-12 font-light leading-relaxed max-w-3xl mx-auto">
             출판브랜드 <span className="text-accent-orange">생각을나누다</span>는 우리의 가치 있는 경험과 생각을 담습니다.
             <br />
             우리의 이야기가 누군가에게 영감의 씨앗이 됩니다.
@@ -63,7 +63,7 @@ export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
 
           <button
             onClick={() => setIsCatalogOpen(true)}
-            className="inline-flex items-center gap-3 px-8 py-4 border-2 border-accent-orange text-accent-orange font-medium text-lg hover:bg-accent-orange hover:text-white transition-all duration-300 cursor-pointer"
+            className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 border-2 border-accent-orange text-accent-orange font-medium text-base sm:text-lg hover:bg-accent-orange hover:text-white transition-all duration-300 cursor-pointer"
           >
             여행서 탐험하기
             <span>→</span>

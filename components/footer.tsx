@@ -24,7 +24,7 @@ export const Footer = forwardRef<HTMLElement>((props, ref) => {
                 />
               </div>
               
-              <div className="font-playfair text-3xl text-accent-orange mb-4">생각을나누다</div>
+              <div className="font-playfair text-2xl sm:text-3xl text-accent-orange mb-4">생각을나누다</div>
               <p className="text-text-gray leading-relaxed mb-6">
                 우리 모두가 작가입니다
               </p>
@@ -39,11 +39,11 @@ export const Footer = forwardRef<HTMLElement>((props, ref) => {
             </div>
 
             <div>
-              <h4 className="text-accent-orange font-medium mb-6">문의하기</h4>
+              <h4 className="text-accent-orange font-medium text-lg mb-6">문의하기</h4>
               <div className="space-y-4">
                 <button
                   onClick={() => setIsEmailModalOpen(true)}
-                  className="block text-text-gray hover:text-accent-orange transition-colors cursor-pointer text-left"
+                  className="block text-text-gray hover:text-accent-orange transition-colors cursor-pointer text-left py-2 px-0 min-h-[44px] flex items-center"
                 >
                   출판 문의
                 </button>
