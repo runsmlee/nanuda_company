@@ -58,7 +58,7 @@ export const Footer = memo(forwardRef<HTMLElement>((props, ref) => {
           </div>
 
           <div className="border-t border-accent-orange/10 pt-8 text-center text-text-gray">
-            <p>© 2025 Nanuda Company. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Nanuda Company. All rights reserved.</p>
           </div>
         </div>
       </footer>
