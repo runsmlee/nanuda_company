@@ -46,3 +46,4 @@ public/book_preview/**/*.pdf
 
 # OS
 Thumbs.db
+.gstack/
