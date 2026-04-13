@@ -3,7 +3,7 @@ import { BOOKS_DATA } from '@/lib/books-data'
 import { BLOG_POSTS } from '@/lib/blog-data'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://nanudacompany.com'
+  const baseUrl = 'https://www.nanudacompany.com'
   
   // 정적 페이지들
   const staticPages = [

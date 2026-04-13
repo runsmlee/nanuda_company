@@ -49,18 +49,6 @@ export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
             우리의 이야기가 누군가에게 영감의 씨앗이 됩니다.
           </p>
 
-          {/* SEO를 위한 숨겨진 텍스트 */}
-          <div className="sr-only">
-            <h2>출간 도서 목록</h2>
-            <ul>
-              <li>길에서 만나다 - 남미 여행 에세이 by 이상민</li>
-              <li>자라고 싶은 아이, 아이이고 싶은 어른 - 아빠와 아들의 올레길 여행 by 이상민</li>
-              <li>한 걸음에 모든 행복이 담겨있다 - 가족과 함께한 세계여행 by 이상민, 정예원</li>
-              <li>안나푸르나에서 보내는 편지 - 히말라야에서 아이들에게 by 이상민</li>
-              <li>Meet On The Road - A Journey through South America by Sangmin Lee</li>
-            </ul>
-          </div>
-
           <button
             onClick={() => setIsCatalogOpen(true)}
             className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 border-2 border-accent-orange text-accent-orange font-medium text-base sm:text-lg hover:bg-accent-orange hover:text-white transition-all duration-300 cursor-pointer"

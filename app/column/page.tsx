@@ -91,22 +91,10 @@ export default function ColumnListPage() {
         <div className="max-w-6xl mx-auto px-6 py-16">
           <div className="text-center mb-16">
             <h1 className="font-playfair text-5xl lg:text-6xl font-light mb-6">나누다 칼럼</h1>
-            <h2 className="text-xl text-text-gray max-w-3xl mx-auto leading-relaxed">
-              일상의 모든 순간이 여행이 되고 이야기가 됩니다. 
+            <p className="text-xl text-text-gray max-w-3xl mx-auto leading-relaxed">
+              일상의 모든 순간이 여행이 되고 이야기가 됩니다.
               또다른 이야기가 나눠지는 곳.
-            </h2>
-            
-            {/* SEO를 위한 숨겨진 키워드 */}
-            <div className="sr-only">
-              <h3>주요 칼럼 카테고리</h3>
-              <ul>
-                <li>여행 이야기</li>
-                <li>일상의 이야기</li>
-                <li>가족 이야기</li>
-                <li>독서 이야기</li>
-                <li>일상의 특별한 순간들</li>
-              </ul>
-            </div>
+            </p>
           </div>
 
           <ColumnListClient />

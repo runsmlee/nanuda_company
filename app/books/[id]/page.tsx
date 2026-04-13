@@ -47,13 +47,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           alt: `${book.title} 표지`,
         },
       ],
-      type: 'article',
+      type: 'book',
     },
     twitter: {
       card: 'summary_large_image',
       title: `${book.title} - ${book.subtitle}`,
       description: book.description,
       images: [book.image],
+    },
+    alternates: {
+      canonical: `https://www.nanudacompany.com/books/${book.id}`,
     },
   }
 }
@@ -85,6 +88,7 @@ export default async function BookDetailPage({ params }: PageProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Book",
+    "url": `https://www.nanudacompany.com/books/${book.id}`,
     "name": book.title,
     "author": {
       "@type": "Person",
@@ -98,7 +102,7 @@ export default async function BookDetailPage({ params }: PageProps) {
       "@type": "Organization",
       "name": "나누다 출판사"
     },
-    "image": book.image,
+    "image": `https://www.nanudacompany.com${book.image}`,
     "offers": {
       "@type": "Offer",
       "price": book.price.replace(/[^0-9]/g, ''),
@@ -108,11 +112,40 @@ export default async function BookDetailPage({ params }: PageProps) {
     }
   }
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "홈",
+        "item": "https://www.nanudacompany.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "도서",
+        "item": "https://www.nanudacompany.com/books"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": book.title,
+        "item": `https://www.nanudacompany.com/books/${book.id}`
+      }
+    ]
+  }
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <div className="min-h-screen bg-primary-dark text-text-light">
         <CustomCursor />

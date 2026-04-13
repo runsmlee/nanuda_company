@@ -30,8 +30,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${post.title} | 나누다 칼럼`,
     description: post.excerpt,
-    keywords: post.tags.join(", "),
+    keywords: post.tags,
     authors: [{ name: post.author }],
+    alternates: {
+      canonical: `https://www.nanudacompany.com/column/${post.id}`,
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt,
@@ -67,7 +70,7 @@ export default async function ColumnDetailPage({ params }: PageProps) {
     "@type": "Article",
     "headline": post.title,
     "description": post.excerpt,
-    "image": [post.image],
+    "image": [`https://www.nanudacompany.com${post.image}`],
     "datePublished": post.date,
     "dateModified": post.date,
     "author": {
@@ -79,15 +82,40 @@ export default async function ColumnDetailPage({ params }: PageProps) {
       "name": "생각을나누다",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://nanudacompany.com/images/nanuda_logo.png"
+        "url": "https://www.nanudacompany.com/images/nanuda_logo.png"
       }
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://nanudacompany.com/column/${post.id}`
+      "@id": `https://www.nanudacompany.com/column/${post.id}`
     },
     "articleSection": post.category,
     "keywords": post.tags.join(", ")
+  }
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "홈",
+        "item": "https://www.nanudacompany.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "칼럼",
+        "item": "https://www.nanudacompany.com/column"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": post.title,
+        "item": `https://www.nanudacompany.com/column/${post.id}`
+      }
+    ]
   }
 
   return (
@@ -95,6 +123,10 @@ export default async function ColumnDetailPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <div className="min-h-screen bg-primary-dark text-text-light">
         <CustomCursor />
