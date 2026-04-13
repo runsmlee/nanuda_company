@@ -67,18 +67,11 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
   return (
     <>
       <section ref={ref} className="py-32 px-8 lg:px-16 relative">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-end">
-          <div>
-            <div className="font-playfair text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-light text-accent-orange opacity-30 leading-none">
-              01
-            </div>
-          </div>
-          <div>
-            <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-normal mb-4">책을 나누다 </h2>
-            <p className="text-text-gray text-base sm:text-lg leading-relaxed">
-              각각의 여행은 독특한 이야기를 담고 있습니다. 우리가 경험한 특별한 순간들을 책으로 만나보세요.
-            </p>
-          </div>
+        <div className="mb-24">
+          <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-normal mb-4">책을 나누다</h2>
+          <p className="text-text-gray text-base sm:text-lg leading-relaxed max-w-xl">
+            각각의 여행은 독특한 이야기를 담고 있습니다. 우리가 경험한 특별한 순간들을 책으로 만나보세요.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
@@ -122,8 +115,8 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
                 <article
                   key={index}
                   onClick={() => handleBookClick(book.id)}
-                  className="bg-secondary-dark overflow-hidden border-l-4 border-accent-orange transition-all duration-300 hover:translate-x-4 hover:bg-gray-700 cursor-pointer animate-on-scroll opacity-0 translate-y-12 flex h-40"
-                  style={{ animationDelay: `${index * 0.2}s` }}
+                  className="bg-secondary-dark overflow-hidden border border-transparent transition-all duration-300 hover:translate-x-4 hover:border-accent-orange/40 cursor-pointer animate-on-scroll opacity-0 translate-y-12 flex h-40"
+                  style={{ transitionDelay: `${index * 0.15}s` }}
                 >
                   <div className="w-32 h-full flex-shrink-0 relative">
                     <Image 

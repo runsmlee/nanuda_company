@@ -13,7 +13,7 @@ export function SideNavigation({ activeSection, onSectionClick, onEmailClick }: 
   const sections = ["홈", "도서", "블로그", "연락"]
 
   return (
-    <nav className="fixed left-0 top-0 h-screen w-20 bg-primary-dark/90 backdrop-blur-xl z-50 flex flex-col items-center justify-between py-8 border-r border-accent-orange/10">
+    <nav className="fixed left-0 top-0 h-screen w-20 bg-primary-dark/95 backdrop-blur-sm z-50 flex flex-col items-center justify-between py-8 border-r border-accent-orange/10">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 relative">
           <Image

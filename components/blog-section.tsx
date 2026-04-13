@@ -14,7 +14,6 @@ export const BlogSection = memo(forwardRef<HTMLElement>((props, ref) => {
           <h2 className="font-playfair text-4xl sm:text-5xl md:text-6xl font-light mb-4 relative inline-block">
             글을 나누다
             <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-accent-orange" />
-            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-accent-orange" />
           </h2>
           <p className="text-text-gray text-base sm:text-lg mt-6 sm:mt-8 max-w-2xl mx-auto">
             {"나누다컴퍼니가 미처 책으로 담지 못한 이야기들, 일상의 생각들을 글로 담아 전합니다."}
