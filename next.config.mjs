@@ -11,7 +11,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'nanudacompany.com',
+        hostname: 'www.nanudacompany.com',
         port: '',
         pathname: '/images/**',
       }

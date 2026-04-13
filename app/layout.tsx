@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: '도서출판 생각을나누다 - 나누다컴퍼니',
     description: '우리의 가치 있는 경험과 생각을 담은 여행 에세이를 출판합니다. 길에서 만나다, 자라고 싶은 아이 아이이고 싶은 어른, 한 걸음에 모든 행복이 담겨있다, 안나푸르나에서 보내는 편지 등 감동적인 여행 에세이를 만나보세요.',
-    url: 'https://nanudacompany.com',
+    url: 'https://www.nanudacompany.com',
     siteName: '생각을 나누다',
     images: [
       {
@@ -95,8 +95,8 @@ export default function RootLayout({
               "@type": "Organization",
               "name": "나누다컴퍼니",
               "alternateName": "생각을나누다",
-              "url": "https://nanudacompany.com",
-              "logo": "https://nanudacompany.com/images/nanuda_logo.png",
+              "url": "https://www.nanudacompany.com",
+              "logo": "https://www.nanudacompany.com/images/nanuda_logo.png",
               "description": "생각을나누다는 우리의 가치 있는 경험과 생각을 담습니다. 우리의 이야기가 누군가에게 영감의 씨앗이 됩니다.",
               "foundingDate": "2021",
               "founder": {

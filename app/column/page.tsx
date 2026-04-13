@@ -36,6 +36,9 @@ export const metadata: Metadata = {
     ],
     type: 'website',
   },
+  alternates: {
+    canonical: 'https://www.nanudacompany.com/column',
+  },
 }
 
 export default function ColumnListPage() {
@@ -44,7 +47,7 @@ export default function ColumnListPage() {
     "@type": "Blog",
     "name": "나누다 칼럼",
     "description": "여행 이야기, 일상의 이야기를 나누다.",
-    "url": "https://nanudacompany.com/column",
+    "url": "https://www.nanudacompany.com/column",
     "author": {
       "@type": "Organization",
       "name": "나누다컴퍼니"
@@ -54,7 +57,7 @@ export default function ColumnListPage() {
       "name": "나누다컴퍼니",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://nanudacompany.com/images/nanuda_logo.png"
+        "url": "https://www.nanudacompany.com/images/nanuda_logo.png"
       }
     },
     "blogPost": BLOG_POSTS.map(post => ({
@@ -66,8 +69,8 @@ export default function ColumnListPage() {
         "@type": "Person",
         "name": post.author
       },
-      "image": post.image,
-      "url": `https://nanudacompany.com/column/${post.id}`
+      "image": `https://www.nanudacompany.com${post.image}`,
+      "url": `https://www.nanudacompany.com/column/${post.id}`
     }))
   }
 

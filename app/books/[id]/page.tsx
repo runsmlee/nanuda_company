@@ -103,13 +103,15 @@ export default async function BookDetailPage({ params }: PageProps) {
       "name": "나누다 출판사"
     },
     "image": `https://www.nanudacompany.com${book.image}`,
-    "offers": {
-      "@type": "Offer",
-      "price": book.price.replace(/[^0-9]/g, ''),
-      "priceCurrency": book.price.includes('$') ? 'USD' : 'KRW',
-      "availability": "https://schema.org/InStock",
-      "url": book.naverLink || book.amazonLink
-    }
+    ...(book.naverLink || book.amazonLink ? {
+      "offers": {
+        "@type": "Offer",
+        "price": book.price.replace(/[^0-9]/g, ''),
+        "priceCurrency": book.price.includes('$') ? 'USD' : 'KRW',
+        "availability": "https://schema.org/InStock",
+        "url": book.naverLink || book.amazonLink
+      }
+    } : {})
   }
 
   const breadcrumbJsonLd = {
@@ -125,12 +127,6 @@ export default async function BookDetailPage({ params }: PageProps) {
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "도서",
-        "item": "https://www.nanudacompany.com/books"
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
         "name": book.title,
         "item": `https://www.nanudacompany.com/books/${book.id}`
       }
