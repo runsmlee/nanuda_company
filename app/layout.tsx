@@ -4,7 +4,7 @@ import './globals.css'
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.nanudacompany.com'),
   title: '생각을나누다 | 여행기 출판',
-  description: '출판사 생각을나누다는 우리의 가치 있는 경험과 생각을 담습니다. 우리의 이야기가 누군가에게 영감의 씨앗이 됩니다. 길에서 만나다, 자라고 싶은 아이 아이이고 싶은 어른, 한 걸음에 모든 행복이 담겨있다, 안나푸르나에서 보내는 편지, Meet On The Road 등 감동적인 여행 에세이를 만나보세요.',
+  description: '출판사 생각을나누다의 여행 에세이. 길에서 만나다, 자라고 싶은 아이 아이이고 싶은 어른, 한 걸음에 모든 행복이 담겨있다, 안나푸르나에서 보내는 편지, Meet On The Road 등 감동적인 이야기를 만나보세요.',
   keywords: [
     '위클리벤처스',
     '생각을나누다',
