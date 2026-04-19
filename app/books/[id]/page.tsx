@@ -19,9 +19,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
+  const shortDescription =
+    book.description.length > 160
+      ? `${book.description.substring(0, 157)}...`
+      : book.description
+
   return {
     title: `${book.title} - ${book.subtitle} | 생각을 나누다`,
-    description: `${book.description.substring(0, 160)}...`,
+    description: shortDescription,
     keywords: [
       book.title,
       book.subtitle,
@@ -38,7 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     authors: [{ name: book.author }],
     openGraph: {
       title: `${book.title} - ${book.subtitle}`,
-      description: book.description,
+      description: shortDescription,
       images: [
         {
           url: book.image,
@@ -52,7 +57,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: 'summary_large_image',
       title: `${book.title} - ${book.subtitle}`,
-      description: book.description,
+      description: shortDescription,
       images: [book.image],
     },
     alternates: {

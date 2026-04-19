@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: '나누다 칼럼 - 나누고 싶은 이야기 | 생각을나누다',
-    description: '여행 이야기, 일상의 이야기를 나누다.',
+    description: '여행과 일상에서 마주한 특별한 이야기를 나누다. 생각을나누다 출판사의 칼럼 코너입니다.',
     images: [
       {
         url: '/images/nanuda_logo.png',

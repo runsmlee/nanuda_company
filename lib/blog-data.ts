@@ -36,7 +36,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     id: "cigarette-butt-diary",
     title: "어느 담배꽁초의 일기",
-    excerpt: "담배꽁초가 전하는 이야기",
+    excerpt: "버려진 담배꽁초가 전하는 환경과 감사에 대한 짧은 이야기",
     date: "2020-11-09",
     category: "창작 이야기",
     readTime: "4분",
@@ -47,7 +47,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     id: "soju-bottle-letter",
     title: "소주병의 편지",
-    excerpt: "해변에 버려진 소주병이 전하는 메시지.",
+    excerpt: "해변에 버려진 소주병이 전하는 환경과 재활용에 대한 메시지",
     date: "2020-11-29",
     category: "창작 이야기",
     readTime: "3분",
