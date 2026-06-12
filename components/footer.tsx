@@ -10,7 +10,7 @@ export const Footer = memo(forwardRef<HTMLElement>((props, ref) => {
 
   return (
     <>
-      <footer ref={ref} className="bg-primary-dark py-16 px-8 lg:px-16 border-t border-accent-orange/10">
+      <footer id="contact" ref={ref} className="bg-primary-dark py-16 px-8 lg:px-16 border-t border-accent-orange/10">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-12">
             <div>

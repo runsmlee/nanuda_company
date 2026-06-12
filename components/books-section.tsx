@@ -66,7 +66,7 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
 
   return (
     <>
-      <section ref={ref} className="py-32 px-8 lg:px-16 relative">
+      <section id="books" ref={ref} className="py-32 px-8 lg:px-16 relative">
         <div className="mb-24">
           <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-normal mb-4">책을 나누다</h2>
           <p className="text-text-gray text-base sm:text-lg leading-relaxed max-w-xl">

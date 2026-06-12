@@ -1,48 +1,39 @@
 import type { Metadata } from 'next'
+import { BOOKS_DATA } from '@/lib/books-data'
+import {
+  absoluteUrl,
+  bookUrl,
+  COMPANY_NAME,
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+  SITE_URL,
+  SOCIAL_LINKS,
+  splitAuthors,
+} from '@/lib/site-config'
 import './globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.nanudacompany.com'),
-  title: '생각을나누다 | 여행기 출판',
-  description: '출판사 생각을나누다의 여행 에세이. 길에서 만나다, 자라고 싶은 아이 아이이고 싶은 어른, 한 걸음에 모든 행복이 담겨있다, 안나푸르나에서 보내는 편지, Meet On The Road 등 감동적인 이야기를 만나보세요.',
-  keywords: [
-    '위클리벤처스',
-    '생각을나누다',
-    '나누다출판',
-    '나누다컴퍼니',
-    '여행 에세이',
-    '가족 여행기',
-    '길에서 만나다',
-    '자라고 싶은 아이 아이이고 싶은 어른',
-    '한 걸음에 모든 행복이 담겨있다',
-    '안나푸르나에서 보내는 편지',
-    'Meet On The Road',
-    '남미 여행',
-    '히말라야 트레킹',
-    '올레길 여행',
-    '세계여행',
-    '이상민',
-    '정예원',
-    '여행서',
-    '에세이',
-    '육아서',
-    '가족 여행',
-    '청춘 여행기'
-  ],
+  metadataBase: new URL(SITE_URL),
+  title: '생각을나누다 - 여행 에세이 출판사 | 나누다컴퍼니',
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  applicationName: SITE_NAME,
+  category: 'books',
   authors: [{ name: '이상민' }, { name: '정예원' }],
-  creator: '생각을나누다',
-  publisher: '생각을나누다',
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
   openGraph: {
-    title: '도서출판 생각을나누다 - 나누다컴퍼니',
-    description: '우리의 가치 있는 경험과 생각을 담은 여행 에세이를 출판합니다. 길에서 만나다, 자라고 싶은 아이 아이이고 싶은 어른, 한 걸음에 모든 행복이 담겨있다, 안나푸르나에서 보내는 편지 등 감동적인 여행 에세이를 만나보세요.',
-    url: 'https://www.nanudacompany.com',
-    siteName: '생각을 나누다',
+    title: '생각을나누다 - 여행 에세이 출판사 | 나누다컴퍼니',
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
     images: [
       {
         url: '/images/og-image-1.png',
         width: 1200,
         height: 630,
-        alt: '생각을나누다 홈페이지 이미지',
+        alt: '생각을나누다 여행 에세이 출판 브랜드',
       },
     ],
     locale: 'ko_KR',
@@ -50,8 +41,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: '도서출판 생각을나누다 - 나누다컴퍼니',
-    description: '우리의 가치 있는 경험과 생각을 담은 여행 에세이',
+    title: '생각을나누다 - 여행 에세이 출판사',
+    description: SITE_DESCRIPTION,
     images: ['/images/og-image-1.png'],
   },
   robots: {
@@ -66,13 +57,99 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'google-site-verification=X8oYSjNwvMWdubK0XZudGSaVI6pT1OciHfD52nnPDI0',  // 실제 Google Search Console에서 제공받은 코드로 교체 필요
+    google: 'X8oYSjNwvMWdubK0XZudGSaVI6pT1OciHfD52nnPDI0',
     other: {
-      'naver-site-verification': 'naver04883e7ad65c3ae3e35e250b13a451a4',  // 기존 Naver 검증 파일명과 일치
+      'naver-site-verification': '04883e7ad65c3ae3e35e250b13a451a4',
     },
   },
   alternates: {
-    canonical: 'https://www.nanudacompany.com',
+    canonical: SITE_URL,
+  },
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+}
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${SITE_URL}/#organization`,
+  "name": COMPANY_NAME,
+  "alternateName": [SITE_NAME, "나누다출판", "도서출판 생각을나누다"],
+  "url": SITE_URL,
+  "logo": {
+    "@type": "ImageObject",
+    "url": absoluteUrl('/images/nanuda_logo.png'),
+  },
+  "image": absoluteUrl('/images/og-image-1.png'),
+  "description": SITE_DESCRIPTION,
+  "foundingDate": "2021",
+  "founder": [
+    {
+      "@type": "Person",
+      "name": "이상민",
+    },
+    {
+      "@type": "Person",
+      "name": "정예원",
+    },
+  ],
+  "brand": {
+    "@type": "Brand",
+    "name": SITE_NAME,
+  },
+  "areaServed": "KR",
+  "sameAs": SOCIAL_LINKS,
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "email": "simon@nanudacompany.com",
+    "contactType": "publishing inquiries",
+    "availableLanguage": ["ko", "en"],
+  },
+  "knowsAbout": [
+    "여행 에세이",
+    "가족 여행기",
+    "남미 여행",
+    "히말라야 트레킹",
+    "올레길 여행",
+    "영문 여행 회고록",
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "생각을나누다 여행 에세이 도서",
+    "itemListElement": BOOKS_DATA.map((book, index) => ({
+      "@type": "Offer",
+      "position": index + 1,
+      "itemOffered": {
+        "@type": "Book",
+        "@id": `${bookUrl(book.id)}#book`,
+        "name": book.title,
+        "url": bookUrl(book.id),
+        "author": splitAuthors(book.author).map((name) => ({
+          "@type": "Person",
+          "name": name,
+        })),
+        "genre": book.category,
+        "image": absoluteUrl(book.image),
+        "description": book.description,
+      },
+    })),
+  },
+}
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
+  "url": SITE_URL,
+  "name": SITE_NAME,
+  "alternateName": COMPANY_NAME,
+  "description": SITE_DESCRIPTION,
+  "inLanguage": ["ko-KR", "en"],
+  "publisher": {
+    "@id": `${SITE_URL}/#organization`,
   },
 }
 
@@ -90,64 +167,13 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": "나누다컴퍼니",
-              "alternateName": "생각을나누다",
-              "url": "https://www.nanudacompany.com",
-              "logo": "https://www.nanudacompany.com/images/nanuda_logo.png",
-              "description": "생각을나누다는 우리의 가치 있는 경험과 생각을 담습니다. 우리의 이야기가 누군가에게 영감의 씨앗이 됩니다.",
-              "foundingDate": "2021",
-              "founder": {
-                "@type": "Person",
-                "name": "이상민"
-              },
-              "sameAs": [
-                "https://www.instagram.com/mindful_journey_one/"
-              ],
-              "hasOfferCatalog": {
-                "@type": "OfferCatalog",
-                "name": "여행 에세이 도서",
-                "itemListElement": [
-                  {
-                    "@type": "Book",
-                    "name": "길에서 만나다",
-                    "author": "이상민",
-                    "genre": "여행 에세이",
-                    "description": "남미 여행 중 도둑을 맞고 비로소 시작된 저자의 진짜 여행"
-                  },
-                  {
-                    "@type": "Book",
-                    "name": "자라고 싶은 아이, 아이이고 싶은 어른",
-                    "author": "이상민",
-                    "genre": "가족 여행",
-                    "description": "아빠와 아들이 함께 떠나는 올레길 여행"
-                  },
-                  {
-                    "@type": "Book",
-                    "name": "한 걸음에 모든 행복이 담겨있다",
-                    "author": ["이상민", "정예원"],
-                    "genre": "가족 여행",
-                    "description": "회사를 그만두고 훌쩍 떠난 가족의 세계여행 이야기"
-                  },
-                  {
-                    "@type": "Book",
-                    "name": "안나푸르나에서 보내는 편지",
-                    "author": "이상민",
-                    "genre": "여행 에세이",
-                    "description": "히말라야에서 보내는 아빠의 편지"
-                  },
-                  {
-                    "@type": "Book",
-                    "name": "Meet On The Road",
-                    "author": "Sangmin Lee",
-                    "genre": "Travel Memoir",
-                    "description": "A Journey through South America (English Edition)"
-                  }
-                ]
-              }
-            })
+            __html: JSON.stringify(organizationJsonLd)
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd)
           }}
         />
       </head>

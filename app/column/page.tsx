@@ -2,11 +2,18 @@ import { Metadata } from "next"
 import Link from "next/link"
 import { CustomCursor } from "@/components/custom-cursor"
 import { BLOG_POSTS } from "@/lib/blog-data"
+import {
+  absoluteUrl,
+  columnUrl,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/site-config"
 import ColumnListClient from "./column-list-client"
 
 export const metadata: Metadata = {
-  title: '나누다 칼럼 - 나누고 싶은 이야기 | 생각을나누다',
-  description: '여행 뿐만 아니라 일상에서 마주한 특별한 순간들을 나눕니다.',
+  title: '나누다 칼럼 - 여행과 일상의 에세이 | 생각을나누다',
+  description: '생각을나누다 칼럼은 여행, 일상, 책, 가족의 순간에서 발견한 생각을 에세이로 나누는 공간입니다.',
   keywords: [
     '나누다 칼럼',
     '여행 에세이',
@@ -24,20 +31,23 @@ export const metadata: Metadata = {
     '에세이 블로그'
   ],
   openGraph: {
-    title: '나누다 칼럼 - 나누고 싶은 이야기 | 생각을나누다',
-    description: '여행과 일상에서 마주한 특별한 이야기를 나누다. 생각을나누다 출판사의 칼럼 코너입니다.',
+    title: '나누다 칼럼 - 여행과 일상의 에세이 | 생각을나누다',
+    description: '여행과 일상에서 마주한 특별한 이야기를 나누는 생각을나누다 칼럼입니다.',
+    url: `${SITE_URL}/column`,
+    siteName: SITE_NAME,
     images: [
       {
-        url: '/images/nanuda_logo.png',
+        url: absoluteUrl('/images/og-image-1.png'),
         width: 1200,
         height: 630,
         alt: '나누다 칼럼',
       },
     ],
     type: 'website',
+    locale: 'ko_KR',
   },
   alternates: {
-    canonical: 'https://www.nanudacompany.com/column',
+    canonical: `${SITE_URL}/column`,
   },
 }
 
@@ -45,32 +55,41 @@ export default function ColumnListPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Blog",
+    "@id": `${SITE_URL}/column#blog`,
     "name": "나누다 칼럼",
-    "description": "여행 이야기, 일상의 이야기를 나누다.",
-    "url": "https://www.nanudacompany.com/column",
+    "description": SITE_DESCRIPTION,
+    "url": `${SITE_URL}/column`,
+    "inLanguage": "ko-KR",
+    "isPartOf": {
+      "@id": `${SITE_URL}/#website`
+    },
     "author": {
       "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
       "name": "나누다컴퍼니"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "나누다컴퍼니",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://www.nanudacompany.com/images/nanuda_logo.png"
-      }
+      "@id": `${SITE_URL}/#organization`,
+      "name": "나누다컴퍼니"
     },
     "blogPost": BLOG_POSTS.map(post => ({
       "@type": "BlogPosting",
+      "@id": `${columnUrl(post.id)}#article`,
       "headline": post.title,
       "description": post.excerpt,
       "datePublished": post.date,
+      "dateModified": post.date,
       "author": {
         "@type": "Person",
         "name": post.author
       },
-      "image": `https://www.nanudacompany.com${post.image}`,
-      "url": `https://www.nanudacompany.com/column/${post.id}`
+      "publisher": {
+        "@id": `${SITE_URL}/#organization`
+      },
+      "image": absoluteUrl(post.image),
+      "url": columnUrl(post.id),
+      "mainEntityOfPage": columnUrl(post.id)
     }))
   }
 

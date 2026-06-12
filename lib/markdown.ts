@@ -16,11 +16,12 @@ export async function getBlogPostContent(id: string) {
     
     const fileContents = fs.readFileSync(fullPath, 'utf8')
     const matterResult = matter(fileContents)
+    const contentWithoutPageH1 = matterResult.content.replace(/^#\s+/gm, '## ')
     
     // 마크다운을 HTML로 변환
     const processedContent = await remark()
       .use(html)
-      .process(matterResult.content)
+      .process(contentWithoutPageH1)
     
     const contentHtml = processedContent.toString()
     
@@ -53,4 +54,4 @@ export function getAllBlogPostIds() {
     console.error('Error reading blog directory:', error)
     return []
   }
-} 
+}

@@ -7,7 +7,7 @@ import { BLOG_POSTS } from "@/lib/blog-data"
 export default function ColumnListClient() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {BLOG_POSTS.map((post, index) => (
+      {BLOG_POSTS.map((post) => (
         <Link key={post.id} href={`/column/${post.id}`} className="group cursor-pointer">
           <article className="relative transition-all duration-400 hover:-translate-y-2">
             <div className="aspect-[4/3] overflow-hidden rounded-lg mb-6 relative">
@@ -51,4 +51,4 @@ export default function ColumnListClient() {
       ))}
     </div>
   )
-} 
+}

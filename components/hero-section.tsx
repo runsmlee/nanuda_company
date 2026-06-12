@@ -1,7 +1,7 @@
 "use client"
 
 import { forwardRef, useState } from "react"
-import { BooksCatalogModal, BOOKS_DATA } from "./books-catalog-modal"
+import { BooksCatalogModal } from "./books-catalog-modal"
 import { BookModal } from "./book-modal"
 
 interface Book {
@@ -33,7 +33,7 @@ export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
 
   return (
     <>
-      <section ref={ref} className="min-h-screen flex items-center justify-center px-8 lg:px-16 relative">
+      <section id="home" ref={ref} className="min-h-screen flex items-center justify-center px-8 lg:px-16 relative">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="font-playfair text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light mb-6 sm:mb-8 leading-tight">
             여행의

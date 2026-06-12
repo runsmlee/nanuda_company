@@ -1,37 +1,45 @@
 import { MetadataRoute } from 'next'
 import { BOOKS_DATA } from '@/lib/books-data'
 import { BLOG_POSTS } from '@/lib/blog-data'
+import {
+  bookPublishedDate,
+  bookUrl,
+  columnUrl,
+  SITE_UPDATED_AT,
+  SITE_URL,
+} from '@/lib/site-config'
+
+const siteUpdatedAt = new Date(SITE_UPDATED_AT)
+const latestBlogDate = BLOG_POSTS.reduce((latest, post) => {
+  const postDate = new Date(post.date)
+  return postDate > latest ? postDate : latest
+}, siteUpdatedAt)
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://www.nanudacompany.com'
-  
-  // 정적 페이지들
   const staticPages = [
     {
-      url: baseUrl,
-      lastModified: new Date(),
+      url: SITE_URL,
+      lastModified: siteUpdatedAt,
       changeFrequency: 'weekly' as const,
       priority: 1,
     },
     {
-      url: `${baseUrl}/column`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/column`,
+      lastModified: latestBlogDate,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
   ]
 
-  // 도서 페이지들
   const bookPages = BOOKS_DATA.map((book) => ({
-    url: `${baseUrl}/books/${book.id}`,
-    lastModified: new Date(),
+    url: bookUrl(book.id),
+    lastModified: new Date(bookPublishedDate(book)),
     changeFrequency: 'monthly' as const,
     priority: 0.9,
   }))
 
-  // 블로그/칼럼 페이지들
   const blogPages = BLOG_POSTS.map((post) => ({
-    url: `${baseUrl}/column/${post.id}`,
+    url: columnUrl(post.id),
     lastModified: new Date(post.date),
     changeFrequency: 'monthly' as const,
     priority: 0.7,

@@ -5,6 +5,13 @@ import { CustomCursor } from "@/components/custom-cursor"
 import { BLOG_POSTS } from "@/lib/blog-data"
 import { getBlogPostContent, getAllBlogPostIds } from "@/lib/markdown"
 import { Metadata } from "next"
+import {
+  absoluteUrl,
+  columnUrl,
+  SITE_NAME,
+  SITE_URL,
+  truncateDescription,
+} from "@/lib/site-config"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -29,25 +36,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${post.title} | 나누다 칼럼`,
-    description: post.excerpt,
+    description: truncateDescription(post.excerpt),
     keywords: post.tags,
     authors: [{ name: post.author }],
     alternates: {
-      canonical: `https://www.nanudacompany.com/column/${post.id}`,
+      canonical: columnUrl(post.id),
     },
     openGraph: {
       title: post.title,
-      description: post.excerpt,
-      images: [post.image],
+      description: truncateDescription(post.excerpt, 180),
+      url: columnUrl(post.id),
+      siteName: SITE_NAME,
+      images: [absoluteUrl(post.image)],
       type: "article",
+      locale: "ko_KR",
       publishedTime: post.date,
       authors: [post.author],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
-      description: post.excerpt,
-      images: [post.image],
+      description: truncateDescription(post.excerpt, 180),
+      images: [absoluteUrl(post.image)],
     },
   }
 }
@@ -68,9 +78,12 @@ export default async function ColumnDetailPage({ params }: PageProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
+    "@id": `${columnUrl(post.id)}#article`,
     "headline": post.title,
     "description": post.excerpt,
-    "image": [`https://www.nanudacompany.com${post.image}`],
+    "image": [absoluteUrl(post.image)],
+    "url": columnUrl(post.id),
+    "inLanguage": "ko-KR",
     "datePublished": post.date,
     "dateModified": post.date,
     "author": {
@@ -79,15 +92,15 @@ export default async function ColumnDetailPage({ params }: PageProps) {
     },
     "publisher": {
       "@type": "Organization",
-      "name": "생각을나누다",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://www.nanudacompany.com/images/nanuda_logo.png"
-      }
+      "@id": `${SITE_URL}/#organization`,
+      "name": SITE_NAME
+    },
+    "isPartOf": {
+      "@id": `${SITE_URL}/column#blog`
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://www.nanudacompany.com/column/${post.id}`
+      "@id": columnUrl(post.id)
     },
     "articleSection": post.category,
     "keywords": post.tags.join(", ")
@@ -107,13 +120,13 @@ export default async function ColumnDetailPage({ params }: PageProps) {
         "@type": "ListItem",
         "position": 2,
         "name": "칼럼",
-        "item": "https://www.nanudacompany.com/column"
+        "item": `${SITE_URL}/column`
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": post.title,
-        "item": `https://www.nanudacompany.com/column/${post.id}`
+        "item": columnUrl(post.id)
       }
     ]
   }

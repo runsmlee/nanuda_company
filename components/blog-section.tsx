@@ -8,7 +8,7 @@ import { BLOG_POSTS } from "@/lib/blog-data"
 
 export const BlogSection = memo(forwardRef<HTMLElement>((props, ref) => {
   return (
-    <section ref={ref} className="py-32 px-8 lg:px-16 bg-secondary-dark relative">
+    <section id="column" ref={ref} className="py-32 px-8 lg:px-16 bg-secondary-dark relative">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-24">
           <h2 className="font-playfair text-4xl sm:text-5xl md:text-6xl font-light mb-4 relative inline-block">

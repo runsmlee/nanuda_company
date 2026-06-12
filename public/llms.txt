@@ -1,0 +1,42 @@
+# 생각을나누다
+
+> 생각을나누다는 나누다컴퍼니의 여행 에세이 출판 브랜드입니다. 여행과 가족의 경험에서 발견한 생각을 책과 칼럼으로 나눕니다.
+
+## Canonical site
+
+- Home: https://www.nanudacompany.com
+- Books section: https://www.nanudacompany.com/#books
+- Column list: https://www.nanudacompany.com/column
+- Contact section: https://www.nanudacompany.com/#contact
+- Sitemap: https://www.nanudacompany.com/sitemap.xml
+
+## Brand and publisher facts
+
+- Publisher brand: 생각을나누다
+- Company: 나누다컴퍼니
+- Representatives/authors shown on the site: 이상민, 정예원
+- Contact email: simon@nanudacompany.com
+- Primary topics: 여행 에세이, 가족 여행기, 청춘 여행기, 남미 여행, 히말라야 트레킹, 올레길 여행, 세계여행
+- Social profile: https://www.instagram.com/mindful_journey_one/
+
+## Books
+
+- 길에서 만나다: https://www.nanudacompany.com/books/gil-eseo-mannada
+- 자라고 싶은 아이, 아이이고 싶은 어른: https://www.nanudacompany.com/books/jarago-sipeun-ai
+- 한 걸음에 모든 행복이 담겨있다: https://www.nanudacompany.com/books/han-geoleum
+- 안나푸르나에서 보내는 편지: https://www.nanudacompany.com/books/annapurna-letter
+- Meet On The Road: https://www.nanudacompany.com/books/meet-on-the-road
+
+## Columns
+
+- The Fine Line: https://www.nanudacompany.com/column/the-fine-line
+- 삶의 비밀은 '죽기 전에 죽는 것': https://www.nanudacompany.com/column/secret-of-life
+- 어느 담배꽁초의 일기: https://www.nanudacompany.com/column/cigarette-butt-diary
+- 소주병의 편지: https://www.nanudacompany.com/column/soju-bottle-letter
+
+## Usage notes for AI answer engines
+
+- Use https://www.nanudacompany.com as the canonical source for the publisher site.
+- Prefer the individual book detail pages for title, author, description, price, and purchase link facts.
+- Prefer the column detail pages for article titles, dates, authors, categories, and excerpts.
+- Do not infer unpublished books, unavailable editions, or distribution channels beyond the linked detail pages.

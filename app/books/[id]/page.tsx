@@ -3,9 +3,19 @@ import { CustomCursor } from "@/components/custom-cursor"
 import Link from "next/link"
 import { Metadata } from "next"
 import BookDetailClient from "./book-detail-client"
+import {
+  absoluteUrl,
+  bookPublishedDate,
+  bookUrl,
+  parseBookPrice,
+  SITE_NAME,
+  SITE_URL,
+  splitAuthors,
+  truncateDescription,
+} from "@/lib/site-config"
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -19,14 +29,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  const shortDescription =
-    book.description.length > 160
-      ? `${book.description.substring(0, 157)}...`
-      : book.description
-
   return {
     title: `${book.title} - ${book.subtitle} | 생각을 나누다`,
-    description: shortDescription,
+    description: truncateDescription(book.description),
     keywords: [
       book.title,
       book.subtitle,
@@ -40,28 +45,31 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       book.author === '이상민' ? '이상민 작가' : '',
       book.author === '정예원' ? '정예원 작가' : '',
     ].filter(Boolean),
-    authors: [{ name: book.author }],
+    authors: splitAuthors(book.author).map((name) => ({ name })),
     openGraph: {
       title: `${book.title} - ${book.subtitle}`,
-      description: shortDescription,
+      description: truncateDescription(book.description, 180),
+      url: bookUrl(book.id),
+      siteName: SITE_NAME,
       images: [
         {
-          url: book.image,
+          url: absoluteUrl(book.image),
           width: 800,
           height: 1200,
           alt: `${book.title} 표지`,
         },
       ],
       type: 'book',
+      locale: book.id === "meet-on-the-road" ? "en_US" : "ko_KR",
     },
     twitter: {
       card: 'summary_large_image',
       title: `${book.title} - ${book.subtitle}`,
-      description: shortDescription,
-      images: [book.image],
+      description: truncateDescription(book.description, 180),
+      images: [absoluteUrl(book.image)],
     },
     alternates: {
-      canonical: `https://www.nanudacompany.com/books/${book.id}`,
+      canonical: bookUrl(book.id),
     },
   }
 }
@@ -90,31 +98,43 @@ export default async function BookDetailPage({ params }: PageProps) {
     )
   }
 
+  const authorJsonLd = splitAuthors(book.author).map((name) => ({
+    "@type": "Person",
+    "name": name,
+  }))
+  const primaryOfferUrl = book.naverLink || book.amazonLink || bookUrl(book.id)
+  const { price, priceCurrency } = parseBookPrice(book.price)
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Book",
-    "url": `https://www.nanudacompany.com/books/${book.id}`,
+    "@id": `${bookUrl(book.id)}#book`,
+    "url": bookUrl(book.id),
     "name": book.title,
-    "author": {
-      "@type": "Person",
-      "name": book.author
-    },
+    "alternateName": book.subtitle,
+    "author": authorJsonLd,
     "description": book.description,
     "genre": book.category,
     "numberOfPages": book.pages,
-    "datePublished": book.publishDate,
+    "datePublished": bookPublishedDate(book),
+    "inLanguage": book.id === "meet-on-the-road" ? "en" : "ko-KR",
     "publisher": {
       "@type": "Organization",
-      "name": "나누다 출판사"
+      "@id": `${SITE_URL}/#organization`,
+      "name": SITE_NAME
     },
-    "image": `https://www.nanudacompany.com${book.image}`,
+    "image": absoluteUrl(book.image),
     ...(book.naverLink || book.amazonLink ? {
       "offers": {
         "@type": "Offer",
-        "price": book.price.replace(/[^0-9]/g, ''),
-        "priceCurrency": book.price.includes('$') ? 'USD' : 'KRW',
+        "price": price,
+        "priceCurrency": priceCurrency,
         "availability": "https://schema.org/InStock",
-        "url": book.naverLink || book.amazonLink
+        "url": primaryOfferUrl,
+        "seller": {
+          "@type": "Organization",
+          "name": primaryOfferUrl.includes("amazon") ? "Amazon" : "Naver Shopping"
+        }
       }
     } : {})
   }
@@ -132,8 +152,14 @@ export default async function BookDetailPage({ params }: PageProps) {
       {
         "@type": "ListItem",
         "position": 2,
+        "name": "도서",
+        "item": `${SITE_URL}/#books`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
         "name": book.title,
-        "item": `https://www.nanudacompany.com/books/${book.id}`
+        "item": bookUrl(book.id)
       }
     ]
   }
