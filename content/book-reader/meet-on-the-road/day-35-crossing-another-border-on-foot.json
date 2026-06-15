@@ -35,17 +35,7 @@
       "backtrack."
     ],
     [
-      "I turned back and reached the border, marked only by a peacefully laid",
-      "road. On one side, Uruguayan shops lined up; on the other, Brazilian",
-      "shops. It was a fascinating sight. I bought a soap bar with Uruguayan",
-      "coins and then walked into a supermarket marked \"JAPONES.\" Intrigued by",
-      "the prospect of meeting a fellow East Asian, I entered and met the",
-      "Japanese shop owner, Tobe-san. He was the only Japanese resident in Chuy",
-      "and had even appeared in a newspaper article about it. We had a long",
-      "chat; he was from Hokkaido and missed Sapporo beer. Using my last 3",
-      "Pesos, he let me buy a 5 Peso jelly. Leaving his shop, I exchanged my",
-      "remaining Uruguayan banknotes for Brazilian Reais at a nearby exchange",
-      "office. The exchange rate was not in my favor."
+      "I turned back and reached the border, marked only by a peacefully laid road. On one side, Uruguayan shops lined up; on the other, Brazilian shops. It was a fascinating sight. I bought a soap bar with Uruguayan coins and then walked into a supermarket marked \"JAPONES.\" Intrigued by the prospect of meeting a fellow East Asian, I entered and met the Japanese shop owner, Tobe-san. He was the only Japanese resident in Chuy and had even appeared in a newspaper article about it. We had a long chat; he was from Hokkaido and missed Sapporo beer. With my last 3 pesos, he kindly marked down a 5-peso jelly so that I could afford it. Leaving his shop, I exchanged my remaining Uruguayan banknotes for Brazilian Reais at a nearby exchange office. The exchange rate was not in my favor."
     ],
     [
       "I immediately felt the weight of unfamiliarity upon setting foot in",
@@ -158,7 +148,20 @@
       "for the kind souls I'd encountered."
     ]
   ],
-  "characterCount": 6314,
-  "wordCount": 1320,
+  "media": [
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/crossing-another-border-sketch.webp",
+          "alt": "Meet On The Road crossing another border on foot hand sketch illustration",
+          "width": 1536,
+          "height": 1024
+        }
+      ]
+    }
+  ],
+  "characterCount": 6342,
+  "wordCount": 1326,
   "readTimeMinutes": 6
 }

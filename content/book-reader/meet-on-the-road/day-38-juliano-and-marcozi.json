@@ -107,23 +107,23 @@
       "helpers, I pondered the lifestyle and generosity of the local people."
     ],
     [
-      "Our arrival at Albergue Sao Marcos was met with the stern yet empathetic",
-      "gaze of the caretaker. We were late, yet his eyes read the pages of our",
-      "weary faces and let us in. Inside, Juliano's absence loomed like a",
-      "specter, yet the warmth of the soup seemed to fill the void momentarily.",
-      "As I lay in bed, the day's events danced in the shadows on the ceiling.",
-      "A kaleidoscope of contrasts, camaraderie intertwined with desperation,",
-      "joy overshadowed by despair. Here I was, far away from home, amid",
-      "strangers turned companions. Yet, as the night shrouded the room, it",
-      "dawned on me that while our paths had intertwined, our battles were our",
-      "own. I was but a spectator in their fight against their own shadows. And",
-      "sometimes, that's all one can be in the complex dance of life and",
-      "survival. As sleep enveloped me, my thoughts echoed the silent whispers",
-      "of introspection, the gentle hum of reality, and the quiet acceptance of",
-      "the diverging paths ahead."
+      "It was already past nine by the time we reached Albergue Sao Marcos, and the door was firmly shut --- the shelter admitted newcomers only between six and nine in the evening. The caretaker met us with a stern yet empathetic gaze; we were late, yet his eyes read the weariness on our faces, and he let us in. Inside, Juliano's absence loomed like a specter, yet the warmth of the soup seemed to fill the void momentarily. As I lay in bed, the day's events danced in the shadows on the ceiling. A kaleidoscope of contrasts, camaraderie intertwined with desperation, joy overshadowed by despair. Here I was, far away from home, amid strangers turned companions. Yet, as the night shrouded the room, it dawned on me that while our paths had intertwined, our battles were our own. I was but a spectator in their fight against their own shadows. And sometimes, that's all one can be in the complex dance of life and survival. As sleep enveloped me, my thoughts echoed the silent whispers of introspection, the gentle hum of reality, and the quiet acceptance of the diverging paths ahead."
     ]
   ],
-  "characterCount": 4272,
-  "wordCount": 884,
+  "media": [
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/juliano-and-marcoji-sketch.webp",
+          "alt": "Meet On The Road Juliano and Marcozi beach hand sketch illustration",
+          "width": 1536,
+          "height": 1024
+        }
+      ]
+    }
+  ],
+  "characterCount": 4794,
+  "wordCount": 1006,
   "readTimeMinutes": 5
 }

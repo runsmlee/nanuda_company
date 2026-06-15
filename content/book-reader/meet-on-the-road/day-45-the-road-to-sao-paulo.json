@@ -173,6 +173,19 @@
       "would be on our way to São Paulo, my destination."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/toward-sao-paulo-sketch.webp",
+          "alt": "Meet On The Road road to Sao Paulo hand sketch illustration",
+          "width": 1650,
+          "height": 953
+        }
+      ]
+    }
+  ],
   "characterCount": 6875,
   "wordCount": 1400,
   "readTimeMinutes": 7

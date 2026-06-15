@@ -168,6 +168,19 @@
       "wake up."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 9,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/hitchhiking-sketch.webp",
+          "alt": "Meet On The Road cold coastal night hand sketch illustration",
+          "width": 1665,
+          "height": 945
+        }
+      ]
+    }
+  ],
   "characterCount": 5485,
   "wordCount": 1180,
   "readTimeMinutes": 6

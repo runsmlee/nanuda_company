@@ -42,12 +42,7 @@
       "shadows of others."
     ],
     [
-      "With a sigh, I switched my MP3 player to a set of Spanish lessons. The",
-      "foreign syllables rolled off the speaker, reminding me of the challenges",
-      "ahead. As the lessons progressed, my mind grew foggy, combining jet lag",
-      "and the previous night's indulgence in Argentinian wine. Slowly I",
-      "drifted into a restless slumber, lulled by the terminal's rhythmic",
-      "pulse."
+      "With a sigh, I switched my MP3 player to a set of Spanish lessons. The foreign syllables rolled off the speaker, reminding me of the challenges ahead. As the lessons progressed, my mind grew foggy, weighed down by the previous night's indulgence in Argentinian wine and the dull drone of the lessons. Slowly I drifted into a restless slumber, lulled by the terminal's rhythmic pulse."
     ],
     [
       "In the hollow embrace of the terminal, I drifted in and out of a fitful",
@@ -133,15 +128,7 @@
       "day."
     ],
     [
-      "As I lay on my bed that night, the weight of my circumstances pressed",
-      "down on me with crushing force. But rather than succumbing to despair, I",
-      "found myself drawing strength from memories of my last days in Korea,",
-      "before the loss of my backpack. In the midst of the chaos and",
-      "uncertainty, a strange sense of calm and focus descended upon me. I took",
-      "a deep breath, summoning the last vestiges of my inner strength. This",
-      "was my journey, after all. And perhaps, in some strange way, this was",
-      "the real journey I had been seeking all along. It had shaken me out of",
-      "my complacency, forcing me to confront the things that truly mattered."
+      "As I lay on my bed that night, the weight of my circumstances pressed down on me with crushing force. But rather than succumbing to despair, I found myself drawing strength not from the life I had left behind in Korea, but from the raw, unwritten journey now opening before me. In the midst of the chaos and uncertainty, a strange sense of calm and focus descended upon me. I took a deep breath, summoning the last vestiges of my inner strength. This was my journey, after all. And perhaps, in some strange way, this was the real journey I had been seeking all along. It had shaken me out of my complacency, forcing me to confront the things that truly mattered."
     ],
     [
       "Despite the hurdles and the obstacles that lay ahead, I was determined",
@@ -152,7 +139,20 @@
       "whatever lay ahead with courage and determination."
     ]
   ],
-  "characterCount": 6026,
-  "wordCount": 1249,
+  "media": [
+    {
+      "afterBlock": 6,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/bus-terminal-sketch.webp",
+          "alt": "Meet On The Road bus terminal hand sketch illustration",
+          "width": 1606,
+          "height": 979
+        }
+      ]
+    }
+  ],
+  "characterCount": 6075,
+  "wordCount": 1260,
   "readTimeMinutes": 6
 }

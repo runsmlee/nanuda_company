@@ -104,6 +104,19 @@
       "ineffable."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/crossing-border-by-bicycle-sketch.webp",
+          "alt": "Meet On The Road crossing the border by bicycle hand sketch illustration",
+          "width": 1647,
+          "height": 955
+        }
+      ]
+    }
+  ],
   "characterCount": 3953,
   "wordCount": 820,
   "readTimeMinutes": 4

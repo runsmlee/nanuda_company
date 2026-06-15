@@ -25,12 +25,7 @@
       "gratefully followed them, hoping for an uninterrupted slumber."
     ],
     [
-      "The parking lot's security was its only redeeming feature. Located next",
-      "to a bustling road, the noise of passing vehicles marred my rest. The",
-      "mosquito onslaught was relentless, leaving my hands swollen by dawn.",
-      "Throughout the night, I sensed watchful eyes on me --- stray dogs",
-      "curiously sniffing around or night-duty police officers sharing a",
-      "cynical remarks at my expense."
+      "The parking lot's security was its only redeeming feature. Located next to a bustling road, the noise of passing vehicles marred my rest. The mosquito onslaught was relentless, leaving my hands swollen by dawn. Throughout the night, I sensed watchful eyes on me --- stray dogs curiously sniffing around or night-duty police officers joking among themselves as they glanced my way."
     ],
     [
       "Thanks to them, I was up bright and early at 6:30 AM. I quickly had",
@@ -135,15 +130,23 @@
       "he put on the jacket."
     ],
     [
-      "Immanuel and I continued our conversation until late at night. We",
-      "exchanged email addresses, promising to keep in touch. As he left, he",
-      "offered me a shelter at a police station by asking someone he knew",
-      "there. But I chose to stay with Julio, feeling a bond of camaraderie. He",
-      "warned me to be careful, reminding me to guard my valuables. I nodded",
-      "with a reassuring smile."
+      "Immanuel and I continued our conversation until late at night. We exchanged email addresses, promising to keep in touch. As he left, he offered to arrange a night's stay at a police station --- his parents were officers there, he explained. But I chose to stay with Julio, feeling a bond of camaraderie. He warned me to be careful, reminding me to guard my valuables. I nodded with a reassuring smile."
     ]
   ],
-  "characterCount": 5450,
-  "wordCount": 1120,
+  "media": [
+    {
+      "afterBlock": 14,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/rosario-sketch.webp",
+          "alt": "Meet On The Road rainy night in Rosario hand sketch illustration",
+          "width": 1692,
+          "height": 929
+        }
+      ]
+    }
+  ],
+  "characterCount": 5483,
+  "wordCount": 1126,
   "readTimeMinutes": 6
 }

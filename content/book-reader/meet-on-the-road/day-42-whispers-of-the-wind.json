@@ -24,19 +24,7 @@
       "revealing its essence."
     ],
     [
-      "I awoke from a restless slumber. By my side, Jonada seemed lost in",
-      "peaceful dreams. Glancing at my watch, it was still early -- a few",
-      "moments past 6 AM. I slowly rose, draping the blanket Jonada had lent me",
-      "the previous night over his shivering flesh. Contemplating a quiet exit,",
-      "I reconsidered and gently tapped his shoulder, whispering a soft",
-      "farewell before leaving. The streets of Florianopolis were still bathed",
-      "in the gentle shades of dawn, the traffic sparse. Breathing in the crisp",
-      "morning air, I wandered aimlessly. It felt as if the streets were",
-      "guiding me rather than me choosing my path. As I walked, a familiar face",
-      "from the shelter approached, greeting me before moving on. I remembered",
-      "he also had been turned away the previous night. Though the night might",
-      "have been harsh, his cheerful demeanor was a testament to human",
-      "resilience."
+      "I awoke from a restless slumber. By my side, Jornada seemed lost in peaceful dreams. Glancing at my watch, it was still early -- a few moments past 6 AM. I slowly rose, draping the blanket Jornada had lent me the previous night over his shivering flesh. Contemplating a quiet exit, I reconsidered and gently tapped his shoulder, whispering a soft farewell before leaving. The streets of Florianopolis were still bathed in the gentle shades of dawn, the traffic sparse. Breathing in the crisp morning air, I wandered aimlessly. It felt as if the streets were guiding me rather than me choosing my path. As I walked, a familiar face from the shelter approached, greeting me before moving on. I remembered he also had been turned away the previous night. Though the night might have been harsh, his cheerful demeanor was a testament to human resilience."
     ],
     [
       "Leaving the city center behind, I stumbled upon a narrow path lined with",
@@ -111,7 +99,20 @@
       "town of Biguaçu, awaiting the dawn."
     ]
   ],
-  "characterCount": 4289,
-  "wordCount": 915,
+  "media": [
+    {
+      "afterBlock": 6,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/listening-to-wind-sketch.webp",
+          "alt": "Meet On The Road listening to the wind hand sketch illustration",
+          "width": 1597,
+          "height": 985
+        }
+      ]
+    }
+  ],
+  "characterCount": 4291,
+  "wordCount": 914,
   "readTimeMinutes": 5
 }

@@ -113,6 +113,19 @@
       "the warmth and kindness of Tijucas."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/journey-is-the-moment-sketch.webp",
+          "alt": "Meet On The Road walking through rain hand sketch illustration",
+          "width": 1643,
+          "height": 957
+        }
+      ]
+    }
+  ],
   "characterCount": 3762,
   "wordCount": 808,
   "readTimeMinutes": 4
