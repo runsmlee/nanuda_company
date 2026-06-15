@@ -17,6 +17,18 @@ const nextConfig = {
       }
     ],
   },
+  async redirects() {
+    return [
+      // apex(non-www) → www 영구(308) 리다이렉트로 도메인 정규화 통합.
+      // Vercel 엣지에서 처리되면 이 규칙은 도달하지 않지만, 코드로 308을 보장한다.
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'nanudacompany.com' }],
+        destination: 'https://www.nanudacompany.com/:path*',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {
