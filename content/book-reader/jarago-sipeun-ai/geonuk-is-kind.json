@@ -32,57 +32,28 @@
       "난 그저 평화를 원한다는 것을 안다"
     ]
   ],
-  "imageCount": 9,
+  "imageCount": 15,
   "media": [
     {
-      "afterBlock": 1,
+      "afterBlock": 3,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-112.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 1",
-          "width": 1350,
-          "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-113.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 2",
-          "width": 1350,
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-051.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.79 사진 51",
+          "width": 1351,
           "height": 1800
         }
       ],
-      "caption": "2021년 12월 21일, 여행 후반의 기록"
+      "caption": "여섯째 날, 실제 책 p.79 이후 사진 흐름"
     },
     {
-      "afterBlock": 2,
+      "afterBlock": 3,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-114.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 3",
-          "width": 1350,
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-052.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.80 사진 52",
+          "width": 1351,
           "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-115.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 4",
-          "width": 1800,
-          "height": 1350
-        }
-      ]
-    },
-    {
-      "afterBlock": 2,
-      "images": [
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-116.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 5",
-          "width": 1800,
-          "height": 1350
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-117.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 6",
-          "width": 1800,
-          "height": 1350
         }
       ]
     },
@@ -90,14 +61,25 @@
       "afterBlock": 3,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-118.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 7",
-          "width": 1800,
-          "height": 1350
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-053.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.81 사진 53",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 3,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-054.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.82 사진 54",
+          "width": 1350,
+          "height": 1800
         },
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-119.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 8",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-055.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.82 사진 55",
           "width": 1350,
           "height": 1800
         }
@@ -107,9 +89,78 @@
       "afterBlock": 4,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-120.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 9",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-056.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.84 사진 56",
           "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-057.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.84 사진 57",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-058.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.84 사진 58",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-059.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.85 사진 59",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-060.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.85 사진 60",
+          "width": 1349,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-061.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.85 사진 61",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-062.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.85 사진 62",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-063.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.85 사진 63",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-064.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.86 사진 64",
+          "width": 1165,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-065.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 실제 책 p.87 사진 65",
+          "width": 1208,
           "height": 1800
         }
       ]

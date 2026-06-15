@@ -64,36 +64,35 @@
   "imageCount": 5,
   "media": [
     {
-      "afterBlock": 2,
+      "afterBlock": 1,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-088.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 촌놈의 정신은 보다 자유로워라 여행 사진 1",
-          "width": 1350,
-          "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-089.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 촌놈의 정신은 보다 자유로워라 여행 사진 2",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-036.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 촌놈의 정신은 보다 자유로워라 실제 책 p.57 사진 36",
           "width": 1800,
           "height": 1350
         }
       ],
-      "caption": "2021년 12월 19일, 올레길 위에서"
+      "caption": "넷째 날, 실제 책 p.57 이후 사진 흐름"
     },
     {
-      "afterBlock": 5,
+      "afterBlock": 1,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-090.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 촌놈의 정신은 보다 자유로워라 여행 사진 3",
-          "width": 1800,
-          "height": 1350
-        },
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-037.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 촌놈의 정신은 보다 자유로워라 실제 책 p.58 사진 37",
+          "width": 1205,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 1,
+      "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-091.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 촌놈의 정신은 보다 자유로워라 여행 사진 4",
-          "width": 831,
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-038.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 촌놈의 정신은 보다 자유로워라 실제 책 p.59 사진 38",
+          "width": 1154,
           "height": 1800
         }
       ]
@@ -102,10 +101,21 @@
       "afterBlock": 7,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-092.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 촌놈의 정신은 보다 자유로워라 여행 사진 5",
-          "width": 1800,
-          "height": 1350
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-039.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 촌놈의 정신은 보다 자유로워라 실제 책 p.62 사진 39",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 7,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-040.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 촌놈의 정신은 보다 자유로워라 실제 책 p.63 사진 40",
+          "width": 1351,
+          "height": 1800
         }
       ]
     }

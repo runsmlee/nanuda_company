@@ -1,7 +1,7 @@
 {
   "bookId": "jarago-sipeun-ai",
   "title": "자라고 싶은 아이, 아이이고 싶은 어른 온라인 공개본",
-  "description": "자라고 싶은 아이, 아이이고 싶은 어른 전체 본문과 제주 올레길 여행 사진을 온라인으로 읽을 수 있는 무료 공개 독서 콘텐츠입니다.",
+  "description": "자라고 싶은 아이, 아이이고 싶은 어른 전체 본문과 실제 책에 배치된 제주 올레길 여행 사진을 온라인으로 읽을 수 있는 무료 공개 독서 콘텐츠입니다.",
   "source": "자라고싶은아이 아이고싶은어른_올레길여행 A5 북크크양식(최종3).pdf",
   "coverage": "full",
   "chapters": [
@@ -14,7 +14,8 @@
       "pageEnd": 8,
       "order": 1,
       "characterCount": 56,
-      "readTimeMinutes": 1
+      "readTimeMinutes": 1,
+      "imageCount": 1
     },
     {
       "slug": "analog-traveler",
@@ -26,7 +27,7 @@
       "order": 2,
       "characterCount": 2036,
       "readTimeMinutes": 4,
-      "imageCount": 24
+      "imageCount": 15
     },
     {
       "slug": "letting-go-is-hard",
@@ -38,7 +39,7 @@
       "order": 3,
       "characterCount": 663,
       "readTimeMinutes": 2,
-      "imageCount": 41
+      "imageCount": 8
     },
     {
       "slug": "born-without-phones",
@@ -50,7 +51,7 @@
       "order": 4,
       "characterCount": 454,
       "readTimeMinutes": 1,
-      "imageCount": 22
+      "imageCount": 11
     },
     {
       "slug": "country-spirit",
@@ -74,7 +75,7 @@
       "order": 6,
       "characterCount": 328,
       "readTimeMinutes": 1,
-      "imageCount": 19
+      "imageCount": 10
     },
     {
       "slug": "geonuk-is-kind",
@@ -86,7 +87,7 @@
       "order": 7,
       "characterCount": 188,
       "readTimeMinutes": 1,
-      "imageCount": 9
+      "imageCount": 15
     },
     {
       "slug": "geonuk-allowance",
@@ -98,7 +99,7 @@
       "order": 8,
       "characterCount": 640,
       "readTimeMinutes": 2,
-      "imageCount": 9
+      "imageCount": 5
     },
     {
       "slug": "last-day",
@@ -110,7 +111,7 @@
       "order": 9,
       "characterCount": 741,
       "readTimeMinutes": 2,
-      "imageCount": 6
+      "imageCount": 1
     },
     {
       "slug": "epilogue",
@@ -121,7 +122,8 @@
       "pageEnd": 102,
       "order": 10,
       "characterCount": 1776,
-      "readTimeMinutes": 3
+      "readTimeMinutes": 3,
+      "imageCount": 2
     }
   ]
 }

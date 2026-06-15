@@ -48,74 +48,40 @@
       "산통 깨는 이야기는 하지 않았다."
     ]
   ],
-  "imageCount": 9,
+  "imageCount": 5,
   "media": [
     {
-      "afterBlock": 1,
+      "afterBlock": 4,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-121.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 여행 사진 1",
-          "width": 1800,
-          "height": 1350
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-122.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 여행 사진 2",
-          "width": 1800,
-          "height": 1350
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-066.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 실제 책 p.90 사진 66",
+          "width": 1350,
+          "height": 1800
         }
       ],
-      "caption": "2021년 12월 21일, 여행 후반의 기록"
+      "caption": "여섯째 날, 실제 책 p.90 이후 사진 흐름"
     },
     {
-      "afterBlock": 2,
+      "afterBlock": 4,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-123.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 여행 사진 3",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-067.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 실제 책 p.91 사진 67",
           "width": 1350,
           "height": 1800
         },
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-124.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 여행 사진 4",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-068.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 실제 책 p.91 사진 68",
           "width": 1350,
           "height": 1800
-        }
-      ]
-    },
-    {
-      "afterBlock": 2,
-      "images": [
+        },
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-125.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 여행 사진 5",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-069.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 실제 책 p.91 사진 69",
           "width": 1800,
           "height": 1350
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-126.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 여행 사진 6",
-          "width": 1800,
-          "height": 1350
-        }
-      ]
-    },
-    {
-      "afterBlock": 3,
-      "images": [
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-127.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 여행 사진 7",
-          "width": 1350,
-          "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-128.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 여행 사진 8",
-          "width": 1350,
-          "height": 1800
         }
       ]
     },
@@ -123,8 +89,8 @@
       "afterBlock": 4,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-129.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 여행 사진 9",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-070.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이와 용돈 실제 책 p.92 사진 70",
           "width": 1800,
           "height": 1350
         }

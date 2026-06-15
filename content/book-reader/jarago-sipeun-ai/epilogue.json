@@ -112,5 +112,31 @@
     [
       "출처: 제주올레 홈페이지"
     ]
+  ],
+  "imageCount": 2,
+  "media": [
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-072.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 에필로그 실제 책 p.99 사진 72",
+          "width": 1800,
+          "height": 1350
+        }
+      ],
+      "caption": "에필로그와 여행 기록의 실제 책 사진"
+    },
+    {
+      "afterBlock": 13,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-073.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 에필로그 실제 책 p.102 사진 73",
+          "width": 1800,
+          "height": 1008
+        }
+      ]
+    }
   ]
 }

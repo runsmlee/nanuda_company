@@ -57,59 +57,19 @@
       "<끝>"
     ]
   ],
-  "imageCount": 6,
+  "imageCount": 1,
   "media": [
-    {
-      "afterBlock": 2,
-      "images": [
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-130.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 집으로 돌아가는 여행 마지막 날 여행 사진 1",
-          "width": 1800,
-          "height": 1350
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-131.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 집으로 돌아가는 여행 마지막 날 여행 사진 2",
-          "width": 1800,
-          "height": 1350
-        }
-      ],
-      "caption": "2021년 12월 22일, 여행 마지막 날"
-    },
-    {
-      "afterBlock": 3,
-      "images": [
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-132.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 집으로 돌아가는 여행 마지막 날 여행 사진 3",
-          "width": 1800,
-          "height": 1350
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-133.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 집으로 돌아가는 여행 마지막 날 여행 사진 4",
-          "width": 1800,
-          "height": 1350
-        }
-      ]
-    },
     {
       "afterBlock": 5,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-134.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 집으로 돌아가는 여행 마지막 날 여행 사진 5",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-071.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 집으로 돌아가는 여행 마지막 날 실제 책 p.95 사진 71",
           "width": 1350,
           "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-135.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 집으로 돌아가는 여행 마지막 날 여행 사진 6",
-          "width": 1800,
-          "height": 1350
         }
-      ]
+      ],
+      "caption": "마지막 날, 실제 책 p.95 사진"
     }
   ]
 }

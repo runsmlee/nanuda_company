@@ -18,5 +18,20 @@
       "빠지면 되지.",
       "그럼 가자."
     ]
+  ],
+  "imageCount": 1,
+  "media": [
+    {
+      "afterBlock": 0,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-001.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 그래 제주도 실제 책 p.8 사진 1",
+          "width": 1350,
+          "height": 1800
+        }
+      ],
+      "caption": "책 p.8, 여행을 떠나는 장면"
+    }
   ]
 }

@@ -13,7 +13,7 @@ export const ONLINE_READER_META: Record<
   },
   "jarago-sipeun-ai": {
     label: "무료 전체 공개본 읽기",
-    summary: "10개 장 · 전체 공개 · 사진 135장",
+    summary: "10개 장 · 전체 공개 · 사진 73장",
   },
 }
 

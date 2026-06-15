@@ -62,73 +62,27 @@
       "절박해하지 않고 태연해지는 것"
     ]
   ],
-  "imageCount": 22,
+  "imageCount": 11,
   "media": [
     {
       "afterBlock": 1,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-066.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 1",
-          "width": 1800,
-          "height": 1350
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-067.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 2",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-025.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.43 사진 25",
           "width": 1800,
           "height": 1350
         }
       ],
-      "caption": "2021년 12월 18일, 여행 셋째 날"
-    },
-    {
-      "afterBlock": 1,
-      "images": [
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-068.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 3",
-          "width": 1350,
-          "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-069.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 4",
-          "width": 1800,
-          "height": 1350
-        }
-      ]
+      "caption": "셋째 날, 실제 책 p.43 이후 사진 흐름"
     },
     {
       "afterBlock": 2,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-070.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 5",
-          "width": 1350,
-          "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-071.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 6",
-          "width": 1800,
-          "height": 1350
-        }
-      ]
-    },
-    {
-      "afterBlock": 2,
-      "images": [
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-072.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 7",
-          "width": 1350,
-          "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-073.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 8",
-          "width": 1350,
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-026.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.44 사진 26",
+          "width": 1199,
           "height": 1800
         }
       ]
@@ -137,16 +91,10 @@
       "afterBlock": 3,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-074.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 9",
-          "width": 1350,
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-027.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.45 사진 27",
+          "width": 1228,
           "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-075.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 10",
-          "width": 1800,
-          "height": 1350
         }
       ]
     },
@@ -154,48 +102,63 @@
       "afterBlock": 3,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-076.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 11",
-          "width": 1350,
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-028.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.46 사진 28",
+          "width": 1199,
           "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-077.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 12",
-          "width": 1800,
-          "height": 1350
         }
       ]
     },
     {
-      "afterBlock": 4,
+      "afterBlock": 3,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-078.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 13",
-          "width": 1800,
-          "height": 1350
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-079.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 14",
-          "width": 1800,
-          "height": 1350
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-029.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.47 사진 29",
+          "width": 1188,
+          "height": 1800
         }
       ]
     },
     {
-      "afterBlock": 4,
+      "afterBlock": 3,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-080.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 15",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-030.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.48 사진 30",
+          "width": 1125,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 3,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-031.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.49 사진 31",
+          "width": 1194,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-032.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.51 사진 32",
           "width": 1350,
           "height": 1800
-        },
+        }
+      ]
+    },
+    {
+      "afterBlock": 5,
+      "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-081.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 16",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-033.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.52 사진 33",
           "width": 1800,
           "height": 1350
         }
@@ -205,33 +168,10 @@
       "afterBlock": 5,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-082.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 17",
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-034.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.53 사진 34",
           "width": 1350,
           "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-083.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 18",
-          "width": 1800,
-          "height": 1350
-        }
-      ]
-    },
-    {
-      "afterBlock": 5,
-      "images": [
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-084.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 19",
-          "width": 1350,
-          "height": 1800
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-085.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 20",
-          "width": 1800,
-          "height": 1350
         }
       ]
     },
@@ -239,16 +179,10 @@
       "afterBlock": 6,
       "images": [
         {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-086.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 21",
-          "width": 1800,
-          "height": 1350
-        },
-        {
-          "src": "/images/book-reader/jarago-sipeun-ai/photo-087.webp",
-          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 여행 사진 22",
-          "width": 1800,
-          "height": 1350
+          "src": "/images/book-reader/jarago-sipeun-ai/book-pdf-photo-035.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 우리는 태어날 때 핸드폰을 가지고 있지 않았다 실제 책 p.55 사진 35",
+          "width": 1350,
+          "height": 1800
         }
       ]
     }
