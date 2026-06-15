@@ -26,7 +26,7 @@ export function SideNavigation({ activeSection, onSectionClick, onEmailClick }: 
           />
         </div>
         <div
-          className="text-accent-orange font-playfair font-light text-[11px] tracking-widest sm:text-xs lg:text-sm"
+          className="text-accent-orange font-playfair font-light text-xs tracking-widest sm:text-sm lg:text-base"
           style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
         >
           생각을나누다
