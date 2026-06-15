@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import * as Dialog from "@radix-ui/react-dialog"
 import { Search, X } from "lucide-react"
 import { BOOKS_DATA, type Book } from "@/lib/books-data"
@@ -32,6 +33,7 @@ function BookCover({ src, alt }: { src: string; alt: string }) {
 }
 
 export function BooksCatalogModal({ isOpen, onClose, onBookSelect }: BooksCatalogModalProps) {
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
 
   const filteredBooks = BOOKS_DATA.filter((book) => {
@@ -118,6 +120,8 @@ export function BooksCatalogModal({ isOpen, onClose, onBookSelect }: BooksCatalo
                     key={book.id}
                     type="button"
                     onClick={() => onBookSelect(book)}
+                    onMouseEnter={() => router.prefetch(`/books/${book.id}`)}
+                    onFocus={() => router.prefetch(`/books/${book.id}`)}
                     className="group flex flex-col text-left focus:outline-none"
                   >
                     <div

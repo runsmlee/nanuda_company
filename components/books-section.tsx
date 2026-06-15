@@ -32,6 +32,11 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
     router.push(`/books/${bookId}`)
   }
 
+  // Warm the target route on hover/focus intent so the click navigates instantly
+  const prefetchBook = (bookId: string) => {
+    router.prefetch(`/books/${bookId}`)
+  }
+
   // BOOKS_DATA에서 사이드바에 표시할 책들을 선택
   const sidebarBooks = [
     BOOKS_DATA.find(book => book.id === "meet-on-the-road"),
@@ -56,6 +61,7 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
           <article
             onClick={() => handleBookClick("annapurna-letter")}
+            onMouseEnter={() => prefetchBook("annapurna-letter")}
             className="lg:col-span-7 bg-secondary-dark overflow-hidden relative transform -skew-y-1 transition-all duration-400 hover:skew-y-0 hover:scale-105 animate-on-scroll opacity-0 translate-y-12 cursor-pointer"
           >
             <div className="h-72 relative overflow-hidden sm:h-96">
@@ -94,6 +100,7 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
                 <article
                   key={index}
                   onClick={() => handleBookClick(book.id)}
+                  onMouseEnter={() => prefetchBook(book.id)}
                   className="bg-secondary-dark overflow-hidden border border-transparent transition-all duration-300 hover:translate-x-4 hover:border-accent-orange/40 cursor-pointer animate-on-scroll opacity-0 translate-y-12 flex h-36 sm:h-40"
                   style={{ transitionDelay: `${index * 0.15}s` }}
                 >
