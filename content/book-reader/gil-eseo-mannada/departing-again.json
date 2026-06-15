@@ -384,6 +384,19 @@
       "할렐루야. 감사합니다."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/departing-again-sketch.webp",
+          "alt": "길에서 만나다 다시 떠나기 손스케치 그림",
+          "width": 1693,
+          "height": 929
+        }
+      ]
+    }
+  ],
   "characterCount": 10029,
   "readTimeMinutes": 19
 }

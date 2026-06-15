@@ -189,6 +189,19 @@
       "되는 것이다."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 3,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/new-journey-sketch.webp",
+          "alt": "길에서 만나다 새로운 여정의 시작 손스케치 그림",
+          "width": 1658,
+          "height": 949
+        }
+      ]
+    }
+  ],
   "characterCount": 4936,
   "readTimeMinutes": 9
 }

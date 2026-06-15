@@ -253,6 +253,19 @@
       "중 하나의 침대를 마음대로 골라잡아 누웠다."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 10,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/journey-is-the-moment-sketch.webp",
+          "alt": "길에서 만나다 여행은 여정이 아니라 그 시각이다 손스케치 그림",
+          "width": 1643,
+          "height": 957
+        }
+      ]
+    }
+  ],
   "characterCount": 3737,
   "readTimeMinutes": 7
 }

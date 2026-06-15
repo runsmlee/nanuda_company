@@ -376,6 +376,19 @@
       "과 식사를 하며, 와인을 마시며 풀어졌다."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/rosario-sketch.webp",
+          "alt": "길에서 만나다 로사리오 손스케치 그림",
+          "width": 1692,
+          "height": 929
+        }
+      ]
+    }
+  ],
   "characterCount": 9943,
   "readTimeMinutes": 19
 }

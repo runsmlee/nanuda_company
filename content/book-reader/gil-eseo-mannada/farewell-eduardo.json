@@ -129,6 +129,19 @@
       "일찌감치 우루과이의 수도 몬테비데오(Montevideo)로 향할 것이다."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 3,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/farewell-eduardo-sketch.webp",
+          "alt": "길에서 만나다 에드와르도와의 작별 손스케치 그림",
+          "width": 1645,
+          "height": 956
+        }
+      ]
+    }
+  ],
   "characterCount": 3194,
   "readTimeMinutes": 6
 }
