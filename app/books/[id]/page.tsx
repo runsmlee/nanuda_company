@@ -192,11 +192,25 @@ export default async function BookDetailPage({ params }: PageProps) {
       <div className="min-h-screen bg-primary-dark text-text-light">
         <CustomCursor />
 
-        {/* Navigation */}
-        <nav className="p-6 border-b border-text-gray/20">
-          <Link href="/" className="text-accent-orange hover:underline cursor-pointer">
-            ← 홈으로 돌아가기
-          </Link>
+        {/* Breadcrumb — quiet, gray; orange is reserved for content accents */}
+        <nav aria-label="브레드크럼" className="p-6 border-b border-text-gray/20">
+          <ol className="flex flex-wrap items-center gap-2 text-sm text-text-gray">
+            <li>
+              <Link href="/" className="hover:text-text-light transition-colors cursor-pointer">
+                홈
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-text-gray/40">/</li>
+            <li>
+              <Link href="/#books" className="hover:text-text-light transition-colors cursor-pointer">
+                여행서
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-text-gray/40">/</li>
+            <li aria-current="page" className="max-w-[60vw] truncate text-text-light">
+              {book.title}
+            </li>
+          </ol>
         </nav>
 
         <BookDetailClient book={book} />

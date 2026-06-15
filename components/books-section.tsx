@@ -1,32 +1,14 @@
 "use client"
 
-import { forwardRef, useEffect, useRef, useState, lazy, Suspense, memo } from "react"
+import { forwardRef, useEffect, useRef, memo } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { BOOKS_DATA } from "../lib/books-data"
 import { hasOnlineReader } from "@/lib/book-reader-config"
 
-const BookModal = lazy(() => import('./book-modal').then(module => ({ default: module.BookModal })))
-
-interface Book {
-  id: string
-  title: string
-  subtitle: string
-  price: string
-  image: string
-  description: string
-  author: string
-  pages: number
-  publishDate: string
-  category: string
-  amazonLink?: string
-  excerpt: string
-  naverLink?: string
-}
-
 export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
+  const router = useRouter()
   const observerRef = useRef<IntersectionObserver | null>(null)
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null)
-  const [isBookModalOpen, setIsBookModalOpen] = useState(false)
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
@@ -47,11 +29,7 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
   }, [])
 
   const handleBookClick = (bookId: string) => {
-    const book = BOOKS_DATA.find((b) => b.id === bookId)
-    if (book) {
-      setSelectedBook(book)
-      setIsBookModalOpen(true)
-    }
+    router.push(`/books/${bookId}`)
   }
 
   // BOOKS_DATA에서 사이드바에 표시할 책들을 선택
@@ -144,10 +122,6 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
           </div>
         </div>
       </section>
-
-      <Suspense fallback={null}>
-        <BookModal book={selectedBook} isOpen={isBookModalOpen} onClose={() => setIsBookModalOpen(false)} />
-      </Suspense>
     </>
   )
 }))

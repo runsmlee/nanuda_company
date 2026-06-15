@@ -61,7 +61,7 @@ export function BooksCatalogModal({ isOpen, onClose, onBookSelect }: BooksCatalo
             placeholder="책 제목, 부제목, 저자로 검색..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 bg-primary-dark border border-text-gray/30 rounded-lg text-text-light placeholder-text-gray focus:border-accent-orange focus:outline-none"
+            className="w-full px-4 py-3 bg-primary-dark border border-text-gray/30 rounded-lg text-text-light placeholder-text-gray focus:border-accent-orange focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-orange/60"
           />
         </div>
 
@@ -77,7 +77,7 @@ export function BooksCatalogModal({ isOpen, onClose, onBookSelect }: BooksCatalo
                 <div className="aspect-[3/4] overflow-hidden">
                   <img
                     src={book.image || "/placeholder.svg"}
-                    alt={book.title}
+                    alt={`${book.title} 표지`}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>

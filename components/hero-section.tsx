@@ -1,34 +1,17 @@
 "use client"
 
 import { forwardRef, useState } from "react"
+import { useRouter } from "next/navigation"
+import { type Book } from "@/lib/books-data"
 import { BooksCatalogModal } from "./books-catalog-modal"
-import { BookModal } from "./book-modal"
-
-interface Book {
-  id: string
-  title: string
-  subtitle: string
-  price: string
-  image: string
-  description: string
-  author: string
-  pages: number
-  publishDate: string
-  category: string
-  amazonLink?: string
-  excerpt: string
-  naverLink?: string
-}
 
 export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
+  const router = useRouter()
   const [isCatalogOpen, setIsCatalogOpen] = useState(false)
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null)
-  const [isBookModalOpen, setIsBookModalOpen] = useState(false)
 
   const handleBookSelect = (book: Book) => {
     setIsCatalogOpen(false)
-    setSelectedBook(book)
-    setIsBookModalOpen(true)
+    router.push(`/books/${book.id}`)
   }
 
   return (
@@ -64,11 +47,8 @@ export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
         <div className="absolute top-1/2 right-1/4 w-1.5 h-1.5 bg-accent-orange rounded-full opacity-50" />
       </section>
 
-      {/* Modals */}
+      {/* Modal */}
       <BooksCatalogModal isOpen={isCatalogOpen} onClose={() => setIsCatalogOpen(false)} onBookSelect={handleBookSelect} />
-      {selectedBook && (
-        <BookModal book={selectedBook} isOpen={isBookModalOpen} onClose={() => setIsBookModalOpen(false)} />
-      )}
     </>
   )
 })

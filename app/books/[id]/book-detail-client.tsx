@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { BookOpen, Images, ShoppingBag } from "lucide-react"
+import { BookOpen, Images, Share2, ShoppingBag } from "lucide-react"
 import { BOOKS_DATA, type Book } from "@/lib/books-data"
 import { BookPreviewModal } from "@/components/book-preview-modal"
 import { hasPreview } from "@/lib/book-preview-utils"
@@ -15,6 +15,7 @@ interface BookDetailClientProps {
 
 export default function BookDetailClient({ book }: BookDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
+  const [shareCopied, setShareCopied] = useState(false)
   const readerMeta = getOnlineReaderMeta(book.id)
   const purchaseHref = book.naverLink || book.amazonLink
   const purchaseLabel = book.naverLink
@@ -27,6 +28,22 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [book.id])
+
+  // 공유 — 네이티브 공유 시트, 없으면 링크 복사로 폴백
+  const handleShare = async () => {
+    const url = window.location.href
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: book.title, text: `${book.title} — ${book.subtitle}`, url })
+      } else {
+        await navigator.clipboard.writeText(url)
+        setShareCopied(true)
+        setTimeout(() => setShareCopied(false), 2000)
+      }
+    } catch {
+      // 공유 시트를 닫았거나 클립보드 접근이 막힌 경우 — 조용히 무시
+    }
+  }
 
   // 미리보기 네비게이션 핸들러
   const handlePreviewNavigate = useCallback((direction: 'prev' | 'next') => {
@@ -55,8 +72,8 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
       {/* Book Detail */}
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Book Cover */}
-          <div className="order-2 space-y-8 lg:order-1">
+          {/* Book Cover — first on mobile (the "open the cover" moment), left on desktop */}
+          <div className="space-y-8">
             <div className="aspect-[3/4] rounded-lg overflow-hidden shadow-2xl max-w-md mx-auto relative">
               <Image 
                 src={book.image || "/placeholder.svg"} 
@@ -70,7 +87,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
           </div>
 
           {/* Book Information */}
-          <div className="order-1 space-y-8 lg:order-2">
+          <div className="space-y-8">
             <div>
               <h1 className="font-playfair text-4xl lg:text-5xl font-normal mb-4">{book.title}</h1>
               <h2 className="text-xl text-text-gray mb-6">{book.subtitle}</h2>
@@ -102,7 +119,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                     무료 공개본
                   </p>
                   <p className="mt-2 text-text-gray leading-relaxed">
-                    전반부를 텍스트로 바로 읽을 수 있습니다. {readerMeta.summary}
+                    책의 전반부를 온라인에서 무료로 읽어볼 수 있어요. {readerMeta.summary} · 나머지 이야기는 종이책에 담겨 있습니다.
                   </p>
                 </div>
               )}
@@ -153,6 +170,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                 {hasPreview(book.id) && (
                   <button
                     onClick={() => setSelectedImage(1)}
+                    title="책의 실제 지면을 이미지로 미리 봅니다"
                     className="inline-flex items-center justify-center gap-2 border border-text-gray/50 px-5 py-3 font-medium text-text-gray transition-colors hover:bg-text-gray hover:text-primary-dark cursor-pointer"
                   >
                     <Images className="h-4 w-4" />
@@ -195,6 +213,17 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                 </ul>
               </div>
             )}
+
+            {/* Share — fulfils the "나누다(나눔)" promise, kept quiet */}
+            <div className="flex items-center gap-5 border-t border-text-gray/20 pt-6 text-sm text-text-gray">
+              <button
+                onClick={handleShare}
+                className="inline-flex items-center gap-2 transition-colors hover:text-accent-orange cursor-pointer"
+              >
+                <Share2 className="h-4 w-4" />
+                {shareCopied ? "링크가 복사되었어요" : "공유하기"}
+              </button>
+            </div>
           </div>
         </div>
 
