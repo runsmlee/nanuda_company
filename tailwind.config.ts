@@ -11,7 +11,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        playfair: ["Times New Roman", "Georgia", "serif"],
+        playfair: ['"Nanum Myeongjo"', "Georgia", "Times New Roman", "serif"],
+        myeongjo: ['"Nanum Myeongjo"', "Georgia", "Times New Roman", "serif"],
         inter: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
       },
       colors: {
