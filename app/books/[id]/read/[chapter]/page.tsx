@@ -316,14 +316,9 @@ function ReaderPhotoGroup({
   chapterTitle: string
   priority?: boolean
 }) {
-  const gridClass =
-    group.images.length === 1
-      ? "grid gap-3"
-      : "grid gap-3 sm:grid-cols-2"
-
   return (
     <figure className="my-10 md:my-12">
-      <div className={gridClass}>
+      <div className="grid gap-5 md:gap-6">
         {group.images.map((image) => (
           <Image
             key={image.src}
@@ -335,11 +330,7 @@ function ReaderPhotoGroup({
             unoptimized
             draggable={false}
             className="h-auto w-full rounded-sm shadow-[0_18px_50px_rgba(32,24,19,0.14)]"
-            sizes={
-              group.images.length === 1
-                ? "(max-width: 768px) 100vw, 720px"
-                : "(max-width: 768px) 100vw, 360px"
-            }
+            sizes="(max-width: 768px) 100vw, 720px"
           />
         ))}
       </div>
