@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef, useState } from "react"
+import { forwardRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { type Book } from "@/lib/books-data"
 import { BooksCatalogModal } from "./books-catalog-modal"
@@ -8,10 +8,21 @@ import { BooksCatalogModal } from "./books-catalog-modal"
 export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
   const router = useRouter()
   const [isCatalogOpen, setIsCatalogOpen] = useState(false)
+  const [pendingBookId, setPendingBookId] = useState<string | null>(null)
+  const [, startTransition] = useTransition()
 
   const handleBookSelect = (book: Book) => {
+    // Keep the modal open as a cover while the route loads. Closing it here
+    // would briefly reveal the home page before the book page renders.
+    setPendingBookId(book.id)
+    startTransition(() => {
+      router.push(`/books/${book.id}`)
+    })
+  }
+
+  const handleClose = () => {
     setIsCatalogOpen(false)
-    router.push(`/books/${book.id}`)
+    setPendingBookId(null)
   }
 
   return (
@@ -48,7 +59,12 @@ export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
       </section>
 
       {/* Modal */}
-      <BooksCatalogModal isOpen={isCatalogOpen} onClose={() => setIsCatalogOpen(false)} onBookSelect={handleBookSelect} />
+      <BooksCatalogModal
+        isOpen={isCatalogOpen}
+        onClose={handleClose}
+        onBookSelect={handleBookSelect}
+        pendingBookId={pendingBookId}
+      />
     </>
   )
 })

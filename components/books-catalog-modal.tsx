@@ -11,6 +11,8 @@ interface BooksCatalogModalProps {
   isOpen: boolean
   onClose: () => void
   onBookSelect: (book: Book) => void
+  /** Set while a selected book's page is loading — keeps the modal up as a cover. */
+  pendingBookId?: string | null
 }
 
 /** Cover that fades in as it loads — the warm #181210 panel shows through until then,
@@ -32,7 +34,7 @@ function BookCover({ src, alt }: { src: string; alt: string }) {
   )
 }
 
-export function BooksCatalogModal({ isOpen, onClose, onBookSelect }: BooksCatalogModalProps) {
+export function BooksCatalogModal({ isOpen, onClose, onBookSelect, pendingBookId = null }: BooksCatalogModalProps) {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
 
@@ -170,6 +172,14 @@ export function BooksCatalogModal({ isOpen, onClose, onBookSelect }: BooksCatalo
               </div>
             )}
           </div>
+
+          {/* Loading veil — keeps the modal as a cover while the book page loads,
+              instead of flashing the home page underneath. */}
+          {pendingBookId && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0b0806]/70">
+              <span className="animate-pulse font-myeongjo text-base text-[#f1e9df]">책을 펼치는 중…</span>
+            </div>
+          )}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
