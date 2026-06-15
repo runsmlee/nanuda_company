@@ -197,6 +197,19 @@
       "여긴 비과수 (Biguacu) 다."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 38,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/listening-to-wind-sketch.webp",
+          "alt": "길에서 만나다 바람의 소리를 듣다 손스케치 그림",
+          "width": 1597,
+          "height": 985
+        }
+      ]
+    }
+  ],
   "characterCount": 2545,
   "readTimeMinutes": 5
 }

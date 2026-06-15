@@ -237,6 +237,19 @@
       "- 끝 -"
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 39,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/toward-sao-paulo-sketch.webp",
+          "alt": "길에서 만나다 상파울루를 향해 손스케치 그림",
+          "width": 1650,
+          "height": 953
+        }
+      ]
+    }
+  ],
   "characterCount": 3484,
   "readTimeMinutes": 7
 }

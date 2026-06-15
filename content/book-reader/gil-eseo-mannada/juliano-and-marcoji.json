@@ -404,6 +404,19 @@
       "두 명의 친구, 줄리아노와 마르코지"
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 67,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/juliano-and-marcoji-sketch.webp",
+          "alt": "길에서 만나다 두 명의 친구 줄리아노와 마르코지 손스케치 그림",
+          "width": 1536,
+          "height": 1024
+        }
+      ]
+    }
+  ],
   "characterCount": 6091,
   "readTimeMinutes": 12
 }

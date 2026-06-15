@@ -245,6 +245,19 @@
       "않으며, 그들을 위한 기도를 하고 잠이 든다."
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 34,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/crossing-another-border-sketch.webp",
+          "alt": "길에서 만나다 걸어서 또 하나의 국경을 통과하다 손스케치 그림",
+          "width": 1536,
+          "height": 1024
+        }
+      ]
+    }
+  ],
   "characterCount": 4080,
   "readTimeMinutes": 8
 }

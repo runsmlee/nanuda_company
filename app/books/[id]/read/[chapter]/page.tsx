@@ -331,7 +331,11 @@ function ReaderPhotoGroup({
             priority={priority}
             unoptimized
             draggable={false}
-            className="h-auto w-full rounded-sm shadow-[0_18px_50px_rgba(32,24,19,0.14)]"
+            className={
+              image.src.includes("/sketches/")
+                ? "h-auto w-full mix-blend-multiply"
+                : "h-auto w-full rounded-sm shadow-[0_18px_50px_rgba(32,24,19,0.14)]"
+            }
             sizes="(max-width: 768px) 100vw, 720px"
           />
         ))}
