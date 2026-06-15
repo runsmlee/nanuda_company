@@ -46,7 +46,7 @@ export function HomePageClient() {
         onEmailClick={() => setIsEmailModalOpen(true)}
       />
 
-      <main className="ml-20 lg:ml-20">
+      <main className="ml-14 sm:ml-16 lg:ml-20">
         <HeroSection ref={(el) => { sectionsRef.current[0] = el }} />
         <BooksSection ref={(el) => { sectionsRef.current[1] = el }} />
         <BlogSection ref={(el) => { sectionsRef.current[2] = el }} />

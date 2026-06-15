@@ -146,16 +146,16 @@ export default async function ColumnDetailPage({ params }: PageProps) {
 
       {/* Navigation */}
       <nav className="p-6 border-b border-text-gray/20">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-accent-orange hover:underline cursor-pointer">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <Link href="/" className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-accent-orange hover:underline cursor-pointer">
             홈
           </Link>
-          <span className="text-text-gray">•</span>
-          <Link href="/column" className="text-accent-orange hover:underline cursor-pointer">
+          <span className="shrink-0 text-text-gray">•</span>
+          <Link href="/column" className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-accent-orange hover:underline cursor-pointer">
             칼럼
           </Link>
-          <span className="text-text-gray">•</span>
-          <span className="text-text-gray">{post.title}</span>
+          <span className="shrink-0 text-text-gray">•</span>
+          <span className="min-w-0 flex-1 text-text-gray leading-6">{post.title}</span>
         </div>
       </nav>
 
@@ -175,13 +175,13 @@ export default async function ColumnDetailPage({ params }: PageProps) {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center gap-4 text-sm text-text-gray">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-text-gray">
               <span className="bg-accent-orange text-white px-3 py-1 rounded-full">{post.category}</span>
-              <span>{post.date}</span>
-              <span>•</span>
-              <span>{post.readTime} 읽기</span>
-              <span>•</span>
-              <span>by {post.author}</span>
+              <span className="whitespace-nowrap">{post.date}</span>
+              <span className="text-text-gray/60">•</span>
+              <span className="whitespace-nowrap">{post.readTime} 읽기</span>
+              <span className="text-text-gray/60">•</span>
+              <span className="whitespace-nowrap">by {post.author}</span>
             </div>
 
             <h1 className="font-playfair text-4xl lg:text-5xl font-normal leading-tight">{post.title}</h1>
@@ -212,9 +212,9 @@ export default async function ColumnDetailPage({ params }: PageProps) {
           <div className="flex justify-between items-center">
             <div className="space-x-4">
               <span className="text-text-gray">공유하기:</span>
-              <button className="text-accent-orange hover:underline cursor-pointer">Facebook</button>
-              <button className="text-accent-orange hover:underline cursor-pointer">Twitter</button>
-              <button className="text-accent-orange hover:underline cursor-pointer">링크 복사</button>
+              <button className="inline-flex min-h-11 items-center text-accent-orange hover:underline cursor-pointer">Facebook</button>
+              <button className="inline-flex min-h-11 items-center text-accent-orange hover:underline cursor-pointer">Twitter</button>
+              <button className="inline-flex min-h-11 items-center text-accent-orange hover:underline cursor-pointer">링크 복사</button>
             </div>
 
             <Link

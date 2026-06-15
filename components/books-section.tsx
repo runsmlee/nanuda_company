@@ -45,7 +45,7 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
 
   return (
     <>
-      <section id="books" ref={ref} className="py-32 px-8 lg:px-16 relative">
+      <section id="books" ref={ref} className="py-32 px-6 sm:px-8 lg:px-16 relative">
         <div className="mb-24">
           <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-normal mb-4">책을 나누다</h2>
           <p className="text-text-gray text-base sm:text-lg leading-relaxed max-w-xl">
@@ -58,7 +58,7 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
             onClick={() => handleBookClick("annapurna-letter")}
             className="lg:col-span-7 bg-secondary-dark overflow-hidden relative transform -skew-y-1 transition-all duration-400 hover:skew-y-0 hover:scale-105 animate-on-scroll opacity-0 translate-y-12 cursor-pointer"
           >
-            <div className="h-96 relative overflow-hidden">
+            <div className="h-72 relative overflow-hidden sm:h-96">
               <Image
                 src="/images/annapurna-letter.jpg"
                 alt="안나푸르나에서 보내는 편지"
@@ -69,9 +69,9 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
-            <div className="p-12 transform skew-y-1">
+            <div className="p-6 transform skew-y-1 sm:p-12">
               <h3 className="font-playfair text-2xl sm:text-3xl font-normal mb-4 text-text-light">안나푸르나에서 보내는 편지</h3>
-              <div className="flex gap-8 mb-6">
+              <div className="flex flex-wrap gap-x-4 gap-y-2 mb-6 sm:gap-8">
                 <span className="text-accent-orange font-medium">{annapurnaBook?.price}</span>
                 <span className="text-accent-orange font-medium">{annapurnaBook?.publishDate}</span>
                 <span className="text-accent-orange font-medium">{annapurnaBook?.category}</span>
@@ -94,10 +94,10 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
                 <article
                   key={index}
                   onClick={() => handleBookClick(book.id)}
-                  className="bg-secondary-dark overflow-hidden border border-transparent transition-all duration-300 hover:translate-x-4 hover:border-accent-orange/40 cursor-pointer animate-on-scroll opacity-0 translate-y-12 flex h-40"
+                  className="bg-secondary-dark overflow-hidden border border-transparent transition-all duration-300 hover:translate-x-4 hover:border-accent-orange/40 cursor-pointer animate-on-scroll opacity-0 translate-y-12 flex h-36 sm:h-40"
                   style={{ transitionDelay: `${index * 0.15}s` }}
                 >
-                  <div className="w-32 h-full flex-shrink-0 relative">
+                  <div className="w-24 h-full flex-shrink-0 relative sm:w-32">
                     <Image 
                       src={book.image || "/placeholder.svg"} 
                       alt={book.title} 
@@ -106,15 +106,15 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
                       sizes="128px"
                     />
                   </div>
-                  <div className="p-6 flex-1 flex flex-col justify-center">
-                    <h4 className="text-base sm:text-lg font-semibold mb-2">{book.title}</h4>
+                  <div className="p-4 flex-1 flex flex-col justify-center min-w-0 sm:p-6">
+                    <h4 className="text-sm sm:text-lg font-semibold mb-2">{book.title}</h4>
                     {hasOnlineReader(book.id) && (
                       <span className="mb-2 w-fit text-[11px] font-medium text-accent-orange">
                         무료 공개본
                       </span>
                     )}
                     <p className="text-text-gray text-xs sm:text-sm mb-4 line-clamp-2">{book.subtitle}</p>
-                    <div className="text-accent-orange font-semibold text-lg sm:text-xl">{book.price}</div>
+                    <div className="text-accent-orange font-semibold text-base sm:text-xl">{book.price}</div>
                   </div>
                 </article>
               ) : null

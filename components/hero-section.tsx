@@ -16,7 +16,7 @@ export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
 
   return (
     <>
-      <section id="home" ref={ref} className="min-h-screen flex items-center justify-center px-8 lg:px-16 relative">
+      <section id="home" ref={ref} className="min-h-screen flex items-center justify-center px-6 sm:px-8 lg:px-16 relative">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="font-playfair text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light mb-6 sm:mb-8 leading-tight">
             여행의
@@ -34,7 +34,7 @@ export const HeroSection = forwardRef<HTMLElement>((props, ref) => {
 
           <button
             onClick={() => setIsCatalogOpen(true)}
-            className="inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 border-2 border-accent-orange text-accent-orange font-medium text-base sm:text-lg hover:bg-accent-orange hover:text-white transition-all duration-300 cursor-pointer"
+            className="inline-flex items-center gap-3 whitespace-nowrap px-5 py-3 border-2 border-accent-orange text-accent-orange font-medium text-sm hover:bg-accent-orange hover:text-white transition-all duration-300 cursor-pointer sm:px-8 sm:py-4 sm:text-lg"
           >
             여행서 탐험하기
             <span>→</span>
