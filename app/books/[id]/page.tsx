@@ -196,13 +196,13 @@ export default async function BookDetailPage({ params }: PageProps) {
         <nav aria-label="브레드크럼" className="p-6 border-b border-text-gray/20">
           <ol className="flex flex-wrap items-center gap-2 text-sm text-text-gray">
             <li>
-              <Link href="/" className="hover:text-text-light transition-colors cursor-pointer">
+              <Link href="/" className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-text-light transition-colors cursor-pointer">
                 홈
               </Link>
             </li>
             <li aria-hidden="true" className="text-text-gray/40">/</li>
             <li>
-              <Link href="/#books" className="hover:text-text-light transition-colors cursor-pointer">
+              <Link href="/#books" className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-text-light transition-colors cursor-pointer">
                 여행서
               </Link>
             </li>

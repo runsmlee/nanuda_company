@@ -171,21 +171,21 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
       <main className="native-cursor min-h-screen bg-[#f5efe5] text-[#201813]">
         <nav className="border-b border-[#201813]/15 px-6 py-5">
           <div className="mx-auto flex max-w-5xl items-center gap-3 overflow-hidden text-sm">
-            <Link href="/" className="shrink-0 text-[#9b3f1d] hover:underline">
+            <Link href="/" className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#9b3f1d] hover:underline">
               홈
             </Link>
             <span className="shrink-0 text-[#201813]/40">/</span>
-            <Link href={`/books/${book.id}`} className="min-w-0 truncate text-[#9b3f1d] hover:underline">
+            <Link href={`/books/${book.id}`} className="inline-flex min-h-11 min-w-0 items-center truncate text-[#9b3f1d] hover:underline">
               {book.title}
             </Link>
             <span className="shrink-0 text-[#201813]/40">/</span>
-            <Link href={`/books/${book.id}/read`} className="shrink-0 text-[#9b3f1d] hover:underline">
+            <Link href={`/books/${book.id}/read`} className="inline-flex min-h-11 shrink-0 items-center text-[#9b3f1d] hover:underline">
               온라인 공개본
             </Link>
           </div>
         </nav>
 
-        <article className="mx-auto max-w-3xl px-6 py-12 md:py-16">
+        <article className="mx-auto max-w-3xl px-6 pb-28 pt-12 md:py-16">
           <header className="mb-12">
             <div className="mb-5 flex flex-wrap items-center gap-3 text-sm text-[#201813]/60">
               <span className="rounded-full bg-[#201813]/10 px-3 py-1 text-[#201813]/75">
@@ -304,6 +304,57 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
             </div>
           </footer>
         </article>
+
+        <nav
+          aria-label="모바일 독서 내비게이션"
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-[#201813]/15 bg-[#f5efe5]/95 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2 shadow-[0_-18px_48px_rgba(32,24,19,0.12)] backdrop-blur md:hidden"
+        >
+          <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
+            {previous ? (
+              <Link
+                href={`/books/${book.id}/read/${previous.slug}`}
+                className="inline-flex min-h-11 items-center justify-center gap-1 rounded-md border border-[#201813]/15 px-2 text-sm font-medium text-[#201813]/75"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                이전
+              </Link>
+            ) : (
+              <Link
+                href={`/books/${book.id}`}
+                className="inline-flex min-h-11 items-center justify-center gap-1 rounded-md border border-[#201813]/15 px-2 text-sm font-medium text-[#201813]/75"
+              >
+                <BookOpen className="h-4 w-4" />
+                책
+              </Link>
+            )}
+
+            <Link
+              href={`/books/${book.id}/read`}
+              className="inline-flex min-h-11 items-center justify-center gap-1 rounded-md bg-[#201813] px-2 text-sm font-semibold text-white"
+            >
+              <List className="h-4 w-4" />
+              목차
+            </Link>
+
+            {next ? (
+              <Link
+                href={`/books/${book.id}/read/${next.slug}`}
+                className="inline-flex min-h-11 items-center justify-center gap-1 rounded-md border border-[#201813]/15 px-2 text-sm font-medium text-[#201813]/75"
+              >
+                다음
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <Link
+                href={`/books/${book.id}`}
+                className="inline-flex min-h-11 items-center justify-center gap-1 rounded-md border border-[#201813]/15 px-2 text-sm font-medium text-[#201813]/75"
+              >
+                상세
+                <BookOpen className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
+        </nav>
       </main>
     </>
   )

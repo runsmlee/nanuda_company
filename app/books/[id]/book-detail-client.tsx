@@ -23,6 +23,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
     : book.amazonLink
       ? `Amazon에서 구매하기 · ${book.price}`
       : null
+  const hasMobileActionBar = Boolean(readerMeta || (purchaseHref && purchaseLabel))
 
   // 페이지 로드 시 맨 위로 스크롤
   useEffect(() => {
@@ -70,7 +71,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
   return (
     <>
       {/* Book Detail */}
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className={`max-w-6xl mx-auto px-6 py-12 ${hasMobileActionBar ? "pb-32 md:pb-12" : ""}`}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Book Cover — first on mobile (the "open the cover" moment), left on desktop */}
           <div className="space-y-8">
@@ -254,6 +255,35 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
           </div>
         </div>
       </div>
+
+      {hasMobileActionBar && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-text-gray/20 bg-primary-dark/95 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 shadow-[0_-18px_50px_rgba(0,0,0,0.35)] backdrop-blur md:hidden">
+          <div className={`mx-auto grid max-w-md gap-2 ${readerMeta && purchaseHref && purchaseLabel ? "grid-cols-[1fr_auto]" : "grid-cols-1"}`}>
+            {readerMeta && (
+              <Link
+                href={`/books/${book.id}/read`}
+                className="inline-flex min-h-12 items-center justify-center gap-2 bg-text-light px-4 text-sm font-semibold text-primary-dark transition-colors hover:bg-text-light/90"
+              >
+                <BookOpen className="h-4 w-4" />
+                무료 읽기
+              </Link>
+            )}
+
+            {purchaseHref && purchaseLabel && (
+              <a
+                href={purchaseHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-12 items-center justify-center gap-2 border border-accent-orange/70 px-4 text-sm font-semibold text-accent-orange transition-colors hover:bg-accent-orange hover:text-white"
+                aria-label={`${book.title} 종이책 구매하기`}
+              >
+                <ShoppingBag className="h-4 w-4" />
+                구매
+              </a>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Book Preview Modal */}
       <BookPreviewModal

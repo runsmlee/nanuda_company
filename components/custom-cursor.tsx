@@ -4,10 +4,25 @@ import { useEffect, useRef, useState } from "react"
 
 export function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null)
+  const [isEnabled, setIsEnabled] = useState(false)
   const [isClicking, setIsClicking] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 769px)")
+    const updateCursorAvailability = () => setIsEnabled(mediaQuery.matches)
+
+    updateCursorAvailability()
+    mediaQuery.addEventListener("change", updateCursorAvailability)
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateCursorAvailability)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isEnabled) return
+
     const cursor = cursorRef.current
     if (!cursor) return
 
@@ -39,7 +54,11 @@ export function CustomCursor() {
       document.removeEventListener("mouseup", handleMouseUp)
       document.removeEventListener("mouseover", handleMouseOver)
     }
-  }, [])
+  }, [isEnabled])
+
+  if (!isEnabled) {
+    return null
+  }
 
   return (
     <div
@@ -52,6 +71,8 @@ export function CustomCursor() {
             : "w-10 h-10 border-2 border-accent-orange"
       } rounded-full`}
       style={{
+        left: "-100px",
+        top: "-100px",
         transform: "translate(-50%, -50%)",
         willChange: "transform",
         backfaceVisibility: "hidden",

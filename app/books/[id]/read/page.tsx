@@ -177,15 +177,15 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
       <main className="native-cursor min-h-screen bg-[#f5efe5] text-[#201813]">
         <nav className="border-b border-[#201813]/15 px-6 py-5">
           <div className="mx-auto flex max-w-6xl items-center gap-3 overflow-hidden text-sm">
-            <Link href="/" className="shrink-0 text-[#9b3f1d] hover:underline">
+            <Link href="/" className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#9b3f1d] hover:underline">
               홈
             </Link>
             <span className="shrink-0 text-[#201813]/40">/</span>
-            <Link href={`/books/${book.id}`} className="min-w-0 truncate text-[#9b3f1d] hover:underline">
+            <Link href={`/books/${book.id}`} className="inline-flex min-h-11 min-w-0 items-center truncate text-[#9b3f1d] hover:underline">
               {book.title}
             </Link>
             <span className="shrink-0 text-[#201813]/40">/</span>
-            <span className="shrink-0 text-[#201813]/70">온라인 공개본</span>
+            <span className="inline-flex min-h-11 shrink-0 items-center text-[#201813]/70">온라인 공개본</span>
           </div>
         </nav>
 
