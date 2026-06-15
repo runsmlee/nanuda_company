@@ -1,0 +1,107 @@
+{
+  "bookId": "gil-eseo-mannada",
+  "title": "길에서 만나다 온라인 공개본",
+  "description": "최종 PDF에서 추출한 길에서 만나다 전반부 무료 공개 독서 콘텐츠입니다.",
+  "source": "남미여행일기'길에서만나다'(최종 20210702).pdf",
+  "chapters": [
+    {
+      "slug": "prologue",
+      "title": "프롤로그",
+      "part": "길에서 만나다",
+      "day": "",
+      "pageStart": 2,
+      "pageEnd": 3,
+      "order": 1,
+      "characterCount": 597,
+      "readTimeMinutes": 1
+    },
+    {
+      "slug": "bus-terminal",
+      "title": "버스터미널에서 빈털터리가 되다",
+      "part": "아르헨티나",
+      "day": "1일 차",
+      "pageStart": 9,
+      "pageEnd": 16,
+      "order": 2,
+      "characterCount": 4514,
+      "readTimeMinutes": 9
+    },
+    {
+      "slug": "rising-again",
+      "title": "다시 일어서기",
+      "part": "아르헨티나",
+      "day": "5일 차",
+      "pageStart": 17,
+      "pageEnd": 48,
+      "order": 3,
+      "characterCount": 15577,
+      "readTimeMinutes": 30
+    },
+    {
+      "slug": "new-journey",
+      "title": "새로운 여정의 시작",
+      "part": "아르헨티나",
+      "day": "14일 차",
+      "pageStart": 49,
+      "pageEnd": 57,
+      "order": 4,
+      "characterCount": 4936,
+      "readTimeMinutes": 9
+    },
+    {
+      "slug": "rosario",
+      "title": "로사리오",
+      "part": "아르헨티나",
+      "day": "15일 차 밤",
+      "pageStart": 58,
+      "pageEnd": 75,
+      "order": 5,
+      "characterCount": 9943,
+      "readTimeMinutes": 19
+    },
+    {
+      "slug": "departing-again",
+      "title": "다시 떠나기",
+      "part": "아르헨티나",
+      "day": "22일 차",
+      "pageStart": 76,
+      "pageEnd": 93,
+      "order": 6,
+      "characterCount": 10029,
+      "readTimeMinutes": 19
+    },
+    {
+      "slug": "crossing-border-by-bicycle",
+      "title": "자전거로 국경을 통과하다",
+      "part": "우루과이",
+      "day": "25일 차",
+      "pageStart": 97,
+      "pageEnd": 107,
+      "order": 7,
+      "characterCount": 6067,
+      "readTimeMinutes": 12
+    },
+    {
+      "slug": "farewell-eduardo",
+      "title": "에드와르도와의 작별",
+      "part": "우루과이",
+      "day": "27일 차",
+      "pageStart": 108,
+      "pageEnd": 113,
+      "order": 8,
+      "characterCount": 3194,
+      "readTimeMinutes": 6
+    },
+    {
+      "slug": "arriving-montevideo",
+      "title": "우루과이의 수도, 몬테비데오에 도착하다",
+      "part": "우루과이",
+      "day": "28일 차",
+      "pageStart": 114,
+      "pageEnd": 118,
+      "order": 9,
+      "characterCount": 2757,
+      "readTimeMinutes": 5
+    }
+  ]
+}

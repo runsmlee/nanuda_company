@@ -3,8 +3,10 @@ import { CustomCursor } from "@/components/custom-cursor"
 import Link from "next/link"
 import { Metadata } from "next"
 import BookDetailClient from "./book-detail-client"
+import { getBookReaderIndex } from "@/lib/book-reader"
 import {
   absoluteUrl,
+  bookChapterUrl,
   bookPublishedDate,
   bookUrl,
   parseBookPrice,
@@ -102,6 +104,7 @@ export default async function BookDetailPage({ params }: PageProps) {
     "@type": "Person",
     "name": name,
   }))
+  const reader = getBookReaderIndex(book.id)
   const primaryOfferUrl = book.naverLink || book.amazonLink || bookUrl(book.id)
   const { price, priceCurrency } = parseBookPrice(book.price)
 
@@ -124,6 +127,14 @@ export default async function BookDetailPage({ params }: PageProps) {
       "name": SITE_NAME
     },
     "image": absoluteUrl(book.image),
+    ...(reader ? {
+      "hasPart": reader.chapters.map((chapter) => ({
+        "@type": "Chapter",
+        "position": chapter.order,
+        "name": chapter.title,
+        "url": bookChapterUrl(book.id, chapter.slug)
+      }))
+    } : {}),
     ...(book.naverLink || book.amazonLink ? {
       "offers": {
         "@type": "Offer",

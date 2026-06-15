@@ -64,6 +64,14 @@ export function bookUrl(bookId: string) {
   return absoluteUrl(`/books/${bookId}`)
 }
 
+export function bookReaderUrl(bookId: string) {
+  return absoluteUrl(`/books/${bookId}/read`)
+}
+
+export function bookChapterUrl(bookId: string, chapterSlug: string) {
+  return absoluteUrl(`/books/${bookId}/read/${chapterSlug}`)
+}
+
 export function columnUrl(postId: string) {
   return absoluteUrl(`/column/${postId}`)
 }

@@ -1,8 +1,11 @@
 import { MetadataRoute } from 'next'
 import { BOOKS_DATA } from '@/lib/books-data'
 import { BLOG_POSTS } from '@/lib/blog-data'
+import { getAllBookReaderIds, getBookReaderIndex } from '@/lib/book-reader'
 import {
+  bookChapterUrl,
   bookPublishedDate,
+  bookReaderUrl,
   bookUrl,
   columnUrl,
   SITE_UPDATED_AT,
@@ -38,6 +41,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }))
 
+  const readerPages = getAllBookReaderIds().flatMap((bookId) => {
+    const index = getBookReaderIndex(bookId)
+    if (!index) return []
+
+    return [
+      {
+        url: bookReaderUrl(bookId),
+        lastModified: siteUpdatedAt,
+        changeFrequency: 'monthly' as const,
+        priority: 0.85,
+      },
+      ...index.chapters.map((chapter) => ({
+        url: bookChapterUrl(bookId, chapter.slug),
+        lastModified: siteUpdatedAt,
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+      })),
+    ]
+  })
+
   const blogPages = BLOG_POSTS.map((post) => ({
     url: columnUrl(post.id),
     lastModified: new Date(post.date),
@@ -45,5 +68,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  return [...staticPages, ...bookPages, ...blogPages]
+  return [...staticPages, ...bookPages, ...readerPages, ...blogPages]
 }

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { BOOKS_DATA, type Book } from "@/lib/books-data"
 import { BookPreviewModal } from "@/components/book-preview-modal"
 import { hasPreview } from "@/lib/book-preview-utils"
+import { hasOnlineReader } from "@/lib/book-reader-config"
 
 interface BookDetailClientProps {
   book: Book
@@ -96,6 +97,16 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                 >
                   Amazon에서도 구매 가능
                 </a>
+              )}
+
+              {/* Online Reader Button */}
+              {hasOnlineReader(book.id) && (
+                <Link
+                  href={`/books/${book.id}/read`}
+                  className="block w-full bg-text-light text-primary-dark py-4 px-6 rounded-lg font-medium text-lg hover:bg-text-light/90 transition-colors text-center cursor-pointer"
+                >
+                  온라인으로 읽기
+                </Link>
               )}
 
               {/* Preview Button */}
@@ -211,4 +222,4 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
       />
     </>
   )
-} 
+}

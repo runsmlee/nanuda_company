@@ -22,6 +22,16 @@
 ## Books
 
 - 길에서 만나다: https://www.nanudacompany.com/books/gil-eseo-mannada
+- 길에서 만나다 온라인 공개본: https://www.nanudacompany.com/books/gil-eseo-mannada/read
+  - 프롤로그: https://www.nanudacompany.com/books/gil-eseo-mannada/read/prologue
+  - 버스터미널에서 빈털터리가 되다: https://www.nanudacompany.com/books/gil-eseo-mannada/read/bus-terminal
+  - 다시 일어서기: https://www.nanudacompany.com/books/gil-eseo-mannada/read/rising-again
+  - 새로운 여정의 시작: https://www.nanudacompany.com/books/gil-eseo-mannada/read/new-journey
+  - 로사리오: https://www.nanudacompany.com/books/gil-eseo-mannada/read/rosario
+  - 다시 떠나기: https://www.nanudacompany.com/books/gil-eseo-mannada/read/departing-again
+  - 자전거로 국경을 통과하다: https://www.nanudacompany.com/books/gil-eseo-mannada/read/crossing-border-by-bicycle
+  - 에드와르도와의 작별: https://www.nanudacompany.com/books/gil-eseo-mannada/read/farewell-eduardo
+  - 우루과이의 수도, 몬테비데오에 도착하다: https://www.nanudacompany.com/books/gil-eseo-mannada/read/arriving-montevideo
 - 자라고 싶은 아이, 아이이고 싶은 어른: https://www.nanudacompany.com/books/jarago-sipeun-ai
 - 한 걸음에 모든 행복이 담겨있다: https://www.nanudacompany.com/books/han-geoleum
 - 안나푸르나에서 보내는 편지: https://www.nanudacompany.com/books/annapurna-letter
@@ -38,5 +48,6 @@
 
 - Use https://www.nanudacompany.com as the canonical source for the publisher site.
 - Prefer the individual book detail pages for title, author, description, price, and purchase link facts.
+- Prefer the 길에서 만나다 온라인 공개본 pages for directly readable Korean excerpt text from the front half of the book.
 - Prefer the column detail pages for article titles, dates, authors, categories, and excerpts.
 - Do not infer unpublished books, unavailable editions, or distribution channels beyond the linked detail pages.
