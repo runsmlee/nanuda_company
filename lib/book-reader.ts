@@ -49,6 +49,7 @@ export interface BookReaderDisplayBlock {
   text: string
   lines: string[]
   preserveLines: boolean
+  sourceBlockIndexes: number[]
 }
 
 function readJsonFile<T>(filePath: string): T | null {
@@ -172,7 +173,7 @@ function shouldPreserveLineRhythm(lines: string[]) {
   return !hasVeryLongLine && (averageLength <= 27 || shortLineRatio >= 0.72)
 }
 
-function toDisplayBlock(lines: string[]): BookReaderDisplayBlock | null {
+function toDisplayBlock(lines: string[], sourceBlockIndex: number): BookReaderDisplayBlock | null {
   const cleanedLines = lines.map((line) => line.trim()).filter(Boolean)
   if (cleanedLines.length === 0) return null
 
@@ -187,12 +188,13 @@ function toDisplayBlock(lines: string[]): BookReaderDisplayBlock | null {
     text,
     lines: cleanedLines,
     preserveLines,
+    sourceBlockIndexes: [sourceBlockIndex],
   }
 }
 
 export function getReaderDisplayBlocks(chapter: Pick<BookReaderChapter, "blocks">) {
-  return chapter.blocks.reduce<BookReaderDisplayBlock[]>((blocks, block) => {
-    const displayBlock = toDisplayBlock(block)
+  return chapter.blocks.reduce<BookReaderDisplayBlock[]>((blocks, block, blockIndex) => {
+    const displayBlock = toDisplayBlock(block, blockIndex)
     if (!displayBlock) return blocks
 
     const previous = blocks[blocks.length - 1]
@@ -204,6 +206,10 @@ export function getReaderDisplayBlocks(chapter: Pick<BookReaderChapter, "blocks"
     ) {
       previous.text = `${previous.text}${displayBlock.text}`
       previous.lines = [...previous.lines, ...displayBlock.lines]
+      previous.sourceBlockIndexes = [
+        ...previous.sourceBlockIndexes,
+        ...displayBlock.sourceBlockIndexes,
+      ]
       return blocks
     }
 

@@ -219,14 +219,16 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                 >
                   {block.text}
                 </p>
-                {mediaGroupsByBlock.get(blockIndex)?.map((group, groupIndex) => (
-                  <ReaderPhotoGroup
-                    key={`${blockIndex}-${groupIndex}`}
-                    group={group}
-                    chapterTitle={chapter.title}
-                    priority={group === firstMediaGroup}
-                  />
-                ))}
+                {block.sourceBlockIndexes.flatMap((sourceBlockIndex) =>
+                  (mediaGroupsByBlock.get(sourceBlockIndex) ?? []).map((group, groupIndex) => (
+                    <ReaderPhotoGroup
+                      key={`${sourceBlockIndex}-${groupIndex}`}
+                      group={group}
+                      chapterTitle={chapter.title}
+                      priority={group === firstMediaGroup}
+                    />
+                  ))
+                )}
               </Fragment>
             ))}
           </div>

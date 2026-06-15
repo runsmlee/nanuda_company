@@ -119,7 +119,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                     무료 공개본
                   </p>
                   <p className="mt-2 text-text-gray leading-relaxed">
-                    책의 전반부를 온라인에서 무료로 읽어볼 수 있어요. {readerMeta.summary} · 나머지 이야기는 종이책에 담겨 있습니다.
+                    {readerMeta.description} {readerMeta.summary}
                   </p>
                 </div>
               )}

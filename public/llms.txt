@@ -46,6 +46,31 @@
   - 에필로그: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/epilogue
 - 한 걸음에 모든 행복이 담겨있다: https://www.nanudacompany.com/books/han-geoleum
 - 안나푸르나에서 보내는 편지: https://www.nanudacompany.com/books/annapurna-letter
+- 안나푸르나에서 보내는 편지 온라인 공개본: https://www.nanudacompany.com/books/annapurna-letter/read
+  - 히말라야로 떠나며: https://www.nanudacompany.com/books/annapurna-letter/read/kathmandu
+  - 부불레로: https://www.nanudacompany.com/books/annapurna-letter/read/bhulbhule
+  - 히말라야에서의 첫 걸음: https://www.nanudacompany.com/books/annapurna-letter/read/first-steps
+  - 티망에서 어퍼피상까지: https://www.nanudacompany.com/books/annapurna-letter/read/timang-to-upper-pisang
+  - 어퍼피상에서 훔데까지: https://www.nanudacompany.com/books/annapurna-letter/read/upper-pisang-to-humde
+  - 마낭으로: https://www.nanudacompany.com/books/annapurna-letter/read/to-manang
+  - 틸리초 베이스캠프로: https://www.nanudacompany.com/books/annapurna-letter/read/to-tilicho-base-camp
+  - 틸리초 호수와 시르카르카: https://www.nanudacompany.com/books/annapurna-letter/read/tilicho-lake
+  - 레다르로 향하며: https://www.nanudacompany.com/books/annapurna-letter/read/to-ledar
+  - 토롱라를 앞두고: https://www.nanudacompany.com/books/annapurna-letter/read/before-thorong-la
+  - 토롱라 패스를 넘다: https://www.nanudacompany.com/books/annapurna-letter/read/crossing-thorong-la
+  - 묵티나트에서 카크베니로: https://www.nanudacompany.com/books/annapurna-letter/read/muktinath-to-kagbeni
+  - 카크베니에서 마르파로: https://www.nanudacompany.com/books/annapurna-letter/read/kagbeni-to-marpha
+  - 마르파에서 타토파니로: https://www.nanudacompany.com/books/annapurna-letter/read/marpha-to-tatopani
+  - 고레파니로 오르는 길: https://www.nanudacompany.com/books/annapurna-letter/read/to-ghorepani
+  - 푼힐을 지나 촘롱으로: https://www.nanudacompany.com/books/annapurna-letter/read/poon-hill-to-chhomrong
+  - 데우랄리로: https://www.nanudacompany.com/books/annapurna-letter/read/to-deurali
+  - 안나푸르나 베이스캠프: https://www.nanudacompany.com/books/annapurna-letter/read/annapurna-base-camp
+  - ABC에서 지누단다까지: https://www.nanudacompany.com/books/annapurna-letter/read/abc-to-jinudanda
+  - 마르디히말로: https://www.nanudacompany.com/books/annapurna-letter/read/to-mardi-himal
+  - 하이캠프의 안개: https://www.nanudacompany.com/books/annapurna-letter/read/high-camp-fog
+  - 마르디히말 베이스캠프: https://www.nanudacompany.com/books/annapurna-letter/read/mardi-himal-base-camp
+  - 포카라에서: https://www.nanudacompany.com/books/annapurna-letter/read/pokhara
+  - 여행일지: https://www.nanudacompany.com/books/annapurna-letter/read/journey-log
 - Meet On The Road: https://www.nanudacompany.com/books/meet-on-the-road
 
 ## Columns
@@ -59,6 +84,6 @@
 
 - Use https://www.nanudacompany.com as the canonical source for the publisher site.
 - Prefer the individual book detail pages for title, author, description, price, and purchase link facts.
-- Prefer each book's 온라인 공개본 pages for directly readable Korean book text. 자라고 싶은 아이, 아이이고 싶은 어른 is fully readable online with travel photos.
+- Prefer each book's 온라인 공개본 pages for directly readable Korean book text. 자라고 싶은 아이, 아이이고 싶은 어른 and 안나푸르나에서 보내는 편지 are fully readable online with travel photos.
 - Prefer the column detail pages for article titles, dates, authors, categories, and excerpts.
 - Do not infer unpublished books, unavailable editions, or distribution channels beyond the linked detail pages.
