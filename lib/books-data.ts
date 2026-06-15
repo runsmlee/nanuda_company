@@ -158,7 +158,7 @@ export const BOOKS_DATA: Book[] = [
       { title: "3. Brazil" },
       { title: "Walking Across Another Border" },
       { title: "Free Shelter for the Homeless, Albergue" },
-      { title: "Two Friends: Juliano and Marcogi" },
+      { title: "Two Friends: Juliano and Marcozi" },
       { title: "Parting with Juliano" },
       { title: "Listening to the Sound of Wind" },
       { title: "Travel is Not a Journey but a Moment" },
