@@ -1,8 +1,10 @@
 import { MetadataRoute } from 'next'
 import { BOOKS_DATA } from '@/lib/books-data'
 import { BLOG_POSTS } from '@/lib/blog-data'
+import { AUTHORS } from '@/lib/authors-data'
 import { getAllBookReaderIds, getBookReaderIndex } from '@/lib/book-reader'
 import {
+  authorUrl,
   bookChapterUrl,
   bookPublishedDate,
   bookReaderUrl,
@@ -68,5 +70,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  return [...staticPages, ...bookPages, ...readerPages, ...blogPages]
+  const authorPages = AUTHORS.map((author) => ({
+    url: authorUrl(author.slug),
+    lastModified: siteUpdatedAt,
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }))
+
+  return [...staticPages, ...bookPages, ...readerPages, ...blogPages, ...authorPages]
 }

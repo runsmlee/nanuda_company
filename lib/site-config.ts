@@ -76,6 +76,10 @@ export function columnUrl(postId: string) {
   return absoluteUrl(`/column/${postId}`)
 }
 
+export function authorUrl(slug: string) {
+  return absoluteUrl(`/authors/${slug}`)
+}
+
 export function splitAuthors(author: string) {
   return author
     .split(",")

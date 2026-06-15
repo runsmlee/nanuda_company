@@ -8,6 +8,7 @@ import { BOOKS_DATA, type Book } from "@/lib/books-data"
 import { BookPreviewModal } from "@/components/book-preview-modal"
 import { getTotalImages, hasPreview } from "@/lib/book-preview-utils"
 import { getOnlineReaderMeta } from "@/lib/book-reader-config"
+import { authorSlugForName } from "@/lib/authors-data"
 
 interface BookDetailClientProps {
   book: Book
@@ -133,7 +134,24 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-text-gray">{labels.author}</span>
-                  <span className="ml-2 text-accent-orange">{book.author}</span>
+                  <span className="ml-2 text-accent-orange">
+                    {book.author.split(",").map((rawName, index) => {
+                      const name = rawName.trim()
+                      const slug = authorSlugForName(name)
+                      return (
+                        <span key={name}>
+                          {index > 0 && ", "}
+                          {slug ? (
+                            <Link href={`/authors/${slug}`} className="hover:underline cursor-pointer">
+                              {name}
+                            </Link>
+                          ) : (
+                            name
+                          )}
+                        </span>
+                      )
+                    })}
+                  </span>
                 </div>
                 <div>
                   <span className="text-text-gray">{labels.pages}</span>

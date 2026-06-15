@@ -12,6 +12,7 @@ import {
   SITE_URL,
   truncateDescription,
 } from "@/lib/site-config"
+import { authorSlugForName } from "@/lib/authors-data"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -181,7 +182,19 @@ export default async function ColumnDetailPage({ params }: PageProps) {
               <span className="text-text-gray/60">•</span>
               <span className="whitespace-nowrap">{post.readTime} 읽기</span>
               <span className="text-text-gray/60">•</span>
-              <span className="whitespace-nowrap">by {post.author}</span>
+              <span className="whitespace-nowrap">
+                by{" "}
+                {authorSlugForName(post.author) ? (
+                  <Link
+                    href={`/authors/${authorSlugForName(post.author)}`}
+                    className="text-accent-orange hover:underline cursor-pointer"
+                  >
+                    {post.author}
+                  </Link>
+                ) : (
+                  post.author
+                )}
+              </span>
             </div>
 
             <h1 className="font-playfair text-4xl lg:text-5xl font-normal leading-tight">{post.title}</h1>
