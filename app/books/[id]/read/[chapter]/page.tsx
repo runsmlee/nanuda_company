@@ -156,7 +156,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <main className="min-h-screen bg-[#f5efe5] text-[#201813]">
+      <main className="native-cursor min-h-screen bg-[#f5efe5] text-[#201813]">
         <nav className="border-b border-[#201813]/15 px-6 py-5">
           <div className="mx-auto flex max-w-5xl items-center gap-3 overflow-hidden text-sm">
             <Link href="/" className="shrink-0 text-[#9b3f1d] hover:underline">
