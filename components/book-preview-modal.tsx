@@ -272,14 +272,14 @@ const BookPreviewModalComponent = function BookPreviewModal({
       >
         {/* Hidden title for screen readers */}
         <h2 id="preview-modal-title" className="sr-only">
-          {bookTitle} 미리보기 - {selectedImage}페이지
+          {bookTitle} 책 속지 보기 - {selectedImage}페이지
         </h2>
 
         {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute -top-12 md:-top-16 right-0 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/40 text-white hover:bg-black/60 active:bg-black/70 transition-all duration-200 z-20 cursor-pointer text-lg md:text-xl font-bold backdrop-blur-md border border-white/30 focus:outline-none focus:ring-2 focus:ring-accent-orange shadow-lg"
-          aria-label="미리보기 닫기"
+          aria-label="책 속지 보기 닫기"
           tabIndex={0}
         >
           ✕
@@ -346,7 +346,7 @@ const BookPreviewModalComponent = function BookPreviewModal({
           >
             <Image
               src={currentImageSrc}
-              alt={`${bookTitle} 미리보기 ${selectedImage}페이지`}
+              alt={`${bookTitle} 책 속지 ${selectedImage}페이지`}
               width={1000}
               height={800}
               className="object-contain rounded-lg shadow-2xl max-w-[90vw] max-h-[90vh]"

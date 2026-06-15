@@ -29,6 +29,12 @@ export interface BookReaderChapter extends BookReaderChapterMeta {
   blocks: string[][]
 }
 
+export interface BookReaderDisplayBlock {
+  text: string
+  lines: string[]
+  preserveLines: boolean
+}
+
 function readJsonFile<T>(filePath: string): T | null {
   try {
     if (!fs.existsSync(filePath)) return null
@@ -110,11 +116,19 @@ function shouldJoinPdfLineBreak(left: string, right: string) {
 
   if (!isKoreanTail || !startsWithKorean) return false
 
-  if (/^(은|는|이|가|을|를|의|에|로|와|과|도|만|며|고|지|기|라|나)(\s|[,.!?])/u.test(trimmedRight)) {
+  if (/^(은|는|이|가|을|를|의|에|로|와|과|도|만|며|고|지|기|라|나|게)(\s|[,.!?])/u.test(trimmedRight)) {
     return true
   }
 
-  return /^(어를|려고|리고|지만|른다|널|적인|동안|럼에|퀴|추어|이게|이겠|쳤|으며|으려|으로|부터|까지|처럼|보다|마저|조차|라도|에게|에서|한테|회와|상에서)/u.test(rightHead)
+  if (
+    (trimmedLeft.endsWith("어") && /^제(\s|[가-힣])/u.test(trimmedRight)) ||
+    (trimmedLeft.endsWith("통") && /^해(\s|[가-힣])/u.test(trimmedRight)) ||
+    (trimmedLeft.endsWith("로") && /^자가(\s|[가-힣])/u.test(trimmedRight))
+  ) {
+    return true
+  }
+
+  return /^(어를|려고|리고|지만|른다|나고|났다|널|무진|운|람|던|쳐|친|깐|땅히|하게|적인|동안|럼에|퀴|추어|이게|이겠|쳤|으며|으려|으로|부터|까지|처럼|보다|마저|조차|라도|에게|에서|한테|회와|상에서|건의|둑맞은|성된|본을|었다|어진|아진|지는|가는|보였다)/u.test(rightHead)
 }
 
 export function normalizeReaderBlock(lines: string[]) {
@@ -129,8 +143,61 @@ export function normalizeReaderBlock(lines: string[]) {
   }, "")
 }
 
+function shouldPreserveLineRhythm(lines: string[]) {
+  const meaningfulLines = lines.map((line) => line.trim()).filter(Boolean)
+  if (meaningfulLines.length < 3) return false
+
+  const totalLength = meaningfulLines.reduce((sum, line) => sum + line.length, 0)
+  const averageLength = totalLength / meaningfulLines.length
+  const shortLineRatio =
+    meaningfulLines.filter((line) => line.length <= 28).length / meaningfulLines.length
+  const hasVeryLongLine = meaningfulLines.some((line) => line.length > 42)
+
+  return !hasVeryLongLine && (averageLength <= 27 || shortLineRatio >= 0.72)
+}
+
+function toDisplayBlock(lines: string[]): BookReaderDisplayBlock | null {
+  const cleanedLines = lines.map((line) => line.trim()).filter(Boolean)
+  if (cleanedLines.length === 0) return null
+
+  const preserveLines = shouldPreserveLineRhythm(cleanedLines)
+  const text = preserveLines
+    ? cleanedLines.join("\n")
+    : normalizeReaderBlock(cleanedLines)
+
+  if (!text) return null
+
+  return {
+    text,
+    lines: cleanedLines,
+    preserveLines,
+  }
+}
+
+export function getReaderDisplayBlocks(chapter: Pick<BookReaderChapter, "blocks">) {
+  return chapter.blocks.reduce<BookReaderDisplayBlock[]>((blocks, block) => {
+    const displayBlock = toDisplayBlock(block)
+    if (!displayBlock) return blocks
+
+    const previous = blocks[blocks.length - 1]
+    if (
+      previous &&
+      !previous.preserveLines &&
+      !displayBlock.preserveLines &&
+      shouldJoinPdfLineBreak(previous.text, displayBlock.text)
+    ) {
+      previous.text = `${previous.text}${displayBlock.text}`
+      previous.lines = [...previous.lines, ...displayBlock.lines]
+      return blocks
+    }
+
+    blocks.push(displayBlock)
+    return blocks
+  }, [])
+}
+
 export function getReaderParagraphs(chapter: Pick<BookReaderChapter, "blocks">) {
-  return chapter.blocks.map((block) => normalizeReaderBlock(block)).filter(Boolean)
+  return getReaderDisplayBlocks(chapter).map((block) => block.text)
 }
 
 export function getReaderPlainText(chapter: Pick<BookReaderChapter, "blocks">) {

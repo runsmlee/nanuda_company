@@ -3,8 +3,10 @@
 import { useEffect, useState, useCallback } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { BookOpen, Images, ShoppingBag } from "lucide-react"
 import { BookPreviewModal } from "@/components/book-preview-modal"
 import { hasPreview } from "@/lib/book-preview-utils"
+import { getOnlineReaderMeta } from "@/lib/book-reader-config"
 
 interface Book {
   id: string
@@ -31,6 +33,7 @@ interface BookModalProps {
 export function BookModal({ book, isOpen, onClose }: BookModalProps) {
   const router = useRouter()
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
+  const readerMeta = book ? getOnlineReaderMeta(book.id) : null
 
   useEffect(() => {
     if (isOpen) {
@@ -66,6 +69,13 @@ export function BookModal({ book, isOpen, onClose }: BookModalProps) {
     if (book) {
       onClose()
       router.push(`/books/${book.id}`)
+    }
+  }
+
+  const handleReaderClick = () => {
+    if (book) {
+      onClose()
+      router.push(`/books/${book.id}/read`)
     }
   }
 
@@ -124,28 +134,40 @@ export function BookModal({ book, isOpen, onClose }: BookModalProps) {
 
             {/* Purchase Buttons */}
             <div className="space-y-3">
+              {readerMeta && (
+                <button
+                  onClick={handleReaderClick}
+                  className="flex w-full items-center justify-center gap-2 bg-text-light text-primary-dark py-3 px-6 font-medium hover:bg-text-light/90 transition-colors text-center cursor-pointer"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  {readerMeta.label}
+                </button>
+              )}
+
               {/* Primary Purchase Button */}
               {book.naverLink ? (
                 <a
                   href={book.naverLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full bg-accent-orange text-white py-3 px-6 rounded-lg font-medium hover:bg-accent-orange/90 transition-colors text-center cursor-pointer"
+                  className="flex w-full items-center justify-center gap-2 bg-accent-orange text-white py-3 px-6 font-medium hover:bg-accent-orange/90 transition-colors text-center cursor-pointer"
                 >
-                  {book.price} - 네이버쇼핑에서 구매
+                  <ShoppingBag className="h-4 w-4" />
+                  종이책 구매하기 · {book.price}
                 </a>
               ) : book.amazonLink ? (
                 <a
                   href={book.amazonLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full bg-accent-orange text-white py-3 px-6 rounded-lg font-medium hover:bg-accent-orange/90 transition-colors text-center cursor-pointer"
+                  className="flex w-full items-center justify-center gap-2 bg-accent-orange text-white py-3 px-6 font-medium hover:bg-accent-orange/90 transition-colors text-center cursor-pointer"
                 >
-                  {book.price} - Amazon에서 구매
+                  <ShoppingBag className="h-4 w-4" />
+                  Amazon에서 구매하기 · {book.price}
                 </a>
               ) : (
-                <button className="w-full bg-gray-600 text-white py-3 px-6 rounded-lg font-medium cursor-not-allowed opacity-50">
-                  {book.price} - 준비 중
+                <button className="w-full bg-gray-600 text-white py-3 px-6 font-medium cursor-not-allowed opacity-50">
+                  {book.price} · 준비 중
                 </button>
               )}
               
@@ -155,9 +177,10 @@ export function BookModal({ book, isOpen, onClose }: BookModalProps) {
                   href={book.amazonLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full border border-accent-orange text-accent-orange py-3 px-6 rounded-lg font-medium hover:bg-accent-orange hover:text-white transition-colors text-center cursor-pointer"
+                  className="flex w-full items-center justify-center gap-2 border border-accent-orange text-accent-orange py-3 px-6 font-medium hover:bg-accent-orange hover:text-white transition-colors text-center cursor-pointer"
                 >
-                  Amazon에서도 구매 가능
+                  <ShoppingBag className="h-4 w-4" />
+                  Amazon 구매
                 </a>
               )}
 
@@ -165,9 +188,10 @@ export function BookModal({ book, isOpen, onClose }: BookModalProps) {
               {book && hasPreview(book.id) && (
                 <button
                   onClick={() => setSelectedImage(1)}
-                  className="w-full border-2 border-text-gray text-text-gray py-3 px-6 rounded-lg font-medium hover:bg-text-gray hover:text-primary-dark transition-colors cursor-pointer"
+                  className="flex w-full items-center justify-center gap-2 border border-text-gray text-text-gray py-3 px-6 font-medium hover:bg-text-gray hover:text-primary-dark transition-colors cursor-pointer"
                 >
-                  미리보기
+                  <Images className="h-4 w-4" />
+                  책 속지 보기
                 </button>
               )}
             </div>
@@ -186,13 +210,24 @@ export function BookModal({ book, isOpen, onClose }: BookModalProps) {
               </div>
             </div>
 
+            {readerMeta && (
+              <div className="border-y border-text-gray/20 py-4">
+                <p className="text-sm font-medium text-accent-orange">
+                  무료 공개본
+                </p>
+                <p className="mt-2 text-sm leading-6 text-text-gray">
+                  전반부를 텍스트로 바로 읽을 수 있습니다. {readerMeta.summary}
+                </p>
+              </div>
+            )}
+
             <div>
               <h3 className="text-xl font-semibold mb-3 text-text-light">책 소개</h3>
               <p className="text-text-gray leading-relaxed">{book.description}</p>
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold mb-3 text-text-light">미리보기</h3>
+              <h3 className="text-xl font-semibold mb-3 text-text-light">책 속 문장</h3>
               <p className="text-text-gray leading-relaxed italic">"{book.excerpt}"</p>
             </div>
 
@@ -202,7 +237,7 @@ export function BookModal({ book, isOpen, onClose }: BookModalProps) {
                 onClick={handleDetailPageClick}
                 className="flex-1 bg-accent-blue text-white py-3 px-6 rounded-lg font-medium hover:bg-accent-blue/90 transition-colors text-center cursor-pointer"
               >
-                상세 페이지 보기
+                책 상세 보기
               </button>
               <button
                 onClick={onClose}

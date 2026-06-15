@@ -1,0 +1,52 @@
+{
+  "bookId": "jarago-sipeun-ai",
+  "title": "자라고 싶은 아이, 아이이고 싶은 어른 온라인 공개본",
+  "description": "최종 PDF에서 추출한 자라고 싶은 아이, 아이이고 싶은 어른 전반부 무료 공개 독서 콘텐츠입니다.",
+  "source": "자라고싶은아이 아이고싶은어른_올레길여행 A5 북크크양식(최종3).pdf",
+  "chapters": [
+    {
+      "slug": "yes-jeju",
+      "title": "그래 제주도",
+      "part": "도입",
+      "day": "",
+      "pageStart": 7,
+      "pageEnd": 8,
+      "order": 1,
+      "characterCount": 61,
+      "readTimeMinutes": 1
+    },
+    {
+      "slug": "analog-traveler",
+      "title": "여행자 ‘아날로그’",
+      "part": "올레길 여행",
+      "day": "첫째 날",
+      "pageStart": 9,
+      "pageEnd": 32,
+      "order": 2,
+      "characterCount": 2045,
+      "readTimeMinutes": 4
+    },
+    {
+      "slug": "letting-go-is-hard",
+      "title": "생각은 쉽지만 실천은 쉽지가 않다",
+      "part": "올레길 여행",
+      "day": "둘째 날",
+      "pageStart": 33,
+      "pageEnd": 41,
+      "order": 3,
+      "characterCount": 677,
+      "readTimeMinutes": 2
+    },
+    {
+      "slug": "born-without-phones",
+      "title": "우리는 태어날 때 핸드폰을 가지고 있지 않았다",
+      "part": "올레길 여행",
+      "day": "셋째 날",
+      "pageStart": 42,
+      "pageEnd": 55,
+      "order": 4,
+      "characterCount": 473,
+      "readTimeMinutes": 1
+    }
+  ]
+}

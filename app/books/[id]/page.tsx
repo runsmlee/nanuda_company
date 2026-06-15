@@ -31,6 +31,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
+  const reader = getBookReaderIndex(book.id)
+
   return {
     title: `${book.title} - ${book.subtitle} | 생각을 나누다`,
     description: truncateDescription(book.description),
@@ -46,6 +48,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       book.title.includes('여행') ? '여행기' : '',
       book.author === '이상민' ? '이상민 작가' : '',
       book.author === '정예원' ? '정예원 작가' : '',
+      reader ? `${book.title} 무료 공개본` : '',
+      reader ? `${book.title} 온라인 읽기` : '',
     ].filter(Boolean),
     authors: splitAuthors(book.author).map((name) => ({ name })),
     openGraph: {

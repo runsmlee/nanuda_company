@@ -3,7 +3,7 @@ import { type Book } from "@/lib/books-data"
 export const SITE_URL = "https://www.nanudacompany.com"
 export const SITE_NAME = "생각을나누다"
 export const COMPANY_NAME = "나누다컴퍼니"
-export const SITE_UPDATED_AT = "2026-06-12"
+export const SITE_UPDATED_AT = "2026-06-15"
 
 export const SITE_DESCRIPTION =
   "생각을나누다는 나누다컴퍼니의 여행 에세이 출판 브랜드입니다. 길에서 만나다, 한 걸음에 모든 행복이 담겨있다, 안나푸르나에서 보내는 편지 등을 소개합니다."

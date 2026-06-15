@@ -8,7 +8,7 @@ import {
   getAllBookReaderChapterParams,
   getBookReaderChapter,
   getBookReaderIndex,
-  getReaderParagraphs,
+  getReaderDisplayBlocks,
   getReaderPlainText,
 } from "@/lib/book-reader"
 import {
@@ -50,7 +50,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       chapter.title,
       chapter.part,
       `${book.title} 온라인 읽기`,
-      "남미 여행기",
+      `${book.title} 무료 공개본`,
+      book.subtitle,
+      book.category,
       "여행 에세이",
     ],
     alternates: {
@@ -85,7 +87,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
   }
 
   const { previous, next } = getAdjacentReaderChapters(book.id, chapter.slug)
-  const paragraphs = getReaderParagraphs(chapter)
+  const displayBlocks = getReaderDisplayBlocks(chapter)
   const plainText = getReaderPlainText(chapter)
 
   const jsonLd = {
@@ -156,16 +158,16 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
       />
       <main className="min-h-screen bg-[#f5efe5] text-[#201813]">
         <nav className="border-b border-[#201813]/15 px-6 py-5">
-          <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 text-sm">
-            <Link href="/" className="text-[#9b3f1d] hover:underline">
+          <div className="mx-auto flex max-w-5xl items-center gap-3 overflow-hidden text-sm">
+            <Link href="/" className="shrink-0 text-[#9b3f1d] hover:underline">
               홈
             </Link>
-            <span className="text-[#201813]/40">/</span>
-            <Link href={`/books/${book.id}`} className="text-[#9b3f1d] hover:underline">
+            <span className="shrink-0 text-[#201813]/40">/</span>
+            <Link href={`/books/${book.id}`} className="min-w-0 truncate text-[#9b3f1d] hover:underline">
               {book.title}
             </Link>
-            <span className="text-[#201813]/40">/</span>
-            <Link href={`/books/${book.id}/read`} className="text-[#9b3f1d] hover:underline">
+            <span className="shrink-0 text-[#201813]/40">/</span>
+            <Link href={`/books/${book.id}/read`} className="shrink-0 text-[#9b3f1d] hover:underline">
               온라인 공개본
             </Link>
           </div>
@@ -188,14 +190,21 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
               {chapter.title}
             </h1>
             <p className="mt-5 text-sm leading-7 text-[#201813]/60">
-              {book.title} 최종 PDF에서 추출한 온라인 공개본입니다.
+              {book.title} 전반부를 무료로 공개한 온라인 독서본입니다.
             </p>
           </header>
 
           <div className="book-reader-prose text-[17px] leading-8 text-[#201813]/88 md:text-lg md:leading-9">
-            {paragraphs.map((paragraph, paragraphIndex) => (
-              <p key={paragraphIndex} className="mb-7">
-                {paragraph}
+            {displayBlocks.map((block, blockIndex) => (
+              <p
+                key={blockIndex}
+                className={
+                  block.preserveLines
+                    ? "mb-8 whitespace-pre-line leading-9 md:leading-10"
+                    : "mb-7"
+                }
+              >
+                {block.text}
               </p>
             ))}
           </div>
@@ -215,12 +224,12 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                   href={book.naverLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-md bg-[#b84f22] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#9b3f1d]"
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  책 구매하기
-                </a>
-              )}
+                className="inline-flex items-center gap-2 rounded-md bg-[#b84f22] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#9b3f1d]"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                종이책 구매하기
+              </a>
+            )}
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">

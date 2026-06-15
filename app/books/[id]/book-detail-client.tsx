@@ -3,10 +3,11 @@
 import { useEffect, useState, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { BookOpen, Images, ShoppingBag } from "lucide-react"
 import { BOOKS_DATA, type Book } from "@/lib/books-data"
 import { BookPreviewModal } from "@/components/book-preview-modal"
 import { hasPreview } from "@/lib/book-preview-utils"
-import { hasOnlineReader } from "@/lib/book-reader-config"
+import { getOnlineReaderMeta } from "@/lib/book-reader-config"
 
 interface BookDetailClientProps {
   book: Book
@@ -14,6 +15,13 @@ interface BookDetailClientProps {
 
 export default function BookDetailClient({ book }: BookDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
+  const readerMeta = getOnlineReaderMeta(book.id)
+  const purchaseHref = book.naverLink || book.amazonLink
+  const purchaseLabel = book.naverLink
+    ? `종이책 구매하기 · ${book.price}`
+    : book.amazonLink
+      ? `Amazon에서 구매하기 · ${book.price}`
+      : null
 
   // 페이지 로드 시 맨 위로 스크롤
   useEffect(() => {
@@ -48,7 +56,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Book Cover */}
-          <div className="space-y-8">
+          <div className="order-2 space-y-8 lg:order-1">
             <div className="aspect-[3/4] rounded-lg overflow-hidden shadow-2xl max-w-md mx-auto relative">
               <Image 
                 src={book.image || "/placeholder.svg"} 
@@ -59,70 +67,10 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
-
-            {/* Purchase Section */}
-            <div className="space-y-4 max-w-md mx-auto">
-              {/* Primary Purchase Button */}
-              {book.naverLink ? (
-                <a
-                  href={book.naverLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full bg-accent-orange text-white py-4 px-6 rounded-lg font-medium text-lg hover:bg-accent-orange/90 transition-colors text-center cursor-pointer"
-                >
-                  {book.price} - 네이버쇼핑에서 구매
-                </a>
-              ) : book.amazonLink ? (
-                <a
-                  href={book.amazonLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full bg-accent-orange text-white py-4 px-6 rounded-lg font-medium text-lg hover:bg-accent-orange/90 transition-colors text-center cursor-pointer"
-                >
-                  {book.price} - Amazon에서 구매
-                </a>
-              ) : (
-                <button className="w-full bg-gray-600 text-white py-4 px-6 rounded-lg font-medium text-lg cursor-not-allowed opacity-50">
-                  {book.price} - 준비 중
-                </button>
-              )}
-              
-              {/* Secondary Purchase Options */}
-              {book.naverLink && book.amazonLink && (
-                <a
-                  href={book.amazonLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full border-2 border-accent-orange text-accent-orange py-4 px-6 rounded-lg font-medium text-lg hover:bg-accent-orange hover:text-white transition-colors text-center cursor-pointer"
-                >
-                  Amazon에서도 구매 가능
-                </a>
-              )}
-
-              {/* Online Reader Button */}
-              {hasOnlineReader(book.id) && (
-                <Link
-                  href={`/books/${book.id}/read`}
-                  className="block w-full bg-text-light text-primary-dark py-4 px-6 rounded-lg font-medium text-lg hover:bg-text-light/90 transition-colors text-center cursor-pointer"
-                >
-                  온라인으로 읽기
-                </Link>
-              )}
-
-              {/* Preview Button */}
-              {hasPreview(book.id) && (
-                <button
-                  onClick={() => setSelectedImage(1)}
-                  className="w-full border-2 border-text-gray text-text-gray py-4 px-6 rounded-lg font-medium text-lg hover:bg-text-gray hover:text-primary-dark transition-colors cursor-pointer"
-                >
-                  미리보기
-                </button>
-              )}
-            </div>
           </div>
 
           {/* Book Information */}
-          <div className="space-y-8">
+          <div className="order-1 space-y-8 lg:order-2">
             <div>
               <h1 className="font-playfair text-4xl lg:text-5xl font-normal mb-4">{book.title}</h1>
               <h2 className="text-xl text-text-gray mb-6">{book.subtitle}</h2>
@@ -147,14 +95,81 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
               </div>
             </div>
 
+            <div className="border-y border-text-gray/20 py-6">
+              {readerMeta && (
+                <div className="mb-5">
+                  <p className="text-sm font-medium text-accent-orange">
+                    무료 공개본
+                  </p>
+                  <p className="mt-2 text-text-gray leading-relaxed">
+                    전반부를 텍스트로 바로 읽을 수 있습니다. {readerMeta.summary}
+                  </p>
+                </div>
+              )}
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {readerMeta && (
+                  <Link
+                    href={`/books/${book.id}/read`}
+                    className="inline-flex items-center justify-center gap-2 bg-text-light text-primary-dark px-5 py-3 font-medium hover:bg-text-light/90 transition-colors text-center cursor-pointer"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    {readerMeta.label}
+                  </Link>
+                )}
+
+                {purchaseHref && purchaseLabel ? (
+                  <a
+                    href={purchaseHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={
+                      readerMeta
+                        ? "inline-flex items-center justify-center gap-2 border border-accent-orange px-5 py-3 font-medium text-accent-orange transition-colors hover:bg-accent-orange hover:text-white text-center cursor-pointer"
+                        : "inline-flex items-center justify-center gap-2 bg-accent-orange px-5 py-3 font-medium text-white transition-colors hover:bg-accent-orange/90 text-center cursor-pointer"
+                    }
+                  >
+                    <ShoppingBag className="h-4 w-4" />
+                    {purchaseLabel}
+                  </a>
+                ) : (
+                  <button className="inline-flex items-center justify-center bg-gray-600 px-5 py-3 font-medium text-white opacity-50 cursor-not-allowed">
+                    {book.price} · 준비 중
+                  </button>
+                )}
+
+                {book.naverLink && book.amazonLink && (
+                  <a
+                    href={book.amazonLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 border border-text-gray/50 px-5 py-3 font-medium text-text-gray transition-colors hover:bg-text-gray hover:text-primary-dark text-center cursor-pointer"
+                  >
+                    <ShoppingBag className="h-4 w-4" />
+                    Amazon 구매
+                  </a>
+                )}
+
+                {hasPreview(book.id) && (
+                  <button
+                    onClick={() => setSelectedImage(1)}
+                    className="inline-flex items-center justify-center gap-2 border border-text-gray/50 px-5 py-3 font-medium text-text-gray transition-colors hover:bg-text-gray hover:text-primary-dark cursor-pointer"
+                  >
+                    <Images className="h-4 w-4" />
+                    책 속지 보기
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div>
               <h3 className="text-2xl font-semibold mb-4">책 소개</h3>
               <p className="text-text-gray leading-relaxed text-lg">{book.description}</p>
             </div>
 
             <div>
-              <h3 className="text-2xl font-semibold mb-4">미리보기</h3>
-              <blockquote className="border-l-4 border-accent-orange pl-6 italic text-text-gray text-lg leading-relaxed mb-6">
+              <h3 className="text-2xl font-semibold mb-4">책 속 문장</h3>
+              <blockquote className="border-y border-text-gray/20 py-6 italic text-text-gray text-lg leading-relaxed mb-6">
                 "{book.excerpt}"
               </blockquote>
             </div>

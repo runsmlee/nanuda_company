@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { BOOKS_DATA, type Book } from "@/lib/books-data"
+import { hasOnlineReader } from "@/lib/book-reader-config"
 
 interface BooksCatalogModalProps {
   isOpen: boolean
@@ -82,6 +83,11 @@ export function BooksCatalogModal({ isOpen, onClose, onBookSelect }: BooksCatalo
                 </div>
                 <div className="p-3">
                   <h3 className="font-semibold text-text-light mb-1 line-clamp-2 text-sm">{book.title}</h3>
+                  {hasOnlineReader(book.id) && (
+                    <span className="mb-2 inline-block text-[10px] font-medium text-accent-orange">
+                      무료 공개본
+                    </span>
+                  )}
                   <p className="text-text-gray text-xs mb-2 line-clamp-2">{book.subtitle}</p>
                   <div className="flex justify-between items-center">
                     <span className="text-accent-orange font-semibold text-sm">{book.price}</span>

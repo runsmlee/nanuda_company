@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useRef, useState, lazy, Suspense, memo } from "react"
 import Image from "next/image"
 import { BOOKS_DATA } from "../lib/books-data"
+import { hasOnlineReader } from "@/lib/book-reader-config"
 
 const BookModal = lazy(() => import('./book-modal').then(module => ({ default: module.BookModal })))
 
@@ -129,6 +130,11 @@ export const BooksSection = memo(forwardRef<HTMLElement>((props, ref) => {
                   </div>
                   <div className="p-6 flex-1 flex flex-col justify-center">
                     <h4 className="text-base sm:text-lg font-semibold mb-2">{book.title}</h4>
+                    {hasOnlineReader(book.id) && (
+                      <span className="mb-2 w-fit text-[11px] font-medium text-accent-orange">
+                        무료 공개본
+                      </span>
+                    )}
                     <p className="text-text-gray text-xs sm:text-sm mb-4 line-clamp-2">{book.subtitle}</p>
                     <div className="text-accent-orange font-semibold text-lg sm:text-xl">{book.price}</div>
                   </div>
