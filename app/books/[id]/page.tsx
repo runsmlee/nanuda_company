@@ -32,25 +32,41 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const reader = getBookReaderIndex(book.id)
+  const isEnglishBook = book.id === "meet-on-the-road"
+  const coverAlt = `${book.title} ${isEnglishBook ? "cover" : "표지"}`
+  const keywords = isEnglishBook
+    ? [
+        book.title,
+        book.subtitle,
+        book.author,
+        book.category,
+        "Meet On The Road online edition",
+        "South America travel memoir",
+        "travel memoir",
+        "Nanuda Company",
+        reader ? `${book.title} read free` : "",
+        reader ? `${book.title} online edition` : "",
+      ]
+    : [
+        book.title,
+        book.subtitle,
+        book.author,
+        book.category,
+        '생각을 나누다',
+        '나누다 출판사',
+        '여행 에세이',
+        '여행서',
+        book.title.includes('여행') ? '여행기' : '',
+        book.author === '이상민' ? '이상민 작가' : '',
+        book.author === '정예원' ? '정예원 작가' : '',
+        reader ? `${book.title} 무료 공개본` : '',
+        reader ? `${book.title} 온라인 읽기` : '',
+      ]
 
   return {
     title: `${book.title} - ${book.subtitle} | 생각을 나누다`,
     description: truncateDescription(book.description),
-    keywords: [
-      book.title,
-      book.subtitle,
-      book.author,
-      book.category,
-      '생각을 나누다',
-      '나누다 출판사',
-      '여행 에세이',
-      '여행서',
-      book.title.includes('여행') ? '여행기' : '',
-      book.author === '이상민' ? '이상민 작가' : '',
-      book.author === '정예원' ? '정예원 작가' : '',
-      reader ? `${book.title} 무료 공개본` : '',
-      reader ? `${book.title} 온라인 읽기` : '',
-    ].filter(Boolean),
+    keywords: keywords.filter(Boolean),
     authors: splitAuthors(book.author).map((name) => ({ name })),
     openGraph: {
       title: `${book.title} - ${book.subtitle}`,
@@ -62,7 +78,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           url: absoluteUrl(book.image),
           width: 800,
           height: 1200,
-          alt: `${book.title} 표지`,
+          alt: coverAlt,
         },
       ],
       type: 'book',
@@ -109,6 +125,10 @@ export default async function BookDetailPage({ params }: PageProps) {
     "name": name,
   }))
   const reader = getBookReaderIndex(book.id)
+  const isEnglishBook = book.id === "meet-on-the-road"
+  const labels = isEnglishBook
+    ? { breadcrumb: "Breadcrumb", home: "Home", books: "Books" }
+    : { breadcrumb: "브레드크럼", home: "홈", books: "여행서" }
   const primaryOfferUrl = book.naverLink || book.amazonLink || bookUrl(book.id)
   const { price, priceCurrency } = parseBookPrice(book.price)
 
@@ -161,13 +181,13 @@ export default async function BookDetailPage({ params }: PageProps) {
       {
         "@type": "ListItem",
         "position": 1,
-        "name": "홈",
+        "name": labels.home,
         "item": "https://www.nanudacompany.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "도서",
+        "name": labels.books,
         "item": `${SITE_URL}/#books`
       },
       {
@@ -193,17 +213,17 @@ export default async function BookDetailPage({ params }: PageProps) {
         <CustomCursor />
 
         {/* Breadcrumb — quiet, gray; orange is reserved for content accents */}
-        <nav aria-label="브레드크럼" className="p-6 border-b border-text-gray/20">
+        <nav aria-label={labels.breadcrumb} className="p-6 border-b border-text-gray/20">
           <ol className="flex flex-wrap items-center gap-2 text-sm text-text-gray">
             <li>
               <Link href="/" className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-text-light transition-colors cursor-pointer">
-                홈
+                {labels.home}
               </Link>
             </li>
             <li aria-hidden="true" className="text-text-gray/40">/</li>
             <li>
               <Link href="/#books" className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-text-light transition-colors cursor-pointer">
-                여행서
+                {labels.books}
               </Link>
             </li>
             <li aria-hidden="true" className="text-text-gray/40">/</li>

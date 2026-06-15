@@ -5,7 +5,8 @@ export const PREVIEW_BOOK_IDS = [
   "gil-eseo-mannada",
   "han-geoleum", 
   "jarago-sipeun-ai",
-  "annapurna-letter"
+  "annapurna-letter",
+  "meet-on-the-road",
 ] as const
 
 // 책별 총 이미지 개수 매핑
@@ -14,6 +15,7 @@ export const BOOK_IMAGE_COUNTS: Record<string, number> = {
   "han-geoleum": 30,
   "jarago-sipeun-ai": 20,
   "annapurna-letter": 30,
+  "meet-on-the-road": 24,
 }
 
 // 총 이미지 개수 반환 (메모화된 버전)
@@ -25,6 +27,8 @@ export function getTotalImages(bookId: string): number {
 export function getImageSrc(bookId: string, imageIndex: number): string {
   switch (bookId) {
     case "gil-eseo-mannada":
+      return `/book_preview/meet_on_the_road/Slide${imageIndex}.jpeg`
+    case "meet-on-the-road":
       return `/book_preview/meet_on_the_road/Slide${imageIndex}.jpeg`
     case "han-geoleum":
       return `/book_preview/hangeolum/가족여행기_한걸음에모든행복이담겨있다 미리보기  (${imageIndex}).jpg`

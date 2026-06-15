@@ -3,6 +3,7 @@ export const ONLINE_READER_BOOK_IDS = [
   "jarago-sipeun-ai",
   "han-geoleum",
   "annapurna-letter",
+  "meet-on-the-road",
 ] as const
 
 export const ONLINE_READER_META: Record<
@@ -32,6 +33,12 @@ export const ONLINE_READER_META: Record<
     summary: "24개 장 · 전체 공개 · 사진 121장",
     description:
       "책의 전체 내용을 온라인에서 무료로 읽어볼 수 있어요. 히말라야 트레킹 사진과 여행 기록도 함께 담았습니다.",
+  },
+  "meet-on-the-road": {
+    label: "Read free",
+    summary: "42 chapters · full text · about 30,232 words",
+    description:
+      "Read the complete English edition online for free, from the stolen backpack in Buenos Aires to the road back to São Paulo.",
   },
 }
 

@@ -6,7 +6,7 @@ import Link from "next/link"
 import { BookOpen, Images, Share2, ShoppingBag } from "lucide-react"
 import { BOOKS_DATA, type Book } from "@/lib/books-data"
 import { BookPreviewModal } from "@/components/book-preview-modal"
-import { hasPreview } from "@/lib/book-preview-utils"
+import { getTotalImages, hasPreview } from "@/lib/book-preview-utils"
 import { getOnlineReaderMeta } from "@/lib/book-reader-config"
 
 interface BookDetailClientProps {
@@ -16,12 +16,54 @@ interface BookDetailClientProps {
 export default function BookDetailClient({ book }: BookDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
   const [shareCopied, setShareCopied] = useState(false)
+  const isEnglishBook = book.id === "meet-on-the-road"
   const readerMeta = getOnlineReaderMeta(book.id)
   const purchaseHref = book.naverLink || book.amazonLink
+  const labels = isEnglishBook
+    ? {
+        author: "Author:",
+        pages: "Pages:",
+        published: "Published:",
+        category: "Category:",
+        cover: "cover",
+        freeEdition: "Free online edition",
+        unavailable: "Coming soon",
+        amazonPurchase: "Buy on Amazon",
+        previewTitle: "Preview actual book pages",
+        preview: "Preview pages",
+        about: "About this book",
+        excerpt: "Excerpt",
+        contents: "Contents",
+        share: "Share",
+        shareCopied: "Link copied",
+        related: "Other travel books",
+        buyShort: "Buy",
+        buyAria: "buy on Amazon",
+      }
+    : {
+        author: "저자:",
+        pages: "페이지:",
+        published: "출간:",
+        category: "분야:",
+        cover: "표지",
+        freeEdition: "무료 공개본",
+        unavailable: "준비 중",
+        amazonPurchase: "Amazon 구매",
+        previewTitle: "책의 실제 지면을 이미지로 미리 봅니다",
+        preview: "책 속지 보기",
+        about: "책 소개",
+        excerpt: "책 속 문장",
+        contents: "목차",
+        share: "공유하기",
+        shareCopied: "링크가 복사되었어요",
+        related: "다른 여행서",
+        buyShort: "구매",
+        buyAria: "종이책 구매하기",
+      }
   const purchaseLabel = book.naverLink
     ? `종이책 구매하기 · ${book.price}`
     : book.amazonLink
-      ? `Amazon에서 구매하기 · ${book.price}`
+      ? `${labels.amazonPurchase} · ${book.price}`
       : null
   const hasMobileActionBar = Boolean(readerMeta || (purchaseHref && purchaseLabel))
 
@@ -54,12 +96,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
         return prev - 1
       }
       if (direction === 'next') {
-        // getTotalImages를 직접 호출하는 대신 컴포넌트 내부에서 처리
-        const totalImages = book.id === "gil-eseo-mannada" ? 24
-          : book.id === "han-geoleum" ? 30 
-          : book.id === "jarago-sipeun-ai" ? 20
-          : book.id === "annapurna-letter" ? 30 
-          : 0
+        const totalImages = getTotalImages(book.id)
         if (prev < totalImages) {
           return prev + 1
         }
@@ -78,7 +115,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
             <div className="aspect-[3/4] rounded-lg overflow-hidden shadow-2xl max-w-md mx-auto relative">
               <Image 
                 src={book.image || "/placeholder.svg"} 
-                alt={`${book.title} 표지`} 
+                alt={`${book.title} ${labels.cover}`}
                 fill
                 priority
                 className="object-cover"
@@ -95,19 +132,19 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-text-gray">저자:</span>
+                  <span className="text-text-gray">{labels.author}</span>
                   <span className="ml-2 text-accent-orange">{book.author}</span>
                 </div>
                 <div>
-                  <span className="text-text-gray">페이지:</span>
+                  <span className="text-text-gray">{labels.pages}</span>
                   <span className="ml-2 text-text-light">{book.pages}p</span>
                 </div>
                 <div>
-                  <span className="text-text-gray">출간:</span>
+                  <span className="text-text-gray">{labels.published}</span>
                   <span className="ml-2 text-text-light">{book.publishDate}</span>
                 </div>
                 <div>
-                  <span className="text-text-gray">분야:</span>
+                  <span className="text-text-gray">{labels.category}</span>
                   <span className="ml-2 text-text-light">{book.category}</span>
                 </div>
               </div>
@@ -117,7 +154,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
               {readerMeta && (
                 <div className="mb-5">
                   <p className="text-sm font-medium text-accent-orange">
-                    무료 공개본
+                    {labels.freeEdition}
                   </p>
                   <p className="mt-2 text-text-gray leading-relaxed">
                     {readerMeta.description} {readerMeta.summary}
@@ -152,7 +189,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                   </a>
                 ) : (
                   <button className="inline-flex items-center justify-center bg-gray-600 px-5 py-3 font-medium text-white opacity-50 cursor-not-allowed">
-                    {book.price} · 준비 중
+                    {book.price} · {labels.unavailable}
                   </button>
                 )}
 
@@ -164,30 +201,30 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                     className="inline-flex items-center justify-center gap-2 border border-text-gray/50 px-5 py-3 font-medium text-text-gray transition-colors hover:bg-text-gray hover:text-primary-dark text-center cursor-pointer"
                   >
                     <ShoppingBag className="h-4 w-4" />
-                    Amazon 구매
+                    {labels.amazonPurchase}
                   </a>
                 )}
 
                 {hasPreview(book.id) && (
                   <button
                     onClick={() => setSelectedImage(1)}
-                    title="책의 실제 지면을 이미지로 미리 봅니다"
+                    title={labels.previewTitle}
                     className="inline-flex items-center justify-center gap-2 border border-text-gray/50 px-5 py-3 font-medium text-text-gray transition-colors hover:bg-text-gray hover:text-primary-dark cursor-pointer"
                   >
                     <Images className="h-4 w-4" />
-                    책 속지 보기
+                    {labels.preview}
                   </button>
                 )}
               </div>
             </div>
 
             <div>
-              <h3 className="text-2xl font-semibold mb-4">책 소개</h3>
+              <h3 className="text-2xl font-semibold mb-4">{labels.about}</h3>
               <p className="text-text-gray leading-relaxed text-lg">{book.description}</p>
             </div>
 
             <div>
-              <h3 className="text-2xl font-semibold mb-4">책 속 문장</h3>
+              <h3 className="text-2xl font-semibold mb-4">{labels.excerpt}</h3>
               <blockquote className="border-y border-text-gray/20 py-6 italic text-text-gray text-lg leading-relaxed mb-6">
                 "{book.excerpt}"
               </blockquote>
@@ -196,7 +233,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
             {/* Table of Contents */}
             {book.tableOfContents && (
               <div>
-                <h3 className="text-2xl font-semibold mb-4">목차</h3>
+                <h3 className="text-2xl font-semibold mb-4">{labels.contents}</h3>
                 <ul className="space-y-2 text-text-gray">
                   {book.tableOfContents.map((chapter, index) => (
                     <li key={index} className="flex items-start gap-2">
@@ -222,7 +259,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                 className="inline-flex items-center gap-2 transition-colors hover:text-accent-orange cursor-pointer"
               >
                 <Share2 className="h-4 w-4" />
-                {shareCopied ? "링크가 복사되었어요" : "공유하기"}
+                {shareCopied ? labels.shareCopied : labels.share}
               </button>
             </div>
           </div>
@@ -230,7 +267,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
 
         {/* Related Books */}
         <div className="mt-16 pt-16 border-t border-text-gray/20">
-          <h3 className="text-3xl font-playfair font-normal mb-8">다른 여행서</h3>
+          <h3 className="text-3xl font-playfair font-normal mb-8">{labels.related}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {BOOKS_DATA.filter((b) => b.id !== book.id)
               .slice(0, 3)
@@ -239,7 +276,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                   <div className="aspect-[3/4] rounded-lg overflow-hidden mb-4 relative">
                     <Image
                       src={relatedBook.image || "/placeholder.svg"}
-                      alt={`${relatedBook.title} 표지`}
+                      alt={`${relatedBook.title} ${labels.cover}`}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 768px) 100vw, 33vw"
@@ -265,7 +302,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                 className="inline-flex min-h-12 items-center justify-center gap-2 bg-text-light px-4 text-sm font-semibold text-primary-dark transition-colors hover:bg-text-light/90"
               >
                 <BookOpen className="h-4 w-4" />
-                무료 읽기
+                {readerMeta.label}
               </Link>
             )}
 
@@ -275,10 +312,10 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-12 items-center justify-center gap-2 border border-accent-orange/70 px-4 text-sm font-semibold text-accent-orange transition-colors hover:bg-accent-orange hover:text-white"
-                aria-label={`${book.title} 종이책 구매하기`}
+                aria-label={`${book.title} ${labels.buyAria}`}
               >
                 <ShoppingBag className="h-4 w-4" />
-                구매
+                {labels.buyShort}
               </a>
             )}
           </div>

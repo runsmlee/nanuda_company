@@ -13,6 +13,7 @@ export interface BookReaderChapterMeta {
   pageEnd: number
   order: number
   characterCount: number
+  wordCount?: number
   readTimeMinutes: number
   imageCount?: number
 }

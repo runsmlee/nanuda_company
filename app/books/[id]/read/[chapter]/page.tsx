@@ -43,20 +43,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
+  const isEnglishReader = book.id === "meet-on-the-road"
   const description = truncateDescription(getReaderPlainText(chapter), 155)
+  const title = isEnglishReader
+    ? `${chapter.title} - ${book.title} Online Edition`
+    : `${chapter.title} - ${book.title} 온라인 공개본`
 
   return {
-    title: `${chapter.title} - ${book.title} 온라인 공개본 | ${SITE_NAME}`,
+    title: `${title} | ${SITE_NAME}`,
     description,
     keywords: [
       book.title,
       chapter.title,
       chapter.part,
-      `${book.title} 온라인 읽기`,
-      `${book.title} 무료 공개본`,
+      isEnglishReader ? `${book.title} online edition` : `${book.title} 온라인 읽기`,
+      isEnglishReader ? `${book.title} read free` : `${book.title} 무료 공개본`,
       book.subtitle,
       book.category,
-      "여행 에세이",
+      isEnglishReader ? "travel memoir" : "여행 에세이",
     ],
     alternates: {
       canonical: bookChapterUrl(book.id, chapter.slug),
@@ -68,7 +72,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       siteName: SITE_NAME,
       images: [absoluteUrl(book.image)],
       type: "article",
-      locale: "ko_KR",
+      locale: isEnglishReader ? "en_US" : "ko_KR",
     },
     twitter: {
       card: "summary_large_image",
@@ -92,6 +96,51 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
   const { previous, next } = getAdjacentReaderChapters(book.id, chapter.slug)
   const displayBlocks = getReaderDisplayBlocks(chapter)
   const plainText = getReaderPlainText(chapter)
+  const isEnglishReader = book.id === "meet-on-the-road"
+  const labels = isEnglishReader
+    ? {
+        home: "Home",
+        onlineEdition: "Online Edition",
+        scope: reader.coverage === "full" ? "full text" : "excerpt",
+        headerDescription: `${book.title} ${reader.coverage === "full" ? "full text" : "excerpt"} is available to read online for free.`,
+        photo: "photo",
+        photos: "photos",
+        aboutMinutes: "about",
+        minutesSuffix: " min",
+        contents: "Contents",
+        buy: book.amazonLink ? "Buy on Amazon" : "Buy the book",
+        previousChapter: "Previous chapter",
+        nextChapter: "Next chapter",
+        bookDetail: "Book detail",
+        book: "Book",
+        previousShort: "Prev",
+        nextShort: "Next",
+        detailShort: "Detail",
+        mobileNav: "Mobile reading navigation",
+        imageAlt: "photo",
+      }
+    : {
+        home: "홈",
+        onlineEdition: "온라인 공개본",
+        scope: reader.coverage === "full" ? "전체 본문" : "전반부",
+        headerDescription: `${book.title} ${reader.coverage === "full" ? "전체 본문" : "전반부"}을 무료로 공개한 온라인 독서본입니다.`,
+        photo: "사진",
+        photos: "사진",
+        aboutMinutes: "약",
+        minutesSuffix: "분",
+        contents: "목차",
+        buy: "종이책 구매하기",
+        previousChapter: "이전 장",
+        nextChapter: "다음 장",
+        bookDetail: "책 상세",
+        book: "책",
+        previousShort: "이전",
+        nextShort: "다음",
+        detailShort: "상세",
+        mobileNav: "모바일 독서 내비게이션",
+        imageAlt: "사진",
+      }
+  const purchaseHref = book.naverLink || book.amazonLink
   const mediaGroupsByBlock = new Map<number, BookReaderMediaGroup[]>()
   for (const group of chapter.media ?? []) {
     const groups = mediaGroupsByBlock.get(group.afterBlock) ?? []
@@ -99,8 +148,6 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
     mediaGroupsByBlock.set(group.afterBlock, groups)
   }
   const firstMediaGroup = chapter.media?.[0]
-  const isFullReader = reader.coverage === "full"
-  const scopeLabel = isFullReader ? "전체 본문" : "전반부"
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -109,7 +156,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
     "url": bookChapterUrl(book.id, chapter.slug),
     "name": chapter.title,
     "position": chapter.order,
-    "inLanguage": "ko-KR",
+    "inLanguage": isEnglishReader ? "en" : "ko-KR",
     "isPartOf": {
       "@type": "Book",
       "@id": `${bookUrl(book.id)}#book`,
@@ -134,7 +181,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
       {
         "@type": "ListItem",
         "position": 1,
-        "name": "홈",
+        "name": labels.home,
         "item": SITE_URL,
       },
       {
@@ -146,7 +193,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
       {
         "@type": "ListItem",
         "position": 3,
-        "name": "온라인 공개본",
+        "name": labels.onlineEdition,
         "item": bookReaderUrl(book.id),
       },
       {
@@ -172,7 +219,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
         <nav className="border-b border-[#201813]/15 px-6 py-5">
           <div className="mx-auto flex max-w-5xl items-center gap-3 overflow-hidden text-sm">
             <Link href="/" className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#9b3f1d] hover:underline">
-              홈
+              {labels.home}
             </Link>
             <span className="shrink-0 text-[#201813]/40">/</span>
             <Link href={`/books/${book.id}`} className="inline-flex min-h-11 min-w-0 items-center truncate text-[#9b3f1d] hover:underline">
@@ -180,7 +227,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
             </Link>
             <span className="shrink-0 text-[#201813]/40">/</span>
             <Link href={`/books/${book.id}/read`} className="inline-flex min-h-11 shrink-0 items-center text-[#9b3f1d] hover:underline">
-              온라인 공개본
+              {labels.onlineEdition}
             </Link>
           </div>
         </nav>
@@ -192,8 +239,14 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                 {chapter.part}
               </span>
               {chapter.day && <span>{chapter.day}</span>}
-              {chapter.imageCount ? <span>사진 {chapter.imageCount}장</span> : null}
-              <span>약 {chapter.readTimeMinutes}분</span>
+              {chapter.imageCount ? (
+                <span>
+                  {isEnglishReader
+                    ? `${chapter.imageCount} ${chapter.imageCount === 1 ? labels.photo : labels.photos}`
+                    : `${labels.photo} ${chapter.imageCount}장`}
+                </span>
+              ) : null}
+              <span>{labels.aboutMinutes} {chapter.readTimeMinutes}{labels.minutesSuffix}</span>
             </div>
 
             <p className="mb-3 font-mono text-sm text-[#9b3f1d]">
@@ -203,7 +256,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
               {chapter.title}
             </h1>
             <p className="mt-5 text-sm leading-7 text-[#201813]/60">
-              {book.title} {scopeLabel}을 무료로 공개한 온라인 독서본입니다.
+              {labels.headerDescription}
             </p>
           </header>
 
@@ -225,6 +278,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                       key={`${sourceBlockIndex}-${groupIndex}`}
                       group={group}
                       chapterTitle={chapter.title}
+                      imageAlt={labels.imageAlt}
                       priority={group === firstMediaGroup}
                     />
                   ))
@@ -240,18 +294,18 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                 className="inline-flex items-center gap-2 rounded-md border border-[#201813]/20 px-4 py-3 text-sm font-medium text-[#201813] transition-colors hover:bg-[#201813]/8"
               >
                 <List className="h-4 w-4" />
-                목차
+                {labels.contents}
               </Link>
 
-              {book.naverLink && (
+              {purchaseHref && (
                 <a
-                  href={book.naverLink}
+                  href={purchaseHref}
                   target="_blank"
                   rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-md bg-[#b84f22] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#9b3f1d]"
               >
                 <ShoppingBag className="h-4 w-4" />
-                종이책 구매하기
+                {labels.buy}
               </a>
             )}
             </div>
@@ -264,7 +318,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                 >
                   <span className="mb-2 flex items-center gap-2 text-sm text-[#201813]/55">
                     <ChevronLeft className="h-4 w-4" />
-                    이전 장
+                    {labels.previousChapter}
                   </span>
                   <span className="font-medium group-hover:text-[#9b3f1d]">
                     {previous.title}
@@ -280,7 +334,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                   className="group rounded-md border border-[#201813]/15 p-4 text-right transition-colors hover:border-[#9b3f1d]"
                 >
                   <span className="mb-2 flex items-center justify-end gap-2 text-sm text-[#201813]/55">
-                    다음 장
+                    {labels.nextChapter}
                     <ChevronRight className="h-4 w-4" />
                   </span>
                   <span className="font-medium group-hover:text-[#9b3f1d]">
@@ -293,7 +347,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                   className="group rounded-md border border-[#201813]/15 p-4 text-right transition-colors hover:border-[#9b3f1d]"
                 >
                   <span className="mb-2 flex items-center justify-end gap-2 text-sm text-[#201813]/55">
-                    책 상세
+                    {labels.bookDetail}
                     <BookOpen className="h-4 w-4" />
                   </span>
                   <span className="font-medium group-hover:text-[#9b3f1d]">
@@ -306,7 +360,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
         </article>
 
         <nav
-          aria-label="모바일 독서 내비게이션"
+          aria-label={labels.mobileNav}
           className="fixed inset-x-0 bottom-0 z-40 border-t border-[#201813]/15 bg-[#f5efe5]/95 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2 shadow-[0_-18px_48px_rgba(32,24,19,0.12)] backdrop-blur md:hidden"
         >
           <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
@@ -316,7 +370,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                 className="inline-flex min-h-11 items-center justify-center gap-1 rounded-md border border-[#201813]/15 px-2 text-sm font-medium text-[#201813]/75"
               >
                 <ChevronLeft className="h-4 w-4" />
-                이전
+                {labels.previousShort}
               </Link>
             ) : (
               <Link
@@ -324,7 +378,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                 className="inline-flex min-h-11 items-center justify-center gap-1 rounded-md border border-[#201813]/15 px-2 text-sm font-medium text-[#201813]/75"
               >
                 <BookOpen className="h-4 w-4" />
-                책
+                {labels.book}
               </Link>
             )}
 
@@ -333,7 +387,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
               className="inline-flex min-h-11 items-center justify-center gap-1 rounded-md bg-[#201813] px-2 text-sm font-semibold text-white"
             >
               <List className="h-4 w-4" />
-              목차
+              {labels.contents}
             </Link>
 
             {next ? (
@@ -341,7 +395,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                 href={`/books/${book.id}/read/${next.slug}`}
                 className="inline-flex min-h-11 items-center justify-center gap-1 rounded-md border border-[#201813]/15 px-2 text-sm font-medium text-[#201813]/75"
               >
-                다음
+                {labels.nextShort}
                 <ChevronRight className="h-4 w-4" />
               </Link>
             ) : (
@@ -349,7 +403,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                 href={`/books/${book.id}`}
                 className="inline-flex min-h-11 items-center justify-center gap-1 rounded-md border border-[#201813]/15 px-2 text-sm font-medium text-[#201813]/75"
               >
-                상세
+                {labels.detailShort}
                 <BookOpen className="h-4 w-4" />
               </Link>
             )}
@@ -363,10 +417,12 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
 function ReaderPhotoGroup({
   group,
   chapterTitle,
+  imageAlt,
   priority = false,
 }: {
   group: BookReaderMediaGroup
   chapterTitle: string
+  imageAlt: string
   priority?: boolean
 }) {
   return (
@@ -376,7 +432,7 @@ function ReaderPhotoGroup({
           <Image
             key={image.src}
             src={image.src}
-            alt={image.alt || `${chapterTitle} 사진`}
+            alt={image.alt || `${chapterTitle} ${imageAlt}`}
             width={image.width}
             height={image.height}
             priority={priority}

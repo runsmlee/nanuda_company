@@ -136,7 +136,7 @@ export const BOOKS_DATA: Book[] = [
       "The English edition of the transformative South American journey. A young Korean man's six-month adventure that began with a stolen backpack in Buenos Aires and evolved into a profound journey of self-discovery, walking thousands of miles and sleeping under the stars.",
     author: "Sangmin Lee",
     pages: 284,
-    publishDate: "2024년",
+    publishDate: "2024",
     category: "Travel Memoir",
     amazonLink: "https://www.amazon.com/Meet-Road-Journey-through-America-ebook/dp/B0CL7QM8Z4",
     excerpt:
@@ -167,4 +167,4 @@ export const BOOKS_DATA: Book[] = [
   },
 ]
 
-export type { Book } 
+export type { Book }
