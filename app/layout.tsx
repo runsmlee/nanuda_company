@@ -59,7 +59,10 @@ export const metadata: Metadata = {
   verification: {
     google: 'X8oYSjNwvMWdubK0XZudGSaVI6pT1OciHfD52nnPDI0',
     other: {
-      'naver-site-verification': '04883e7ad65c3ae3e35e250b13a451a4',
+      'naver-site-verification': [
+        '04883e7ad65c3ae3e35e250b13a451a4', // nanudacompany.com (non-www) 속성
+        '03054854f85e82937279a32e4522dc4815386d49', // www.nanudacompany.com 속성
+      ],
     },
   },
   alternates: {
@@ -164,6 +167,12 @@ export default function RootLayout({
         <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/images/nanuda_logo.png" />
         <meta name="theme-color" content="#D97706" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
