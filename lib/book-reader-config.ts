@@ -10,10 +10,10 @@ export const ONLINE_READER_META: Record<
   { label: string; summary: string; description: string }
 > = {
   "gil-eseo-mannada": {
-    label: "무료 공개본 읽기",
-    summary: "9개 장 · 약 110분 공개",
+    label: "무료 전체 공개본 읽기",
+    summary: "19개 장 · 전체 공개 · 약 186분",
     description:
-      "책의 전반부를 온라인에서 무료로 읽어볼 수 있어요. 나머지 이야기는 종이책에 담겨 있습니다.",
+      "책의 전체 내용을 온라인에서 무료로 읽어볼 수 있어요. 남미여행의 시작부터 상파울루에 도착하는 마지막 날까지 담았습니다.",
   },
   "jarago-sipeun-ai": {
     label: "무료 전체 공개본 읽기",

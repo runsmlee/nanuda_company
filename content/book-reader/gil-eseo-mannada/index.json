@@ -1,7 +1,7 @@
 {
   "bookId": "gil-eseo-mannada",
   "title": "길에서 만나다 온라인 공개본",
-  "description": "최종 PDF에서 추출한 길에서 만나다 전반부 무료 공개 독서 콘텐츠입니다.",
+  "description": "최종 PDF 기준으로 정리한 길에서 만나다 전체 무료 공개 독서 콘텐츠입니다.",
   "source": "남미여행일기'길에서만나다'(최종 20210702).pdf",
   "chapters": [
     {
@@ -102,6 +102,117 @@
       "order": 9,
       "characterCount": 2757,
       "readTimeMinutes": 5
+    },
+    {
+      "slug": "another-theft",
+      "title": "또 다른 도난사건",
+      "part": "우루과이",
+      "day": "29일 차",
+      "pageStart": 119,
+      "pageEnd": 126,
+      "order": 10,
+      "characterCount": 3376,
+      "readTimeMinutes": 6
+    },
+    {
+      "slug": "walking-travel",
+      "title": "걸어서 여행하기",
+      "part": "우루과이",
+      "day": "30일 차",
+      "pageStart": 127,
+      "pageEnd": 130,
+      "order": 11,
+      "characterCount": 1568,
+      "readTimeMinutes": 3
+    },
+    {
+      "slug": "hitchhiking",
+      "title": "그리고 히치하이크",
+      "part": "우루과이",
+      "day": "31일 차",
+      "pageStart": 131,
+      "pageEnd": 143,
+      "order": 12,
+      "characterCount": 5013,
+      "readTimeMinutes": 10
+    },
+    {
+      "slug": "crossing-another-border",
+      "title": "걸어서 또 하나의 국경을 통과하다",
+      "part": "브라질",
+      "day": "35일 차",
+      "pageStart": 146,
+      "pageEnd": 154,
+      "order": 13,
+      "characterCount": 4080,
+      "readTimeMinutes": 8
+    },
+    {
+      "slug": "albergue",
+      "title": "노숙자를 위한 무료숙소, Albergue",
+      "part": "브라질",
+      "day": "36일 차",
+      "pageStart": 155,
+      "pageEnd": 171,
+      "order": 14,
+      "characterCount": 7006,
+      "readTimeMinutes": 13
+    },
+    {
+      "slug": "juliano-and-marcoji",
+      "title": "두 명의 친구. 줄리아노와 마르코지",
+      "part": "브라질",
+      "day": "38일 차",
+      "pageStart": 172,
+      "pageEnd": 186,
+      "order": 15,
+      "characterCount": 6091,
+      "readTimeMinutes": 12
+    },
+    {
+      "slug": "farewell-juliano",
+      "title": "줄리아노와의 헤어짐",
+      "part": "브라질",
+      "day": "41일 차",
+      "pageStart": 187,
+      "pageEnd": 192,
+      "order": 16,
+      "characterCount": 2581,
+      "readTimeMinutes": 5
+    },
+    {
+      "slug": "listening-to-wind",
+      "title": "바람의 소리를 듣다",
+      "part": "브라질",
+      "day": "42일 차",
+      "pageStart": 193,
+      "pageEnd": 199,
+      "order": 17,
+      "characterCount": 2545,
+      "readTimeMinutes": 5
+    },
+    {
+      "slug": "journey-is-the-moment",
+      "title": "여행은 여정이 아니라 그 시각이다",
+      "part": "브라질",
+      "day": "43일 차",
+      "pageStart": 200,
+      "pageEnd": 209,
+      "order": 18,
+      "characterCount": 3737,
+      "readTimeMinutes": 7
+    },
+    {
+      "slug": "toward-sao-paulo",
+      "title": "상파울루를 향해",
+      "part": "브라질",
+      "day": "45일 차",
+      "pageStart": 210,
+      "pageEnd": 218,
+      "order": 19,
+      "characterCount": 3484,
+      "readTimeMinutes": 7
     }
-  ]
+  ],
+  "coverage": "full"
 }
