@@ -45,6 +45,13 @@
   - 집으로 돌아가는 여행 마지막 날: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/last-day
   - 에필로그: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/epilogue
 - 한 걸음에 모든 행복이 담겨있다: https://www.nanudacompany.com/books/han-geoleum
+- 한 걸음에 모든 행복이 담겨있다 온라인 공개본: https://www.nanudacompany.com/books/han-geoleum/read
+  - 이야기의 시작, 나: https://www.nanudacompany.com/books/han-geoleum/read/part-0-story-begins
+  - 여행의 시작, 우리: https://www.nanudacompany.com/books/han-geoleum/read/part-1-journey-begins
+  - 여행의 순간, 여기: https://www.nanudacompany.com/books/han-geoleum/read/part-2-moments-here
+  - 추억으로의 여행, 그곳: https://www.nanudacompany.com/books/han-geoleum/read/part-3-memories-there
+  - 여행의 끝자락에서, 다시: https://www.nanudacompany.com/books/han-geoleum/read/part-4-toward-the-end
+  - 에필로그: https://www.nanudacompany.com/books/han-geoleum/read/epilogue
 - 안나푸르나에서 보내는 편지: https://www.nanudacompany.com/books/annapurna-letter
 - 안나푸르나에서 보내는 편지 온라인 공개본: https://www.nanudacompany.com/books/annapurna-letter/read
   - 히말라야로 떠나며: https://www.nanudacompany.com/books/annapurna-letter/read/kathmandu
@@ -84,6 +91,6 @@
 
 - Use https://www.nanudacompany.com as the canonical source for the publisher site.
 - Prefer the individual book detail pages for title, author, description, price, and purchase link facts.
-- Prefer each book's 온라인 공개본 pages for directly readable Korean book text. 자라고 싶은 아이, 아이이고 싶은 어른 and 안나푸르나에서 보내는 편지 are fully readable online with travel photos.
+- Prefer each book's 온라인 공개본 pages for directly readable Korean book text. 자라고 싶은 아이, 아이이고 싶은 어른, 한 걸음에 모든 행복이 담겨있다, and 안나푸르나에서 보내는 편지 are fully readable online with travel photos.
 - Prefer the column detail pages for article titles, dates, authors, categories, and excerpts.
 - Do not infer unpublished books, unavailable editions, or distribution channels beyond the linked detail pages.

@@ -1,6 +1,7 @@
 export const ONLINE_READER_BOOK_IDS = [
   "gil-eseo-mannada",
   "jarago-sipeun-ai",
+  "han-geoleum",
   "annapurna-letter",
 ] as const
 
@@ -19,6 +20,12 @@ export const ONLINE_READER_META: Record<
     summary: "10개 장 · 전체 공개 · 사진 73장",
     description:
       "책의 전체 내용을 온라인에서 무료로 읽어볼 수 있어요. 실제 책에 배치된 사진도 함께 담았습니다.",
+  },
+  "han-geoleum": {
+    label: "무료 전체 공개본 읽기",
+    summary: "6개 장 · 전체 공개 · 사진 299장",
+    description:
+      "책의 전체 내용을 온라인에서 무료로 읽어볼 수 있어요. 가족 세계여행 사진과 에필로그도 함께 담았습니다.",
   },
   "annapurna-letter": {
     label: "무료 전체 공개본 읽기",
