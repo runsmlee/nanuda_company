@@ -7,5 +7,7 @@ Sitemap: https://www.nanudacompany.com/sitemap.xml
 # 크롤링 제외 경로 (필요시)
 Disallow: /api/
 Disallow: /admin/
+Disallow: /images/book-reader/
+Disallow: /_next/image*url=%2Fimages%2Fbook-reader%2F
 
 # 렌더링에 필요한 Next.js 정적 자원은 차단하지 않습니다.

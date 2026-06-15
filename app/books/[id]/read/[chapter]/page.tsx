@@ -332,6 +332,8 @@ function ReaderPhotoGroup({
             width={image.width}
             height={image.height}
             priority={priority}
+            unoptimized
+            draggable={false}
             className="h-auto w-full rounded-sm shadow-[0_18px_50px_rgba(32,24,19,0.14)]"
             sizes={
               group.images.length === 1
