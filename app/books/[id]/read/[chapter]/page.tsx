@@ -1,9 +1,12 @@
+import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { Fragment } from "react"
 import { BookOpen, ChevronLeft, ChevronRight, List, ShoppingBag } from "lucide-react"
 import { Metadata } from "next"
 import { BOOKS_DATA } from "@/lib/books-data"
 import {
+  type BookReaderMediaGroup,
   getAdjacentReaderChapters,
   getAllBookReaderChapterParams,
   getBookReaderChapter,
@@ -89,6 +92,15 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
   const { previous, next } = getAdjacentReaderChapters(book.id, chapter.slug)
   const displayBlocks = getReaderDisplayBlocks(chapter)
   const plainText = getReaderPlainText(chapter)
+  const mediaGroupsByBlock = new Map<number, BookReaderMediaGroup[]>()
+  for (const group of chapter.media ?? []) {
+    const groups = mediaGroupsByBlock.get(group.afterBlock) ?? []
+    groups.push(group)
+    mediaGroupsByBlock.set(group.afterBlock, groups)
+  }
+  const firstMediaGroup = chapter.media?.[0]
+  const isFullReader = reader.coverage === "full"
+  const scopeLabel = isFullReader ? "전체 본문" : "전반부"
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -180,6 +192,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                 {chapter.part}
               </span>
               {chapter.day && <span>{chapter.day}</span>}
+              {chapter.imageCount ? <span>사진 {chapter.imageCount}장</span> : null}
               <span>약 {chapter.readTimeMinutes}분</span>
             </div>
 
@@ -190,22 +203,31 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
               {chapter.title}
             </h1>
             <p className="mt-5 text-sm leading-7 text-[#201813]/60">
-              {book.title} 전반부를 무료로 공개한 온라인 독서본입니다.
+              {book.title} {scopeLabel}을 무료로 공개한 온라인 독서본입니다.
             </p>
           </header>
 
           <div className="book-reader-prose text-[17px] leading-8 text-[#201813]/88 md:text-lg md:leading-9">
             {displayBlocks.map((block, blockIndex) => (
-              <p
-                key={blockIndex}
-                className={
-                  block.preserveLines
-                    ? "mb-8 whitespace-pre-line leading-9 md:leading-10"
-                    : "mb-7"
-                }
-              >
-                {block.text}
-              </p>
+              <Fragment key={blockIndex}>
+                <p
+                  className={
+                    block.preserveLines
+                      ? "mb-8 whitespace-pre-line leading-9 md:leading-10"
+                      : "mb-7"
+                  }
+                >
+                  {block.text}
+                </p>
+                {mediaGroupsByBlock.get(blockIndex)?.map((group, groupIndex) => (
+                  <ReaderPhotoGroup
+                    key={`${blockIndex}-${groupIndex}`}
+                    group={group}
+                    chapterTitle={chapter.title}
+                    priority={group === firstMediaGroup}
+                  />
+                ))}
+              </Fragment>
             ))}
           </div>
 
@@ -282,5 +304,48 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
         </article>
       </main>
     </>
+  )
+}
+
+function ReaderPhotoGroup({
+  group,
+  chapterTitle,
+  priority = false,
+}: {
+  group: BookReaderMediaGroup
+  chapterTitle: string
+  priority?: boolean
+}) {
+  const gridClass =
+    group.images.length === 1
+      ? "grid gap-3"
+      : "grid gap-3 sm:grid-cols-2"
+
+  return (
+    <figure className="my-10 md:my-12">
+      <div className={gridClass}>
+        {group.images.map((image) => (
+          <Image
+            key={image.src}
+            src={image.src}
+            alt={image.alt || `${chapterTitle} 사진`}
+            width={image.width}
+            height={image.height}
+            priority={priority}
+            className="h-auto w-full rounded-sm shadow-[0_18px_50px_rgba(32,24,19,0.14)]"
+            sizes={
+              group.images.length === 1
+                ? "(max-width: 768px) 100vw, 720px"
+                : "(max-width: 768px) 100vw, 360px"
+            }
+          />
+        ))}
+      </div>
+      {group.caption && (
+        <figcaption className="mt-3 text-center text-xs leading-5 text-[#201813]/50">
+          {group.caption}
+        </figcaption>
+      )}
+    </figure>
   )
 }

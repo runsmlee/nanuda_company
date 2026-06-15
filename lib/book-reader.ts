@@ -14,6 +14,20 @@ export interface BookReaderChapterMeta {
   order: number
   characterCount: number
   readTimeMinutes: number
+  imageCount?: number
+}
+
+export interface BookReaderImage {
+  src: string
+  alt: string
+  width: number
+  height: number
+}
+
+export interface BookReaderMediaGroup {
+  afterBlock: number
+  caption?: string
+  images: BookReaderImage[]
 }
 
 export interface BookReaderIndex {
@@ -21,12 +35,14 @@ export interface BookReaderIndex {
   title: string
   description: string
   source: string
+  coverage?: "partial" | "full"
   chapters: BookReaderChapterMeta[]
 }
 
 export interface BookReaderChapter extends BookReaderChapterMeta {
   source: string
   blocks: string[][]
+  media?: BookReaderMediaGroup[]
 }
 
 export interface BookReaderDisplayBlock {

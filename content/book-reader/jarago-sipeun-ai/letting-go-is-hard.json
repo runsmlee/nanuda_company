@@ -6,6 +6,8 @@
   "pageStart": 33,
   "pageEnd": 41,
   "order": 3,
+  "characterCount": 663,
+  "readTimeMinutes": 2,
   "source": "자라고싶은아이 아이고싶은어른_올레길여행 A5 북크크양식(최종3).pdf",
   "blocks": [
     [
@@ -70,6 +72,359 @@
       "공기가 된다"
     ]
   ],
-  "characterCount": 677,
-  "readTimeMinutes": 2
+  "imageCount": 41,
+  "media": [
+    {
+      "afterBlock": 0,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-025.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 1",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-026.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 2",
+          "width": 1800,
+          "height": 1350
+        }
+      ],
+      "caption": "2021년 12월 17일, 여행 둘째 날"
+    },
+    {
+      "afterBlock": 1,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-027.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 3",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-028.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 4",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 1,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-029.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 5",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-030.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 6",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 1,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-031.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 7",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-032.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 8",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-033.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 9",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-034.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 10",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-035.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 11",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-036.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 12",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-037.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 13",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-038.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 14",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 3,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-039.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 15",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-040.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 16",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 3,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-041.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 17",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-042.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 18",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 3,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-043.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 19",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-044.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 20",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-045.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 21",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-046.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 22",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-047.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 23",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-048.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 24",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-049.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 25",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-050.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 26",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-051.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 27",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-052.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 28",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-053.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 29",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-054.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 30",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-055.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 31",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-056.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 32",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 6,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-057.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 33",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-058.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 34",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 6,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-059.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 35",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-060.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 36",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 6,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-061.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 37",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-062.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 38",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 7,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-063.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 39",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-064.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 40",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 7,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-065.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 생각은 쉽지만 실천은 쉽지가 않다 여행 사진 41",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    }
+  ]
 }

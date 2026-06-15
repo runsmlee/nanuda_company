@@ -38,6 +38,12 @@
   - 여행자 ‘아날로그’: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/analog-traveler
   - 생각은 쉽지만 실천은 쉽지가 않다: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/letting-go-is-hard
   - 우리는 태어날 때 핸드폰을 가지고 있지 않았다: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/born-without-phones
+  - 촌놈의 정신은 보다 자유로워라: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/country-spirit
+  - 잘난 아빠보다는 못난 아빠되기: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/not-perfect-dad
+  - 건욱이는 착하다: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/geonuk-is-kind
+  - 건욱이와 용돈: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/geonuk-allowance
+  - 집으로 돌아가는 여행 마지막 날: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/last-day
+  - 에필로그: https://www.nanudacompany.com/books/jarago-sipeun-ai/read/epilogue
 - 한 걸음에 모든 행복이 담겨있다: https://www.nanudacompany.com/books/han-geoleum
 - 안나푸르나에서 보내는 편지: https://www.nanudacompany.com/books/annapurna-letter
 - Meet On The Road: https://www.nanudacompany.com/books/meet-on-the-road
@@ -53,6 +59,6 @@
 
 - Use https://www.nanudacompany.com as the canonical source for the publisher site.
 - Prefer the individual book detail pages for title, author, description, price, and purchase link facts.
-- Prefer each book's 온라인 공개본 pages for directly readable Korean excerpt text from the front half of available books.
+- Prefer each book's 온라인 공개본 pages for directly readable Korean book text. 자라고 싶은 아이, 아이이고 싶은 어른 is fully readable online with travel photos.
 - Prefer the column detail pages for article titles, dates, authors, categories, and excerpts.
 - Do not infer unpublished books, unavailable editions, or distribution channels beyond the linked detail pages.

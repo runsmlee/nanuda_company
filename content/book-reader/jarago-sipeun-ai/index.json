@@ -1,8 +1,9 @@
 {
   "bookId": "jarago-sipeun-ai",
   "title": "자라고 싶은 아이, 아이이고 싶은 어른 온라인 공개본",
-  "description": "최종 PDF에서 추출한 자라고 싶은 아이, 아이이고 싶은 어른 전반부 무료 공개 독서 콘텐츠입니다.",
+  "description": "자라고 싶은 아이, 아이이고 싶은 어른 전체 본문과 제주 올레길 여행 사진을 온라인으로 읽을 수 있는 무료 공개 독서 콘텐츠입니다.",
   "source": "자라고싶은아이 아이고싶은어른_올레길여행 A5 북크크양식(최종3).pdf",
+  "coverage": "full",
   "chapters": [
     {
       "slug": "yes-jeju",
@@ -12,7 +13,7 @@
       "pageStart": 7,
       "pageEnd": 8,
       "order": 1,
-      "characterCount": 61,
+      "characterCount": 56,
       "readTimeMinutes": 1
     },
     {
@@ -23,8 +24,9 @@
       "pageStart": 9,
       "pageEnd": 32,
       "order": 2,
-      "characterCount": 2045,
-      "readTimeMinutes": 4
+      "characterCount": 2036,
+      "readTimeMinutes": 4,
+      "imageCount": 24
     },
     {
       "slug": "letting-go-is-hard",
@@ -34,8 +36,9 @@
       "pageStart": 33,
       "pageEnd": 41,
       "order": 3,
-      "characterCount": 677,
-      "readTimeMinutes": 2
+      "characterCount": 663,
+      "readTimeMinutes": 2,
+      "imageCount": 41
     },
     {
       "slug": "born-without-phones",
@@ -45,8 +48,80 @@
       "pageStart": 42,
       "pageEnd": 55,
       "order": 4,
-      "characterCount": 473,
-      "readTimeMinutes": 1
+      "characterCount": 454,
+      "readTimeMinutes": 1,
+      "imageCount": 22
+    },
+    {
+      "slug": "country-spirit",
+      "title": "촌놈의 정신은 보다 자유로워라",
+      "part": "올레길 여행",
+      "day": "넷째 날",
+      "pageStart": 56,
+      "pageEnd": 63,
+      "order": 5,
+      "characterCount": 530,
+      "readTimeMinutes": 1,
+      "imageCount": 5
+    },
+    {
+      "slug": "not-perfect-dad",
+      "title": "잘난 아빠보다는 못난 아빠되기",
+      "part": "올레길 여행",
+      "day": "다섯째 날",
+      "pageStart": 64,
+      "pageEnd": 77,
+      "order": 6,
+      "characterCount": 328,
+      "readTimeMinutes": 1,
+      "imageCount": 19
+    },
+    {
+      "slug": "geonuk-is-kind",
+      "title": "건욱이는 착하다",
+      "part": "올레길 여행",
+      "day": "여섯째 날",
+      "pageStart": 78,
+      "pageEnd": 87,
+      "order": 7,
+      "characterCount": 188,
+      "readTimeMinutes": 1,
+      "imageCount": 9
+    },
+    {
+      "slug": "geonuk-allowance",
+      "title": "건욱이와 용돈",
+      "part": "올레길 여행",
+      "day": "여섯째 날",
+      "pageStart": 88,
+      "pageEnd": 92,
+      "order": 8,
+      "characterCount": 640,
+      "readTimeMinutes": 2,
+      "imageCount": 9
+    },
+    {
+      "slug": "last-day",
+      "title": "집으로 돌아가는 여행 마지막 날",
+      "part": "올레길 여행",
+      "day": "마지막 날",
+      "pageStart": 93,
+      "pageEnd": 95,
+      "order": 9,
+      "characterCount": 741,
+      "readTimeMinutes": 2,
+      "imageCount": 6
+    },
+    {
+      "slug": "epilogue",
+      "title": "에필로그",
+      "part": "마무리",
+      "day": "여행 기록",
+      "pageStart": 96,
+      "pageEnd": 102,
+      "order": 10,
+      "characterCount": 1776,
+      "readTimeMinutes": 3
     }
   ]
 }

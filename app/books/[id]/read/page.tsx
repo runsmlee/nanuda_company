@@ -34,7 +34,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  const description = `${book.title} 전반부를 온라인으로 읽을 수 있는 무료 공개본입니다. ${reader.chapters.length}개 장을 공개합니다.`
+  const coverageDescription = reader.coverage === "full" ? "전체 내용을" : "전반부를"
+  const description = `${book.title} ${coverageDescription} 온라인으로 읽을 수 있는 무료 공개본입니다. ${reader.chapters.length}개 장을 공개합니다.`
 
   return {
     title: `${book.title} 온라인 공개본 | ${SITE_NAME}`,
@@ -93,8 +94,22 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
     (sum, chapter) => sum + chapter.readTimeMinutes,
     0
   )
+  const totalImageCount = reader.chapters.reduce(
+    (sum, chapter) => sum + (chapter.imageCount ?? 0),
+    0
+  )
   const firstChapter = reader.chapters[0]
-  const readerSummary = `${reader.chapters.length}개 장 · 약 ${totalReadTime}분 · ${totalCharacters.toLocaleString("ko-KR")}자 공개`
+  const isFullReader = reader.coverage === "full"
+  const coverageLabel = isFullReader ? "무료 전체 공개본" : "무료 공개본"
+  const coverageDescription = isFullReader ? "전체 내용을" : "전반부를"
+  const readerSummary = [
+    `${reader.chapters.length}개 장`,
+    `약 ${totalReadTime}분`,
+    `${totalCharacters.toLocaleString("ko-KR")}자 공개`,
+    totalImageCount > 0 ? `사진 ${totalImageCount}장` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ")
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -178,7 +193,7 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
           <article className="order-1 lg:order-2">
             <div className="mb-8 max-w-3xl">
               <p className="mb-4 text-sm font-medium text-[#9b3f1d]">
-                무료 공개본
+                {coverageLabel}
               </p>
               <h1 className="font-playfair text-4xl font-normal leading-tight md:text-5xl">
                 {book.title} 온라인 공개본
@@ -187,7 +202,7 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
                 {readerSummary}
               </p>
               <p className="mt-5 text-lg leading-8 text-[#201813]/75">
-                {book.description}
+                {reader.description || `${book.description} ${coverageDescription} 온라인으로 읽을 수 있습니다.`}
               </p>
             </div>
 
@@ -235,6 +250,7 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
                       </span>
                     </span>
                     <span className="flex items-center gap-2 text-sm text-[#201813]/55">
+                      {chapter.imageCount ? `${chapter.imageCount}장 · ` : ""}
                       {chapter.readTimeMinutes}분
                       <ChevronRight className="h-4 w-4" />
                     </span>
@@ -260,6 +276,7 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
               <p>공개 장: {reader.chapters.length}개</p>
               <p>분량: 약 {totalCharacters.toLocaleString("ko-KR")}자</p>
               <p>예상 독서 시간: 약 {totalReadTime}분</p>
+              {totalImageCount > 0 && <p>사진: {totalImageCount}장</p>}
             </div>
           </aside>
         </section>

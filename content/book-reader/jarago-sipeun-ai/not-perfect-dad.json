@@ -1,0 +1,226 @@
+{
+  "slug": "not-perfect-dad",
+  "title": "잘난 아빠보다는 못난 아빠되기",
+  "part": "올레길 여행",
+  "day": "다섯째 날",
+  "pageStart": 64,
+  "pageEnd": 77,
+  "order": 6,
+  "characterCount": 328,
+  "readTimeMinutes": 1,
+  "source": "자라고싶은아이 아이고싶은어른_올레길여행 A5 북크크양식(최종3).pdf",
+  "blocks": [
+    [
+      "잘난 아빠 밑에 잘난 자식 보기 힘들다"
+    ],
+    [
+      "내가 못난 만큼",
+      "건욱이는 더 두발로 꼿꼿이 서려 할 것이다"
+    ],
+    [
+      "내가 강하고 멋진 아빠이기보다",
+      "부족한 내 모습 그대로라도",
+      "건욱이에게 괜찮겠다는 생각이 들었다"
+    ],
+    [
+      "나에게 기대지 않는 자식은",
+      "나에게도 좋다"
+    ],
+    [
+      "나는 지금 이곳에 존재하는가",
+      "스치는 바람과",
+      "지나가는 사람의 표정을 읽고 있는가"
+    ],
+    [
+      "철학으로 행복에 도달하긴 쉽지 않다",
+      "사고 그 자체에 목적을 두기 때문이다",
+      "행복의 근원은 사고를 멈추는 데에 있다"
+    ],
+    [
+      "어느 날 우리가",
+      "이 세상을 완전하게 이해하는 날이 올까",
+      "과학이 우리에게",
+      "이 세상에 대한 모든 해답을 과연",
+      "가져다줄 수는 있을까"
+    ],
+    [
+      "우리는 끊임없는 발견 그 자체에 열광하는가",
+      "아니면 이것이",
+      "우리가 원하는 그 지점으로 데려다주고 있기 때문에",
+      "기뻐하는가"
+    ],
+    [
+      "자연의 법칙을 더 많이 이해하고자 하는 욕구와",
+      "자연 그 자체를 받아들이고자 하는 희망은 과연",
+      "어디에서 어떻게 서로 만날 수 있을까"
+    ]
+  ],
+  "imageCount": 19,
+  "media": [
+    {
+      "afterBlock": 1,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-093.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 1",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-094.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 2",
+          "width": 1800,
+          "height": 1350
+        }
+      ],
+      "caption": "2021년 12월 20일, 아빠와 아들의 올레길"
+    },
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-095.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 3",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-096.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 4",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-097.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 5",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-098.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 6",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 3,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-099.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 7",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-100.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 8",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-101.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 9",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-102.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 10",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-103.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 11",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-104.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 12",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 6,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-105.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 13",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-106.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 14",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 6,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-107.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 15",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-108.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 16",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 7,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-109.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 17",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-110.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 18",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 8,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-111.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 잘난 아빠보다는 못난 아빠되기 여행 사진 19",
+          "width": 831,
+          "height": 1800
+        }
+      ]
+    }
+  ]
+}

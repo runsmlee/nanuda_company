@@ -1,0 +1,118 @@
+{
+  "slug": "geonuk-is-kind",
+  "title": "건욱이는 착하다",
+  "part": "올레길 여행",
+  "day": "여섯째 날",
+  "pageStart": 78,
+  "pageEnd": 87,
+  "order": 7,
+  "characterCount": 188,
+  "readTimeMinutes": 1,
+  "source": "자라고싶은아이 아이고싶은어른_올레길여행 A5 북크크양식(최종3).pdf",
+  "blocks": [
+    [
+      "함께 하다 보면",
+      "건욱이의 여린 감성을 느낄 수 있는 순간들이 종종 있다",
+      "특히 동물을 마주했을 때 그랬다"
+    ],
+    [
+      "그날 강아지 한 마리가 골목에서부터 우리를 따라오고 있었는데",
+      "우리가 찻길을 건너려 할 때 건욱이가",
+      "우리 뒤를 졸졸 따라오는 그 강아지를 못내 염려했다"
+    ],
+    [
+      "여긴 차가 다니니 우리를 따라오면 안 돼, 돌아가"
+    ],
+    [
+      "그 강아지를 되돌려 보내고 나서야 길을 편하게 건너는",
+      "그 마음씨가 나에게도 전해져서 짠했다"
+    ],
+    [
+      "내가 옳다는 것을 증명하기보다",
+      "난 그저 평화를 원한다는 것을 안다"
+    ]
+  ],
+  "imageCount": 9,
+  "media": [
+    {
+      "afterBlock": 1,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-112.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 1",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-113.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 2",
+          "width": 1350,
+          "height": 1800
+        }
+      ],
+      "caption": "2021년 12월 21일, 여행 후반의 기록"
+    },
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-114.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 3",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-115.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 4",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-116.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 5",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-117.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 6",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 3,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-118.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 7",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-119.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 8",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-120.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 건욱이는 착하다 여행 사진 9",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    }
+  ]
+}

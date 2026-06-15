@@ -6,6 +6,8 @@
   "pageStart": 9,
   "pageEnd": 32,
   "order": 2,
+  "characterCount": 2036,
+  "readTimeMinutes": 4,
   "source": "자라고싶은아이 아이고싶은어른_올레길여행 A5 북크크양식(최종3).pdf",
   "blocks": [
     [
@@ -153,6 +155,212 @@
       "중요한 의사결정의 주체가 되었다"
     ]
   ],
-  "characterCount": 2045,
-  "readTimeMinutes": 4
+  "imageCount": 24,
+  "media": [
+    {
+      "afterBlock": 1,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-001.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 1",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-002.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 2",
+          "width": 1350,
+          "height": 1800
+        }
+      ],
+      "caption": "2021년 12월 16일, 여행 첫째 날"
+    },
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-003.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 3",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-004.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 4",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 4,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-005.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 5",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-006.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 6",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-007.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 7",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-008.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 8",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 6,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-009.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 9",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-010.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 10",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 8,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-011.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 11",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-012.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 12",
+          "width": 1350,
+          "height": 1800
+        }
+      ]
+    },
+    {
+      "afterBlock": 9,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-013.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 13",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-014.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 14",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 10,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-015.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 15",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-016.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 16",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 11,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-017.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 17",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-018.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 18",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 12,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-019.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 19",
+          "width": 1350,
+          "height": 1800
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-020.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 20",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 14,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-021.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 21",
+          "width": 1800,
+          "height": 1350
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-022.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 22",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    },
+    {
+      "afterBlock": 15,
+      "images": [
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-023.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 23",
+          "width": 960,
+          "height": 1280
+        },
+        {
+          "src": "/images/book-reader/jarago-sipeun-ai/photo-024.webp",
+          "alt": "자라고 싶은 아이, 아이이고 싶은 어른 여행자 ‘아날로그’ 여행 사진 24",
+          "width": 1800,
+          "height": 1350
+        }
+      ]
+    }
+  ]
 }

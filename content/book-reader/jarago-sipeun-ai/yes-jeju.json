@@ -6,6 +6,8 @@
   "pageStart": 7,
   "pageEnd": 8,
   "order": 1,
+  "characterCount": 56,
+  "readTimeMinutes": 1,
   "source": "자라고싶은아이 아이고싶은어른_올레길여행 A5 북크크양식(최종3).pdf",
   "blocks": [
     [
@@ -16,7 +18,5 @@
       "빠지면 되지.",
       "그럼 가자."
     ]
-  ],
-  "characterCount": 61,
-  "readTimeMinutes": 1
+  ]
 }
