@@ -26,8 +26,8 @@ export function SideNavigation({ activeSection, onSectionClick, onEmailClick }: 
           />
         </div>
         <div
-          className="text-accent-orange font-playfair font-light text-xs tracking-widest sm:text-sm lg:text-base"
-          style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
+          className="shrink-0 whitespace-nowrap text-accent-orange font-playfair font-light text-xs tracking-widest sm:text-sm lg:text-base"
+          style={{ writingMode: "vertical-rl", textOrientation: "upright" }}
         >
           생각을나누다
         </div>
