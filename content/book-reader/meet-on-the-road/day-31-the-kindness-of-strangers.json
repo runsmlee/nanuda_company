@@ -9,23 +9,16 @@
   "source": "Book_Meet on the Road (final edition).docx",
   "blocks": [
     [
-      "Don't fight your emotions, just keep moving forward."
+      "Don't wrestle your fears---"
     ],
     [
-      "Understand that the more you confront your fears, sorrows, and",
-      "loneliness,"
+      "the tighter you grip, the deeper they root."
     ],
     [
-      "the more likely you are to become entrenched in them"
+      "Let them be. They come only"
     ],
     [
-      "rather than resolving them."
-    ],
-    [
-      "In essence, these emotions are"
-    ],
-    [
-      "meant to anchor you in the present moment."
+      "to hold you here, in this moment."
     ],
     [
       "Last night, I had to walk all night long. I was unable to find a",
@@ -151,7 +144,7 @@
   ],
   "media": [
     {
-      "afterBlock": 9,
+      "afterBlock": 7,
       "images": [
         {
           "src": "/images/book-reader/gil-eseo-mannada/sketches/hitchhiking-sketch.webp",
@@ -162,7 +155,7 @@
       ]
     }
   ],
-  "characterCount": 5485,
-  "wordCount": 1181,
+  "characterCount": 5357,
+  "wordCount": 1160,
   "readTimeMinutes": 6
 }

@@ -9,19 +9,16 @@
   "source": "Book_Meet on the Road (final edition).docx",
   "blocks": [
     [
-      "In the tapestry of life, every event and every moment has its season."
+      "As flowers open in spring and fruit ripens in fall,"
     ],
     [
-      "As flowers bloom in spring and fruits mature in autumn,"
+      "all things keep their season."
     ],
     [
-      "each tale finds its time to emerge and proclaim its existence."
+      "Each waits for its right hour---"
     ],
     [
-      "It waits for the perfect moment to unfold,"
-    ],
-    [
-      "revealing its essence."
+      "and only then unfolds."
     ],
     [
       "I awoke from a restless slumber. By my side, Jornada seemed lost in peaceful dreams. Glancing at my watch, it was still early -- a few moments past 6 AM. I slowly rose, draping the blanket Jornada had lent me the previous night over his shivering form. Contemplating a quiet exit, I reconsidered and gently tapped his shoulder, whispering a soft farewell before leaving. The streets of Florianópolis were still bathed in the gentle shades of dawn, the traffic sparse. Breathing in the crisp morning air, I wandered aimlessly. It felt as if the streets were guiding me rather than me choosing my path. As I walked, a familiar face from the shelter approached, greeting me before moving on. I remembered he also had been turned away the previous night. Though the night might have been harsh, his cheerful demeanor was a testament to human resilience."
@@ -71,7 +68,7 @@
   ],
   "media": [
     {
-      "afterBlock": 6,
+      "afterBlock": 5,
       "images": [
         {
           "src": "/images/book-reader/gil-eseo-mannada/sketches/listening-to-wind-sketch.webp",
@@ -82,7 +79,7 @@
       ]
     }
   ],
-  "characterCount": 4302,
-  "wordCount": 917,
+  "characterCount": 4205,
+  "wordCount": 897,
   "readTimeMinutes": 5
 }
