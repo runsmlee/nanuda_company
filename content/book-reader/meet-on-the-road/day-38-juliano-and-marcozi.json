@@ -111,6 +111,17 @@
           "height": 1024
         }
       ]
+    },
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/juliano-marcoji-distance-sketch.webp",
+          "alt": "Meet On The Road watching Juliano and Marcozi from a distance hand sketch illustration",
+          "width": 1659,
+          "height": 948
+        }
+      ]
     }
   ],
   "characterCount": 4795,

@@ -648,8 +648,19 @@
         {
           "src": "/images/book-reader/gil-eseo-mannada/sketches/san-telmo-cardboard-sketch.webp",
           "alt": "길에서 만나다 산텔모 거리의 종이박스 손스케치 그림",
-          "width": 1647,
-          "height": 955
+          "width": 1672,
+          "height": 941
+        }
+      ]
+    },
+    {
+      "afterBlock": 57,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/hostel-sol-tango-sketch.webp",
+          "alt": "길에서 만나다 SOL 호스텔 탱고 손스케치 그림",
+          "width": 1672,
+          "height": 941
         }
       ]
     }

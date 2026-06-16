@@ -50,6 +50,19 @@
       "(\"Rowing the oar\" by Ko Un, 2001)"
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 2,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/sao-paulo-arrival-sketch.webp",
+          "alt": "Meet On The Road Sao Paulo arrival ending hand sketch illustration",
+          "width": 1658,
+          "height": 949
+        }
+      ]
+    }
+  ],
   "characterCount": 1655,
   "wordCount": 346,
   "readTimeMinutes": 2
