@@ -143,6 +143,17 @@
           "height": 1024
         }
       ]
+    },
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/santa-victoria-helpers-sketch.webp",
+          "alt": "Meet On The Road Santa Victoria helpers hand sketch illustration",
+          "width": 1647,
+          "height": 955
+        }
+      ]
     }
   ],
   "characterCount": 6343,

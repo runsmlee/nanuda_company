@@ -256,6 +256,17 @@
           "height": 1024
         }
       ]
+    },
+    {
+      "afterBlock": 19,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/santa-victoria-helpers-sketch.webp",
+          "alt": "길에서 만나다 산타 빅토리아에서 도와주려 모인 사람들 손스케치 그림",
+          "width": 1647,
+          "height": 955
+        }
+      ]
     }
   ],
   "characterCount": 4080,

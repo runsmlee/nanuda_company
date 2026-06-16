@@ -641,6 +641,19 @@
       "- 그리고 확신"
     ]
   ],
+  "media": [
+    {
+      "afterBlock": 10,
+      "images": [
+        {
+          "src": "/images/book-reader/gil-eseo-mannada/sketches/san-telmo-cardboard-sketch.webp",
+          "alt": "길에서 만나다 산텔모 거리의 종이박스 손스케치 그림",
+          "width": 1647,
+          "height": 955
+        }
+      ]
+    }
+  ],
   "characterCount": 15577,
   "readTimeMinutes": 30
 }
