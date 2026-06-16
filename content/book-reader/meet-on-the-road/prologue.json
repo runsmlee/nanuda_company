@@ -1,0 +1,24 @@
+{
+  "slug": "prologue",
+  "title": "Prologue",
+  "part": "",
+  "day": "",
+  "pageStart": 0,
+  "pageEnd": 0,
+  "order": 0,
+  "source": "Rainer Maria Rilke, Letters to a Young Poet (1903)",
+  "blocks": [
+    [
+      "You are looking outward—and that, above all, you must not do now."
+    ],
+    [
+      "There is only one way: go into yourself."
+    ],
+    [
+      "— Rainer Maria Rilke, Letters to a Young Poet (1903)"
+    ]
+  ],
+  "characterCount": 130,
+  "wordCount": 30,
+  "readTimeMinutes": 1
+}

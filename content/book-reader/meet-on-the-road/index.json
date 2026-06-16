@@ -5,6 +5,18 @@
   "source": "Book_Meet on the Road (final edition).docx",
   "chapters": [
     {
+      "slug": "prologue",
+      "title": "Prologue",
+      "part": "",
+      "day": "",
+      "pageStart": 0,
+      "pageEnd": 0,
+      "order": 0,
+      "characterCount": 130,
+      "wordCount": 30,
+      "readTimeMinutes": 1
+    },
+    {
       "slug": "day-01-lost",
       "title": "Lost",
       "part": "Argentina",
