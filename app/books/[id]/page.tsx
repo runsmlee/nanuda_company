@@ -92,6 +92,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     alternates: {
       canonical: bookUrl(book.id),
+      languages: {
+        [isEnglishBook ? "en" : "ko-KR"]: bookUrl(book.id),
+        "x-default": bookUrl(book.id),
+      },
     },
   }
 }
@@ -209,7 +213,10 @@ export default async function BookDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <div className="min-h-screen bg-primary-dark text-text-light">
+      <div
+        lang={isEnglishBook ? "en" : "ko"}
+        className="min-h-screen bg-primary-dark text-text-light"
+      >
         <CustomCursor />
 
         {/* Breadcrumb — quiet, gray; orange is reserved for content accents */}

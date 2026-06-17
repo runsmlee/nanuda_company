@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Nanum_Myeongjo } from 'next/font/google'
 import { BOOKS_DATA } from '@/lib/books-data'
 import {
   absoluteUrl,
@@ -12,6 +13,13 @@ import {
   splitAuthors,
 } from '@/lib/site-config'
 import './globals.css'
+
+const nanumMyeongjo = Nanum_Myeongjo({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  display: 'swap',
+  variable: '--font-nanum-myeongjo',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -167,12 +175,6 @@ export default function RootLayout({
         <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/images/nanuda_logo.png" />
         <meta name="theme-color" content="#D97706" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -186,7 +188,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>{children}</body>
+      <body className={nanumMyeongjo.variable}>{children}</body>
     </html>
   )
 }

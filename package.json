@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "pnpm check:llms && next build",
+    "check:llms": "node scripts/generate-llms.js --check",
     "dev": "next dev",
+    "generate:llms": "node scripts/generate-llms.js",
     "lint": "next lint",
     "start": "next start"
   },

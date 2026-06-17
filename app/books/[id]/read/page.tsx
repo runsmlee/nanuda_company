@@ -12,6 +12,7 @@ import {
   bookUrl,
   SITE_NAME,
   SITE_URL,
+  splitAuthors,
   truncateDescription,
 } from "@/lib/site-config"
 
@@ -46,6 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${title} | ${SITE_NAME}`,
     description: truncateDescription(description),
+    authors: splitAuthors(book.author).map((name) => ({ name })),
     keywords: [
       book.title,
       isEnglishReader ? `${book.title} online edition` : `${book.title} 온라인 읽기`,
@@ -57,6 +59,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ],
     alternates: {
       canonical: bookReaderUrl(book.id),
+      languages: {
+        [isEnglishReader ? "en" : "ko-KR"]: bookReaderUrl(book.id),
+        "x-default": bookReaderUrl(book.id),
+      },
     },
     openGraph: {
       title,
@@ -185,10 +191,10 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
       "@type": "Book",
       "@id": `${bookUrl(book.id)}#book`,
       "name": book.title,
-      "author": {
+      "author": splitAuthors(book.author).map((name) => ({
         "@type": "Person",
-        "name": book.author,
-      },
+        "name": name,
+      })),
       "hasPart": reader.chapters.map((chapter) => ({
         "@type": "Chapter",
         "position": chapter.order,
@@ -233,7 +239,10 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <main className="native-cursor min-h-screen bg-[#f5efe5] text-[#201813]">
+      <main
+        lang={isEnglishReader ? "en" : "ko"}
+        className="native-cursor min-h-screen bg-[#f5efe5] text-[#201813]"
+      >
         <nav className="border-b border-[#201813]/15 px-6 py-5">
           <div className="mx-auto flex max-w-6xl items-center gap-3 overflow-hidden text-sm">
             <Link href="/" className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#9b3f1d] hover:underline">

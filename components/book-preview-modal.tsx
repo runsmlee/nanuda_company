@@ -107,7 +107,7 @@ const BookPreviewModalComponent = function BookPreviewModal({
   }, [enableZoom])
 
   // 터치 제스처 처리
-  const getTouchDistance = (touches: TouchList) => {
+  const getTouchDistance = (touches: React.TouchList) => {
     if (touches.length < 2) return 0
     const touch1 = touches[0]
     const touch2 = touches[1]
@@ -222,7 +222,7 @@ const BookPreviewModalComponent = function BookPreviewModal({
       window.addEventListener('keydown', handleKeyDown)
       
       if (enableZoom) {
-        const imageContainer = document.querySelector('[data-image-container]')
+        const imageContainer = document.querySelector<HTMLElement>('[data-image-container]')
         if (imageContainer) {
           imageContainer.addEventListener('wheel', handleWheel, { passive: false })
         }

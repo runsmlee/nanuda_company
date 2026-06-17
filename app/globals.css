@@ -59,7 +59,7 @@ body {
 }
 
 .font-playfair {
-  font-family: "Nanum Myeongjo", "Georgia", "Times New Roman", serif;
+  font-family: var(--font-nanum-myeongjo), "Georgia", "Times New Roman", serif;
 }
 
 .bg-noise {

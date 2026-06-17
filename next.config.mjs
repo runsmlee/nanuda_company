@@ -1,11 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
     unoptimized: false,  // 이미지 최적화 활성화
     remotePatterns: [
@@ -45,6 +39,15 @@ const nextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/books/meet-on-the-road/:path*',
+        headers: [
+          {
+            key: 'Content-Language',
+            value: 'en',
           },
         ],
       },

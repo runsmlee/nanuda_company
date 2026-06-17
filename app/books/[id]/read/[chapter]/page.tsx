@@ -21,6 +21,7 @@ import {
   bookUrl,
   SITE_NAME,
   SITE_URL,
+  splitAuthors,
   truncateDescription,
 } from "@/lib/site-config"
 
@@ -52,6 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${title} | ${SITE_NAME}`,
     description,
+    authors: splitAuthors(book.author).map((name) => ({ name })),
     keywords: [
       book.title,
       chapter.title,
@@ -64,6 +66,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ],
     alternates: {
       canonical: bookChapterUrl(book.id, chapter.slug),
+      languages: {
+        [isEnglishReader ? "en" : "ko-KR"]: bookChapterUrl(book.id, chapter.slug),
+        "x-default": bookChapterUrl(book.id, chapter.slug),
+      },
     },
     openGraph: {
       title: `${chapter.title} - ${book.title}`,
@@ -162,10 +168,10 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
       "@id": `${bookUrl(book.id)}#book`,
       "name": book.title,
     },
-    "author": {
+    "author": splitAuthors(book.author).map((name) => ({
       "@type": "Person",
-      "name": book.author,
-    },
+      "name": name,
+    })),
     "publisher": {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
@@ -215,7 +221,10 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <main className="native-cursor min-h-screen bg-[#f5efe5] text-[#201813]">
+      <main
+        lang={isEnglishReader ? "en" : "ko"}
+        className="native-cursor min-h-screen bg-[#f5efe5] text-[#201813]"
+      >
         <nav className="border-b border-[#201813]/15 px-6 py-5">
           <div className="mx-auto flex max-w-5xl items-center gap-3 overflow-hidden text-sm">
             <Link href="/" className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center text-[#9b3f1d] hover:underline">
@@ -232,7 +241,10 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
           </div>
         </nav>
 
-        <article className="mx-auto max-w-3xl px-6 pb-28 pt-12 md:py-16">
+        <article
+          lang={isEnglishReader ? "en" : "ko"}
+          className="mx-auto max-w-3xl px-6 pb-28 pt-12 md:py-16"
+        >
           <header className="mb-12">
             <div className="mb-5 flex flex-wrap items-center gap-3 text-sm text-[#201813]/60">
               <span className="rounded-full bg-[#201813]/10 px-3 py-1 text-[#201813]/75">
