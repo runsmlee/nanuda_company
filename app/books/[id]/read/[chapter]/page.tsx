@@ -17,12 +17,15 @@ import {
 import {
   absoluteUrl,
   bookChapterUrl,
+  bookPublishedDate,
   bookReaderUrl,
   bookUrl,
+  SITE_UPDATED_AT,
   SITE_NAME,
   SITE_URL,
   splitAuthors,
   truncateDescription,
+  truncateTitle,
 } from "@/lib/site-config"
 
 interface PageProps {
@@ -45,15 +48,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const isEnglishReader = book.id === "meet-on-the-road"
-  const description = truncateDescription(getReaderPlainText(chapter), 155)
+  const plainText = getReaderPlainText(chapter)
+  const descriptionSource = plainText.length < 110
+    ? `${plainText} ${book.title} 온라인 공개본에서 읽는 ${chapter.part || "여행 에세이"} 장입니다.`
+    : plainText
+  const description = truncateDescription(descriptionSource, 155)
+  const language = isEnglishReader ? "en" : "ko-KR"
   const title = isEnglishReader
-    ? `${chapter.title} - ${book.title} Online Edition`
-    : `${chapter.title} - ${book.title} 온라인 공개본`
+    ? `${truncateTitle(chapter.title, 38)} | ${book.title}`
+    : `${truncateTitle(chapter.title, 22)} | ${book.title} 공개본 | ${SITE_NAME}`
 
   return {
-    title: `${title} | ${SITE_NAME}`,
+    title,
     description,
     authors: splitAuthors(book.author).map((name) => ({ name })),
+    other: {
+      "content-language": language,
+    },
     keywords: [
       book.title,
       chapter.title,
@@ -67,7 +78,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: bookChapterUrl(book.id, chapter.slug),
       languages: {
-        [isEnglishReader ? "en" : "ko-KR"]: bookChapterUrl(book.id, chapter.slug),
+        [language]: bookChapterUrl(book.id, chapter.slug),
         "x-default": bookChapterUrl(book.id, chapter.slug),
       },
     },
@@ -154,30 +165,71 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
     mediaGroupsByBlock.set(group.afterBlock, groups)
   }
   const firstMediaGroup = chapter.media?.[0]
+  const language = isEnglishReader ? "en" : "ko-KR"
+  const chapterUrl = bookChapterUrl(book.id, chapter.slug)
+  const authorJsonLd = splitAuthors(book.author).map((name) => ({
+    "@type": "Person",
+    "name": name,
+  }))
+  const schemaKeywords = [
+    book.title,
+    book.subtitle,
+    book.category,
+    chapter.title,
+    chapter.part,
+    chapter.day,
+    isEnglishReader ? "travel memoir" : "여행 에세이",
+    isEnglishReader ? "South America travel memoir" : "온라인 공개본",
+  ].filter(Boolean)
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Chapter",
-    "@id": `${bookChapterUrl(book.id, chapter.slug)}#chapter`,
-    "url": bookChapterUrl(book.id, chapter.slug),
+    "@type": ["Article", "Chapter"],
+    "@id": `${chapterUrl}#chapter`,
+    "url": chapterUrl,
     "name": chapter.title,
+    "headline": `${chapter.title} - ${book.title}`,
+    "description": truncateDescription(plainText, 220),
+    "abstract": truncateDescription(plainText, 320),
     "position": chapter.order,
-    "inLanguage": isEnglishReader ? "en" : "ko-KR",
+    "inLanguage": language,
+    "isAccessibleForFree": true,
+    "articleSection": chapter.part || labels.onlineEdition,
+    "keywords": schemaKeywords.join(", "),
+    "timeRequired": `PT${Math.max(1, chapter.readTimeMinutes)}M`,
+    ...(chapter.wordCount ? { "wordCount": chapter.wordCount } : {}),
+    "datePublished": bookPublishedDate(book),
+    "dateModified": SITE_UPDATED_AT,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": chapterUrl,
+    },
     "isPartOf": {
       "@type": "Book",
       "@id": `${bookUrl(book.id)}#book`,
       "name": book.title,
     },
-    "author": splitAuthors(book.author).map((name) => ({
-      "@type": "Person",
-      "name": name,
-    })),
+    "author": authorJsonLd,
     "publisher": {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
       "name": SITE_NAME,
     },
-    "text": truncateDescription(plainText, 500),
+    "copyrightHolder": {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      "name": SITE_NAME,
+    },
+    "image": [
+      absoluteUrl(book.image),
+      ...(firstMediaGroup?.images.map((image) => absoluteUrl(image.src)) ?? []),
+    ],
+    "thumbnailUrl": absoluteUrl(book.image),
+    "about": schemaKeywords.map((name) => ({
+      "@type": "Thing",
+      "name": name,
+    })),
+    "text": truncateDescription(plainText, 900),
   }
 
   const breadcrumbJsonLd = {

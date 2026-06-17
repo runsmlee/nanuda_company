@@ -87,7 +87,7 @@ export const BOOKS_DATA: Book[] = [
     price: "29,500원",
     image: "/images/han-geoleum.png",
     description:
-      "또다시 탈출을 꿈꾸는 남자, 남편 따라 함께 방황해버린 여자, 부모 따라 엉겁결에 집 떠난 아이들의 이야기.",
+      "가족과 함께 떠난 세계여행의 기록. 또다시 탈출을 꿈꾸는 남자, 남편을 따라 방황해버린 여자, 부모를 따라 집을 떠난 아이들이 길 위에서 발견한 행복의 순간을 담은 여행 에세이입니다.",
     author: "이상민, 정예원",
     pages: 312,
     publishDate: "2022년",

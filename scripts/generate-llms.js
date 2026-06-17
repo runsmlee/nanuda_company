@@ -59,9 +59,63 @@ function readColumnLinks() {
   return posts
 }
 
+function readBookFacts() {
+  const booksDataPath = path.join(root, "lib", "books-data.ts")
+  const source = fs.readFileSync(booksDataPath, "utf8")
+  const books = []
+  const bookPattern = /\{\s*id:\s*"([^"]+)",([\s\S]*?)(?=\n\s*\},\n\s*\{|$)/g
+
+  for (const match of source.matchAll(bookPattern)) {
+    const id = match[1]
+    const block = match[2]
+    const value = (field) => block.match(new RegExp(`${field}:\\s*"([^"]+)"`))?.[1]
+
+    books.push({
+      id,
+      title: value("title") || id,
+      subtitle: value("subtitle") || "",
+      author: value("author") || "",
+      category: value("category") || "",
+      price: value("price") || "",
+      language: id === "meet-on-the-road" ? "en" : "ko-KR",
+      hasOnlineReader: fs.existsSync(path.join(readerRoot, id, "index.json")),
+      purchaseChannel: block.includes("amazonLink")
+        ? "Amazon"
+        : block.includes("naverLink")
+          ? "Naver Shopping"
+          : "book detail page",
+    })
+  }
+
+  return books
+}
+
+function readAuthorFacts() {
+  const authorsDataPath = path.join(root, "lib", "authors-data.ts")
+  const source = fs.readFileSync(authorsDataPath, "utf8")
+  const authors = []
+  const authorPattern = /\{\s*slug:\s*"([^"]+)",([\s\S]*?)(?=\n\s*\},\n\s*\{|$)/g
+
+  for (const match of source.matchAll(authorPattern)) {
+    const slug = match[1]
+    const block = match[2]
+    const value = (field) => block.match(new RegExp(`${field}:\\s*"([^"]+)"`))?.[1]
+
+    authors.push({
+      slug,
+      name: value("name") || slug,
+      jobTitle: value("jobTitle") || "",
+    })
+  }
+
+  return authors
+}
+
 function buildLlmsText() {
   const readers = readReaderIndexes()
   const columns = readColumnLinks()
+  const books = readBookFacts()
+  const authors = readAuthorFacts()
   const lines = [
     "# 생각을나누다",
     "",
@@ -88,6 +142,20 @@ function buildLlmsText() {
     "",
   ]
 
+  lines.push("### Book facts", "")
+
+  for (const book of books) {
+    const reader = readers.find((item) => item.bookId === book.id)
+    const readerFacts = reader
+      ? ` Online reader: full free HTML edition with ${reader.chapters.length} chapter pages.`
+      : ""
+    lines.push(
+      `- ${book.title}: ${book.subtitle}. Author: ${book.author}. Category: ${book.category}. Language: ${book.language}. Price: ${book.price}. Purchase channel: ${book.purchaseChannel}.${readerFacts}`
+    )
+  }
+
+  lines.push("", "### Canonical book and reader URLs", "")
+
   for (const reader of readers) {
     const bookTitle = baseBookTitle(reader.title)
     const bookUrl = `${siteUrl}/books/${reader.bookId}`
@@ -107,10 +175,41 @@ function buildLlmsText() {
     }
   }
 
+  lines.push("", "## Online reader coverage", "")
+
+  for (const reader of readers) {
+    const totalCharacters = reader.chapters.reduce(
+      (sum, chapter) => sum + (chapter.characterCount || 0),
+      0
+    )
+    const totalWords = reader.chapters.reduce(
+      (sum, chapter) => sum + (chapter.wordCount || 0),
+      0
+    )
+    const totalReadTime = reader.chapters.reduce(
+      (sum, chapter) => sum + (chapter.readTimeMinutes || 0),
+      0
+    )
+    const bookTitle = baseBookTitle(reader.title)
+    const lengthLabel = totalWords
+      ? `${totalWords.toLocaleString("en-US")} words`
+      : `${totalCharacters.toLocaleString("ko-KR")} Korean characters`
+
+    lines.push(
+      `- ${bookTitle}: ${reader.coverage || "full"} online reader, ${reader.chapters.length} chapters, about ${totalReadTime} minutes, ${lengthLabel}. Source: ${reader.source}.`
+    )
+  }
+
   lines.push("", "## Columns", "")
 
   for (const column of columns) {
     lines.push(`- ${column.title}: ${siteUrl}/column/${column.id}`)
+  }
+
+  lines.push("", "## Authors", "")
+
+  for (const author of authors) {
+    lines.push(`- ${author.name}: ${author.jobTitle}. Profile: ${siteUrl}/authors/${author.slug}`)
   }
 
   lines.push(

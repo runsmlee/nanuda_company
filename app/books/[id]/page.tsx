@@ -14,6 +14,7 @@ import {
   SITE_URL,
   splitAuthors,
   truncateDescription,
+  truncateTitle,
 } from "@/lib/site-config"
 
 interface PageProps {
@@ -33,6 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const reader = getBookReaderIndex(book.id)
   const isEnglishBook = book.id === "meet-on-the-road"
+  const language = isEnglishBook ? "en" : "ko-KR"
   const coverAlt = `${book.title} ${isEnglishBook ? "cover" : "표지"}`
   const keywords = isEnglishBook
     ? [
@@ -63,11 +65,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         reader ? `${book.title} 온라인 읽기` : '',
       ]
 
+  const pageTitle = isEnglishBook
+    ? `${book.title} | South America Travel Memoir`
+    : `${book.title} - ${book.subtitle} | 생각을 나누다`
+
   return {
-    title: `${book.title} - ${book.subtitle} | 생각을 나누다`,
+    title: truncateTitle(pageTitle),
     description: truncateDescription(book.description),
     keywords: keywords.filter(Boolean),
     authors: splitAuthors(book.author).map((name) => ({ name })),
+    other: {
+      "content-language": language,
+    },
     openGraph: {
       title: `${book.title} - ${book.subtitle}`,
       description: truncateDescription(book.description, 180),
@@ -93,7 +102,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: bookUrl(book.id),
       languages: {
-        [isEnglishBook ? "en" : "ko-KR"]: bookUrl(book.id),
+        [language]: bookUrl(book.id),
         "x-default": bookUrl(book.id),
       },
     },
@@ -130,6 +139,7 @@ export default async function BookDetailPage({ params }: PageProps) {
   }))
   const reader = getBookReaderIndex(book.id)
   const isEnglishBook = book.id === "meet-on-the-road"
+  const language = isEnglishBook ? "en" : "ko-KR"
   const labels = isEnglishBook
     ? { breadcrumb: "Breadcrumb", home: "Home", books: "Books" }
     : { breadcrumb: "브레드크럼", home: "홈", books: "여행서" }
@@ -148,7 +158,15 @@ export default async function BookDetailPage({ params }: PageProps) {
     "genre": book.category,
     "numberOfPages": book.pages,
     "datePublished": bookPublishedDate(book),
-    "inLanguage": book.id === "meet-on-the-road" ? "en" : "ko-KR",
+    "inLanguage": language,
+    "keywords": [
+      book.title,
+      book.subtitle,
+      book.author,
+      book.category,
+      isEnglishBook ? "travel memoir" : "여행 에세이",
+      reader ? (isEnglishBook ? "online edition" : "온라인 공개본") : "",
+    ].filter(Boolean).join(", "),
     "publisher": {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
@@ -156,11 +174,25 @@ export default async function BookDetailPage({ params }: PageProps) {
     },
     "image": absoluteUrl(book.image),
     ...(reader ? {
+      "workExample": {
+        "@type": "Book",
+        "@id": `${bookUrl(book.id)}#online-edition`,
+        "url": `${bookUrl(book.id)}/read`,
+        "bookFormat": "https://schema.org/EBook",
+        "inLanguage": language,
+        "isAccessibleForFree": true,
+        "name": isEnglishBook
+          ? `${book.title} Online Edition`
+          : `${book.title} 온라인 공개본`,
+      },
+    } : {}),
+    ...(reader ? {
       "hasPart": reader.chapters.map((chapter) => ({
         "@type": "Chapter",
         "position": chapter.order,
         "name": chapter.title,
-        "url": bookChapterUrl(book.id, chapter.slug)
+        "url": bookChapterUrl(book.id, chapter.slug),
+        "isAccessibleForFree": true,
       }))
     } : {}),
     ...(book.naverLink || book.amazonLink ? {

@@ -94,6 +94,13 @@ export function truncateDescription(text: string, maxLength = 155) {
   return `${normalized.slice(0, maxLength - 3).trim()}...`
 }
 
+export function truncateTitle(text: string, maxLength = 58) {
+  const normalized = text.replace(/\s+/g, " ").trim()
+  if (normalized.length <= maxLength) return normalized
+
+  return `${normalized.slice(0, maxLength - 3).trim()}...`
+}
+
 export function parseBookPrice(price: string) {
   return {
     price: price.replace(/[^0-9.]/g, ""),

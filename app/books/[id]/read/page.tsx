@@ -36,10 +36,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const isEnglishReader = book.id === "meet-on-the-road"
+  const language = isEnglishReader ? "en" : "ko-KR"
+  const totalReadTime = reader.chapters.reduce(
+    (sum, chapter) => sum + chapter.readTimeMinutes,
+    0
+  )
+  const totalWords = reader.chapters.reduce(
+    (sum, chapter) => sum + (chapter.wordCount ?? 0),
+    0
+  )
   const coverageDescription = reader.coverage === "full" ? "전체 내용을" : "전반부를"
   const description = isEnglishReader
-    ? `Read ${book.title}, the complete English online edition, for free. ${reader.chapters.length} chapters are available.`
-    : `${book.title} ${coverageDescription} 온라인으로 읽을 수 있는 무료 공개본입니다. ${reader.chapters.length}개 장을 공개합니다.`
+    ? `Read ${book.title} online for free: ${reader.chapters.length} chapters, about ${totalReadTime} minutes, and ${totalWords.toLocaleString("en-US")} words from the South America travel memoir.`
+    : `${book.title} ${coverageDescription} 무료로 읽는 온라인 공개본입니다. ${reader.chapters.length}개 장, 약 ${totalReadTime}분 분량의 여행 에세이 본문과 목차, 책 상세 링크를 함께 제공합니다.`
   const title = isEnglishReader
     ? `${book.title} Online Edition`
     : `${book.title} 온라인 공개본`
@@ -48,6 +57,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${title} | ${SITE_NAME}`,
     description: truncateDescription(description),
     authors: splitAuthors(book.author).map((name) => ({ name })),
+    other: {
+      "content-language": language,
+    },
     keywords: [
       book.title,
       isEnglishReader ? `${book.title} online edition` : `${book.title} 온라인 읽기`,
@@ -60,7 +72,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: bookReaderUrl(book.id),
       languages: {
-        [isEnglishReader ? "en" : "ko-KR"]: bookReaderUrl(book.id),
+        [language]: bookReaderUrl(book.id),
         "x-default": bookReaderUrl(book.id),
       },
     },
@@ -178,12 +190,23 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "CollectionPage",
+    "@type": ["CollectionPage", "WebPage"],
     "@id": `${bookReaderUrl(book.id)}#reader`,
     "url": bookReaderUrl(book.id),
     "name": `${book.title} ${labels.headingSuffix}`,
     "description": reader.description,
     "inLanguage": isEnglishReader ? "en" : "ko-KR",
+    "isAccessibleForFree": true,
+    "keywords": [
+      book.title,
+      book.subtitle,
+      book.category,
+      isEnglishReader ? "travel memoir" : "여행 에세이",
+      isEnglishReader ? "online edition" : "온라인 공개본",
+      isFullReader ? "full text" : "excerpt",
+    ].join(", "),
+    "timeRequired": `PT${Math.max(1, totalReadTime)}M`,
+    ...(totalWords ? { "wordCount": totalWords } : {}),
     "isPartOf": {
       "@id": `${SITE_URL}/#website`,
     },
@@ -191,6 +214,9 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
       "@type": "Book",
       "@id": `${bookUrl(book.id)}#book`,
       "name": book.title,
+      "description": book.description,
+      "inLanguage": isEnglishReader ? "en" : "ko-KR",
+      "isAccessibleForFree": true,
       "author": splitAuthors(book.author).map((name) => ({
         "@type": "Person",
         "name": name,
@@ -200,6 +226,9 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
         "position": chapter.order,
         "name": chapter.title,
         "url": bookChapterUrl(book.id, chapter.slug),
+        "isAccessibleForFree": true,
+        "timeRequired": `PT${Math.max(1, chapter.readTimeMinutes)}M`,
+        ...(chapter.wordCount ? { "wordCount": chapter.wordCount } : {}),
       })),
     },
   }
