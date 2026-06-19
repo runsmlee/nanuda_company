@@ -45,10 +45,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     (sum, chapter) => sum + (chapter.wordCount ?? 0),
     0
   )
+  const totalSections = reader.chapters.reduce(
+    (sum, chapter) => sum + (chapter.sections?.length ?? 0),
+    0
+  )
   const coverageDescription = reader.coverage === "full" ? "전체 내용을" : "전반부를"
   const description = isEnglishReader
-    ? `Read ${book.title} online for free: ${reader.chapters.length} chapters, about ${totalReadTime} minutes, and ${totalWords.toLocaleString("en-US")} words from the South America travel memoir.`
-    : `${book.title} ${coverageDescription} 무료로 읽는 온라인 공개본입니다. ${reader.chapters.length}개 장, 약 ${totalReadTime}분 분량의 여행 에세이 본문과 목차, 책 상세 링크를 함께 제공합니다.`
+    ? `Read ${book.title} online for free: ${reader.chapters.length} chapters${totalSections ? `, ${totalSections} sections` : ""}, about ${totalReadTime} minutes, and ${totalWords.toLocaleString("en-US")} words from the South America travel memoir.`
+    : `${book.title} ${coverageDescription} 무료로 읽는 온라인 공개본입니다. ${reader.chapters.length}개 장${totalSections ? `, ${totalSections}개 세부 목차` : ""}, 약 ${totalReadTime}분 분량의 여행 에세이 본문과 책 상세 링크를 함께 제공합니다.`
   const title = isEnglishReader
     ? `${book.title} Online Edition`
     : `${book.title} 온라인 공개본`
@@ -126,6 +130,10 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
     (sum, chapter) => sum + (chapter.imageCount ?? 0),
     0
   )
+  const totalSections = reader.chapters.reduce(
+    (sum, chapter) => sum + (chapter.sections?.length ?? 0),
+    0
+  )
   const firstChapter = reader.chapters[0]
   const isEnglishReader = book.id === "meet-on-the-road"
   const isFullReader = reader.coverage === "full"
@@ -142,10 +150,12 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
         minutesPrefix: "about",
         minutesSuffix: " min",
         words: "words",
+        sections: "sections",
         photos: "photos",
         readFirst: "Start reading",
         buy: book.amazonLink ? "Buy on Amazon" : "Buy the book",
         chapterCount: "Chapters",
+        sectionCount: "Sections",
         length: "Length",
         readTime: "Reading time",
         photoCount: "Photos",
@@ -161,10 +171,12 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
         minutesPrefix: "약",
         minutesSuffix: "분",
         words: "자 공개",
+        sections: "개 세부 목차",
         photos: "사진",
         readFirst: "첫 장부터 읽기",
         buy: "종이책 구매하기",
         chapterCount: "공개 장",
+        sectionCount: "세부 목차",
         length: "분량",
         readTime: "예상 독서 시간",
         photoCount: "사진",
@@ -178,6 +190,11 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
     isEnglishReader
       ? `${totalWords.toLocaleString("en-US")} ${labels.words}`
       : `${totalCharacters.toLocaleString("ko-KR")}${labels.words}`,
+    totalSections > 0
+      ? isEnglishReader
+        ? `${totalSections} ${labels.sections}`
+        : `${totalSections}${labels.sections}`
+      : null,
     totalImageCount > 0
       ? isEnglishReader
         ? `${totalImageCount} ${labels.photos}`
@@ -229,6 +246,17 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
         "isAccessibleForFree": true,
         "timeRequired": `PT${Math.max(1, chapter.readTimeMinutes)}M`,
         ...(chapter.wordCount ? { "wordCount": chapter.wordCount } : {}),
+        ...(chapter.sections?.length
+          ? {
+              "hasPart": chapter.sections.map((section, sectionIndex) => ({
+                "@type": "CreativeWork",
+                "position": sectionIndex + 1,
+                "name": section.title,
+                "url": `${bookChapterUrl(book.id, chapter.slug)}#${section.slug}`,
+                "isAccessibleForFree": true,
+              })),
+            }
+          : {}),
       })),
     },
   }
@@ -328,36 +356,55 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
             </div>
 
             <ol className="border-y border-[#201813]/15">
-              {reader.chapters.map((chapter) => (
-                <li key={chapter.slug} className="border-b border-[#201813]/15 last:border-b-0">
-                  <Link
-                    href={`/books/${book.id}/read/${chapter.slug}`}
-                    className="group grid gap-3 py-6 md:grid-cols-[64px_1fr_auto]"
-                  >
-                    <span className="font-mono text-sm text-[#9b3f1d]">
-                      {String(chapter.order).padStart(2, "0")}
-                    </span>
-                    <span>
-                      <span className="block text-xs font-medium text-[#201813]/55">
-                        {chapter.part}
-                        {chapter.day ? ` · ${chapter.day}` : ""}
+              {reader.chapters.map((chapter) => {
+                const sections = chapter.sections ?? []
+
+                return (
+                  <li key={chapter.slug} className="border-b border-[#201813]/15 last:border-b-0">
+                    <Link
+                      href={`/books/${book.id}/read/${chapter.slug}`}
+                      className="group grid gap-3 py-6 md:grid-cols-[64px_1fr_auto]"
+                    >
+                      <span className="font-mono text-sm text-[#9b3f1d]">
+                        {String(chapter.order).padStart(2, "0")}
                       </span>
-                      <span className="mt-1 block text-xl font-medium group-hover:text-[#9b3f1d]">
-                        {chapter.title}
+                      <span>
+                        <span className="block text-xs font-medium text-[#201813]/55">
+                          {chapter.part}
+                          {chapter.day ? ` · ${chapter.day}` : ""}
+                        </span>
+                        <span className="mt-1 block text-xl font-medium group-hover:text-[#9b3f1d]">
+                          {chapter.title}
+                        </span>
                       </span>
-                    </span>
-                    <span className="flex items-center gap-2 text-sm text-[#201813]/55">
-                      {chapter.imageCount
-                        ? isEnglishReader
-                          ? `${chapter.imageCount} ${labels.photos} · `
-                          : `${chapter.imageCount}장 · `
-                        : ""}
-                      {chapter.readTimeMinutes}{labels.minutesSuffix}
-                      <ChevronRight className="h-4 w-4" />
-                    </span>
-                  </Link>
-                </li>
-              ))}
+                      <span className="flex items-center gap-2 text-sm text-[#201813]/55">
+                        {chapter.imageCount
+                          ? isEnglishReader
+                            ? `${chapter.imageCount} ${labels.photos} · `
+                            : `${chapter.imageCount}장 · `
+                          : ""}
+                        {chapter.readTimeMinutes}{labels.minutesSuffix}
+                        <ChevronRight className="h-4 w-4" />
+                      </span>
+                    </Link>
+
+                    {sections.length > 0 && (
+                      <div className="-mt-2 grid gap-2 pb-6 md:ml-16 md:grid-cols-2">
+                        {sections.map((section) => (
+                          <Link
+                            key={section.slug}
+                            href={`/books/${book.id}/read/${chapter.slug}#${section.slug}`}
+                            className="group/section flex min-h-10 items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-[#201813]/65 transition-colors hover:bg-[#201813]/8 hover:text-[#9b3f1d]"
+                          >
+                            <span>{section.title}</span>
+                            <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-45 transition-opacity group-hover/section:opacity-100" />
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
             </ol>
           </article>
 
@@ -375,6 +422,9 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
 
             <div className="space-y-3 text-sm leading-7 text-[#201813]/70">
               <p>{labels.chapterCount}: {reader.chapters.length}{isEnglishReader ? "" : "개"}</p>
+              {totalSections > 0 && (
+                <p>{labels.sectionCount}: {totalSections}{isEnglishReader ? "" : "개"}</p>
+              )}
               <p>
                 {labels.length}: {labels.minutesPrefix}{" "}
                 {isEnglishReader

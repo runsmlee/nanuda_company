@@ -249,19 +249,7 @@
           "height": 930
         },
         {
-          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-008.webp",
-          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
-          "width": 1400,
-          "height": 930
-        },
-        {
           "src": "/images/book-reader/han-geoleum/han-geoleum-photo-009.webp",
-          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
-          "width": 1400,
-          "height": 930
-        },
-        {
-          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-010.webp",
           "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
           "width": 1400,
           "height": 930
@@ -290,12 +278,6 @@
       "images": [
         {
           "src": "/images/book-reader/han-geoleum/han-geoleum-photo-013.webp",
-          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
-          "width": 1400,
-          "height": 930
-        },
-        {
-          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-014.webp",
           "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
           "width": 1400,
           "height": 930
@@ -458,5 +440,5 @@
   ],
   "characterCount": 905,
   "readTimeMinutes": 2,
-  "imageCount": 32
+  "imageCount": 29
 }

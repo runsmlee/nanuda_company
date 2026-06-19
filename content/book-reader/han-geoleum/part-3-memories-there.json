@@ -964,12 +964,6 @@
           "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
           "width": 1400,
           "height": 933
-        },
-        {
-          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-246.webp",
-          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
-          "width": 1400,
-          "height": 932
         }
       ]
     },
@@ -1033,5 +1027,5 @@
   ],
   "characterCount": 7664,
   "readTimeMinutes": 15,
-  "imageCount": 59
+  "imageCount": 58
 }

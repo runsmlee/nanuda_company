@@ -15,7 +15,29 @@
       "order": 1,
       "characterCount": 905,
       "readTimeMinutes": 2,
-      "imageCount": 32
+      "imageCount": 29,
+      "sections": [
+        {
+          "slug": "before-the-journey",
+          "title": "여행을 떠나기 전의 나",
+          "sourceBlockIndex": 2
+        },
+        {
+          "slug": "death-valley",
+          "title": "Death Valley",
+          "sourceBlockIndex": 25
+        },
+        {
+          "slug": "family-and-new-start",
+          "title": "가족, 사랑, 새로운 출발",
+          "sourceBlockIndex": 33
+        },
+        {
+          "slug": "cape-reinga-new-zealand",
+          "title": "Cape Reinga와 뉴질랜드",
+          "sourceBlockIndex": 57
+        }
+      ]
     },
     {
       "slug": "part-1-journey-begins",
@@ -27,7 +49,94 @@
       "order": 2,
       "characterCount": 10070,
       "readTimeMinutes": 19,
-      "imageCount": 124
+      "imageCount": 120,
+      "sections": [
+        {
+          "slug": "night-before-departure",
+          "title": "출국 전날 밤",
+          "sourceBlockIndex": 0
+        },
+        {
+          "slug": "shakespear-regional-park",
+          "title": "Shakespear Regional Park",
+          "sourceBlockIndex": 26
+        },
+        {
+          "slug": "kowharewa-bay",
+          "title": "Kowharewa Bay",
+          "sourceBlockIndex": 38
+        },
+        {
+          "slug": "cape-reinga",
+          "title": "Cape Reinga",
+          "sourceBlockIndex": 39
+        },
+        {
+          "slug": "coromendel",
+          "title": "Coromendel",
+          "sourceBlockIndex": 51
+        },
+        {
+          "slug": "huka-fall",
+          "title": "Huka Fall",
+          "sourceBlockIndex": 73
+        },
+        {
+          "slug": "interislander-ferry",
+          "title": "Interislander Ferry",
+          "sourceBlockIndex": 98
+        },
+        {
+          "slug": "abel-tasman",
+          "title": "Abel Tasman",
+          "sourceBlockIndex": 110
+        },
+        {
+          "slug": "cape-foulwind-lake-mapourika",
+          "title": "Cape Foulwind와 Lake Mapourika",
+          "sourceBlockIndex": 125
+        },
+        {
+          "slug": "blue-pool",
+          "title": "Blue Pool",
+          "sourceBlockIndex": 136
+        },
+        {
+          "slug": "lake-hawea",
+          "title": "Lake Hawea",
+          "sourceBlockIndex": 145
+        },
+        {
+          "slug": "wanaka",
+          "title": "Wanaka",
+          "sourceBlockIndex": 154
+        },
+        {
+          "slug": "crown-range-road-summit",
+          "title": "Crown Range Road Summit",
+          "sourceBlockIndex": 167
+        },
+        {
+          "slug": "lake-wakatipu-queenstown",
+          "title": "Lake Wakatipu와 Queenstown",
+          "sourceBlockIndex": 181
+        },
+        {
+          "slug": "sandfly-beach-allans-beach",
+          "title": "Sandfly Beach와 Allans Beach",
+          "sourceBlockIndex": 204
+        },
+        {
+          "slug": "milford-sound",
+          "title": "Milford Sound",
+          "sourceBlockIndex": 240
+        },
+        {
+          "slug": "auckland-to-noumea",
+          "title": "오클랜드에서 누메아로",
+          "sourceBlockIndex": 270
+        }
+      ]
     },
     {
       "slug": "part-2-moments-here",
@@ -39,7 +148,59 @@
       "order": 3,
       "characterCount": 4079,
       "readTimeMinutes": 8,
-      "imageCount": 38
+      "imageCount": 38,
+      "sections": [
+        {
+          "slug": "new-caledonia-australia",
+          "title": "뉴칼레도니아와 호주",
+          "sourceBlockIndex": 0
+        },
+        {
+          "slug": "ilot-maitrere",
+          "title": "Ilot Maitrere",
+          "sourceBlockIndex": 5
+        },
+        {
+          "slug": "hotel-kodjeue",
+          "title": "Hotel Kodjeue, Ile des Pins",
+          "sourceBlockIndex": 6
+        },
+        {
+          "slug": "natural-pool",
+          "title": "Natural Pool, Ile des Pins",
+          "sourceBlockIndex": 20
+        },
+        {
+          "slug": "wedding-anniversary",
+          "title": "10월 21일, 결혼기념일",
+          "sourceBlockIndex": 32
+        },
+        {
+          "slug": "sydney",
+          "title": "Sydney",
+          "sourceBlockIndex": 69
+        },
+        {
+          "slug": "wilsons-promontory",
+          "title": "Wilsons Promontory National Park",
+          "sourceBlockIndex": 70
+        },
+        {
+          "slug": "narooma",
+          "title": "Narooma",
+          "sourceBlockIndex": 79
+        },
+        {
+          "slug": "mt-oberon-summit",
+          "title": "Mt Oberon Summit, Victoria",
+          "sourceBlockIndex": 81
+        },
+        {
+          "slug": "raymond-island-to-latin-america",
+          "title": "Raymond Island에서 남미로",
+          "sourceBlockIndex": 86
+        }
+      ]
     },
     {
       "slug": "part-3-memories-there",
@@ -51,7 +212,69 @@
       "order": 4,
       "characterCount": 7664,
       "readTimeMinutes": 15,
-      "imageCount": 59
+      "imageCount": 58,
+      "sections": [
+        {
+          "slug": "argentina-begins",
+          "title": "아르헨티나의 시작",
+          "sourceBlockIndex": 0
+        },
+        {
+          "slug": "obelisco-buenos-aires",
+          "title": "Obelisco, Buenos Aires",
+          "sourceBlockIndex": 28
+        },
+        {
+          "slug": "el-calafate",
+          "title": "El calafate",
+          "sourceBlockIndex": 40
+        },
+        {
+          "slug": "perito-moreno-glacier",
+          "title": "Perito Moreno Glacier",
+          "sourceBlockIndex": 46
+        },
+        {
+          "slug": "laguna-sucia",
+          "title": "Laguna Sucia",
+          "sourceBlockIndex": 49
+        },
+        {
+          "slug": "el-chalten-trekking",
+          "title": "엘찰텐 트레킹",
+          "sourceBlockIndex": 51
+        },
+        {
+          "slug": "fitz-roy",
+          "title": "Fitz Roy",
+          "sourceBlockIndex": 53
+        },
+        {
+          "slug": "loma-del-pliegue-tumbaoo",
+          "title": "Loma del Pliegue Tumbaoo",
+          "sourceBlockIndex": 65
+        },
+        {
+          "slug": "torres-del-paine",
+          "title": "Torres del Paine",
+          "sourceBlockIndex": 76
+        },
+        {
+          "slug": "puerto-mont-angelmo-market",
+          "title": "Puerto Mont와 Angelmo Market",
+          "sourceBlockIndex": 84
+        },
+        {
+          "slug": "cancun",
+          "title": "Cancun",
+          "sourceBlockIndex": 97
+        },
+        {
+          "slug": "toward-america",
+          "title": "미국으로",
+          "sourceBlockIndex": 105
+        }
+      ]
     },
     {
       "slug": "part-4-toward-the-end",
@@ -63,7 +286,54 @@
       "order": 5,
       "characterCount": 1372,
       "readTimeMinutes": 3,
-      "imageCount": 46
+      "imageCount": 46,
+      "sections": [
+        {
+          "slug": "horse-shoe-bend",
+          "title": "Horse Shoe Bend",
+          "sourceBlockIndex": 0
+        },
+        {
+          "slug": "cathedral-rock-sedona",
+          "title": "Cathedral Rock, Sedona",
+          "sourceBlockIndex": 3
+        },
+        {
+          "slug": "monument-valley",
+          "title": "Monument Valley",
+          "sourceBlockIndex": 4
+        },
+        {
+          "slug": "devils-garden",
+          "title": "Devil’s garden",
+          "sourceBlockIndex": 20
+        },
+        {
+          "slug": "arches-national-park",
+          "title": "Arches National Park",
+          "sourceBlockIndex": 21
+        },
+        {
+          "slug": "bryce-canyon",
+          "title": "Bryce Canyon",
+          "sourceBlockIndex": 24
+        },
+        {
+          "slug": "canyonlands",
+          "title": "Canyonlands",
+          "sourceBlockIndex": 25
+        },
+        {
+          "slug": "death-valley",
+          "title": "Death Valley",
+          "sourceBlockIndex": 26
+        },
+        {
+          "slug": "yosemite-national-park",
+          "title": "Yosemite National Park",
+          "sourceBlockIndex": 33
+        }
+      ]
     },
     {
       "slug": "epilogue",
@@ -75,7 +345,14 @@
       "order": 6,
       "characterCount": 2050,
       "readTimeMinutes": 4,
-      "imageCount": 0
+      "imageCount": 0,
+      "sections": [
+        {
+          "slug": "looking-back",
+          "title": "지난 여행지 돌아보기",
+          "sourceBlockIndex": 0
+        }
+      ]
     }
   ]
 }

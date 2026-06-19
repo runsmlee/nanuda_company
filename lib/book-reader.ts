@@ -16,6 +16,13 @@ export interface BookReaderChapterMeta {
   wordCount?: number
   readTimeMinutes: number
   imageCount?: number
+  sections?: BookReaderSectionMeta[]
+}
+
+export interface BookReaderSectionMeta {
+  slug: string
+  title: string
+  sourceBlockIndex?: number
 }
 
 export interface BookReaderImage {

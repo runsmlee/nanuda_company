@@ -114,6 +114,8 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
   const displayBlocks = getReaderDisplayBlocks(chapter)
   const plainText = getReaderPlainText(chapter)
   const isEnglishReader = book.id === "meet-on-the-road"
+  const currentChapterMeta = reader.chapters.find((item) => item.slug === chapter.slug)
+  const chapterSections = currentChapterMeta?.sections ?? []
   const labels = isEnglishReader
     ? {
         home: "Home",
@@ -122,6 +124,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
         headerDescription: `${book.title} ${reader.coverage === "full" ? "full text" : "excerpt"} is available to read online for free.`,
         photo: "photo",
         photos: "photos",
+        sections: "sections",
         aboutMinutes: "about",
         minutesSuffix: " min",
         contents: "Contents",
@@ -143,6 +146,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
         headerDescription: `${book.title} ${reader.coverage === "full" ? "전체 본문" : "전반부"}을 무료로 공개한 온라인 독서본입니다.`,
         photo: "사진",
         photos: "사진",
+        sections: "세부 목차",
         aboutMinutes: "약",
         minutesSuffix: "분",
         contents: "목차",
@@ -163,6 +167,13 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
     const groups = mediaGroupsByBlock.get(group.afterBlock) ?? []
     groups.push(group)
     mediaGroupsByBlock.set(group.afterBlock, groups)
+  }
+  const sectionsByBlock = new Map<number, typeof chapterSections>()
+  for (const section of chapterSections) {
+    if (typeof section.sourceBlockIndex !== "number") continue
+    const sections = sectionsByBlock.get(section.sourceBlockIndex) ?? []
+    sections.push(section)
+    sectionsByBlock.set(section.sourceBlockIndex, sections)
   }
   const firstMediaGroup = chapter.media?.[0]
   const language = isEnglishReader ? "en" : "ko-KR"
@@ -310,6 +321,13 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                     : `${labels.photo} ${chapter.imageCount}장`}
                 </span>
               ) : null}
+              {chapterSections.length > 0 && (
+                <span>
+                  {isEnglishReader
+                    ? `${chapterSections.length} ${labels.sections}`
+                    : `${labels.sections} ${chapterSections.length}개`}
+                </span>
+              )}
               <span>{labels.aboutMinutes} {chapter.readTimeMinutes}{labels.minutesSuffix}</span>
             </div>
 
@@ -325,30 +343,50 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
           </header>
 
           <div className="book-reader-prose text-[17px] leading-8 text-[#201813]/88 md:text-lg md:leading-9">
-            {displayBlocks.map((block, blockIndex) => (
-              <Fragment key={blockIndex}>
-                <p
-                  className={
-                    block.preserveLines
-                      ? "mb-8 whitespace-pre-line leading-9 md:leading-10"
-                      : "mb-7"
-                  }
-                >
-                  {block.text}
-                </p>
-                {block.sourceBlockIndexes.flatMap((sourceBlockIndex) =>
-                  (mediaGroupsByBlock.get(sourceBlockIndex) ?? []).map((group, groupIndex) => (
-                    <ReaderPhotoGroup
-                      key={`${sourceBlockIndex}-${groupIndex}`}
-                      group={group}
-                      chapterTitle={chapter.title}
-                      imageAlt={labels.imageAlt}
-                      priority={group === firstMediaGroup}
-                    />
-                  ))
-                )}
-              </Fragment>
-            ))}
+            {displayBlocks.map((block, blockIndex) => {
+              const blockSections = block.sourceBlockIndexes.flatMap(
+                (sourceBlockIndex) => sectionsByBlock.get(sourceBlockIndex) ?? []
+              )
+              const hideParagraph = blockSections.some((section) =>
+                isSameSectionTitle(section.title, block.text)
+              )
+
+              return (
+                <Fragment key={blockIndex}>
+                  {blockSections.map((section) => (
+                    <h2
+                      key={section.slug}
+                      id={section.slug}
+                      className="mb-5 mt-14 scroll-mt-24 font-playfair text-3xl font-normal leading-tight text-[#201813] md:text-4xl"
+                    >
+                      {section.title}
+                    </h2>
+                  ))}
+                  {!hideParagraph && (
+                    <p
+                      className={
+                        block.preserveLines
+                          ? "mb-8 whitespace-pre-line leading-9 md:leading-10"
+                          : "mb-7"
+                      }
+                    >
+                      {block.text}
+                    </p>
+                  )}
+                  {block.sourceBlockIndexes.flatMap((sourceBlockIndex) =>
+                    (mediaGroupsByBlock.get(sourceBlockIndex) ?? []).map((group, groupIndex) => (
+                      <ReaderPhotoGroup
+                        key={`${sourceBlockIndex}-${groupIndex}`}
+                        group={group}
+                        chapterTitle={chapter.title}
+                        imageAlt={labels.imageAlt}
+                        priority={group === firstMediaGroup}
+                      />
+                    ))
+                  )}
+                </Fragment>
+              )
+            })}
           </div>
 
           <footer className="mt-16 border-t border-[#201813]/15 pt-8">
@@ -476,6 +514,18 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
       </main>
     </>
   )
+}
+
+function isSameSectionTitle(sectionTitle: string, blockText: string) {
+  return normalizeSectionTitle(sectionTitle) === normalizeSectionTitle(blockText)
+}
+
+function normalizeSectionTitle(value: string) {
+  return value
+    .trim()
+    .replace(/[’‘]/g, "'")
+    .replace(/\s+/g, " ")
+    .toLowerCase()
 }
 
 function ReaderPhotoGroup({
