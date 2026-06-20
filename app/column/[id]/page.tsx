@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     openGraph: {
       title: post.title,
-      description: truncateDescription(post.excerpt, 180),
+      description: truncateDescription(post.excerpt),
       url: columnUrl(post.id),
       siteName: SITE_NAME,
       images: [absoluteUrl(post.image)],
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title: post.title,
-      description: truncateDescription(post.excerpt, 180),
+      description: truncateDescription(post.excerpt),
       images: [absoluteUrl(post.image)],
     },
   }

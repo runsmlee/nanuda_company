@@ -8,6 +8,9 @@ export const SITE_UPDATED_AT = "2026-06-17"
 export const SITE_DESCRIPTION =
   "생각을나누다는 나누다컴퍼니의 여행 에세이 출판 브랜드입니다. 길에서 만나다, 한 걸음에 모든 행복이 담겨있다, 안나푸르나에서 보내는 편지, Meet On The Road와 온라인 공개본을 소개하며, 남미 여행과 가족 세계여행, 히말라야 트레킹의 기록을 책과 칼럼으로 나눕니다."
 
+export const SITE_META_DESCRIPTION =
+  "생각을나누다는 나누다컴퍼니의 여행 에세이 출판 브랜드입니다. 남미 여행기와 가족 세계여행 기록을 책과 칼럼으로 나눕니다."
+
 export const SITE_KEYWORDS = [
   "생각을나누다",
   "나누다컴퍼니",
@@ -87,7 +90,7 @@ export function splitAuthors(author: string) {
     .filter(Boolean)
 }
 
-export function truncateDescription(text: string, maxLength = 155) {
+export function truncateDescription(text: string, maxLength = 80) {
   const normalized = text.replace(/\s+/g, " ").trim()
   if (normalized.length <= maxLength) return normalized
 

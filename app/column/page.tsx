@@ -13,7 +13,7 @@ import ColumnListClient from "./column-list-client"
 
 export const metadata: Metadata = {
   title: '나누다 칼럼 - 여행과 일상의 에세이 | 생각을나누다',
-  description: '생각을나누다 칼럼은 여행, 일상, 책, 가족의 순간에서 발견한 생각을 에세이로 나누는 공간입니다. 남미 여행기, 가족 여행, 독서와 일상의 짧은 글을 모았습니다.',
+  description: '생각을나누다 칼럼은 여행과 일상, 책과 가족의 순간에서 발견한 생각을 에세이로 나누는 공간입니다.',
   keywords: [
     '나누다 칼럼',
     '여행 에세이',

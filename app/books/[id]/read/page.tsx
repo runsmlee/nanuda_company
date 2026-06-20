@@ -87,7 +87,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     openGraph: {
       title,
-      description: truncateDescription(description, 180),
+      description: truncateDescription(description),
       url: bookReaderUrl(book.id),
       siteName: SITE_NAME,
       images: [
@@ -104,7 +104,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title,
-      description: truncateDescription(description, 180),
+      description: truncateDescription(description),
       images: [absoluteUrl(book.image)],
     },
   }

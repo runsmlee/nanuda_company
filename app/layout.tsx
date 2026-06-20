@@ -7,6 +7,7 @@ import {
   COMPANY_NAME,
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
+  SITE_META_DESCRIPTION,
   SITE_NAME,
   SITE_URL,
   SOCIAL_LINKS,
@@ -24,7 +25,7 @@ const nanumMyeongjo = Nanum_Myeongjo({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: '생각을나누다 - 여행 에세이 출판사 | 나누다컴퍼니',
-  description: SITE_DESCRIPTION,
+  description: SITE_META_DESCRIPTION,
   keywords: SITE_KEYWORDS,
   applicationName: SITE_NAME,
   category: 'books',
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
   publisher: SITE_NAME,
   openGraph: {
     title: '생각을나누다 - 여행 에세이 출판사 | 나누다컴퍼니',
-    description: SITE_DESCRIPTION,
+    description: SITE_META_DESCRIPTION,
     url: SITE_URL,
     siteName: SITE_NAME,
     images: [
@@ -50,7 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: '생각을나누다 - 여행 에세이 출판사',
-    description: SITE_DESCRIPTION,
+    description: SITE_META_DESCRIPTION,
     images: ['/images/og-image-1.png'],
   },
   robots: {

@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const descriptionSource = plainText.length < 110
     ? `${plainText} ${book.title} 온라인 공개본에서 읽는 ${chapter.part || "여행 에세이"} 장입니다.`
     : plainText
-  const description = truncateDescription(descriptionSource, 155)
+  const description = truncateDescription(descriptionSource)
   const language = isEnglishReader ? "en" : "ko-KR"
   const title = isEnglishReader
     ? `${truncateTitle(chapter.title, 38)} | ${book.title}`
@@ -84,7 +84,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     openGraph: {
       title: `${chapter.title} - ${book.title}`,
-      description: truncateDescription(description, 180),
+      description: truncateDescription(description),
       url: bookChapterUrl(book.id, chapter.slug),
       siteName: SITE_NAME,
       images: [absoluteUrl(book.image)],
@@ -94,7 +94,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title: `${chapter.title} - ${book.title}`,
-      description: truncateDescription(description, 180),
+      description: truncateDescription(description),
       images: [absoluteUrl(book.image)],
     },
   }
