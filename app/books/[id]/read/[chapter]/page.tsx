@@ -347,9 +347,9 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
               const blockSections = block.sourceBlockIndexes.flatMap(
                 (sourceBlockIndex) => sectionsByBlock.get(sourceBlockIndex) ?? []
               )
-              const hideParagraph = blockSections.some((section) =>
-                isSameSectionTitle(section.title, block.text)
-              )
+              const hideParagraph =
+                isSameSectionTitle(chapter.title, block.text) ||
+                blockSections.some((section) => isSameSectionTitle(section.title, block.text))
 
               return (
                 <Fragment key={blockIndex}>

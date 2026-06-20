@@ -1,0 +1,99 @@
+{
+  "slug": "part-1-crown-range-road-summit",
+  "title": "Crown Range Road Summit",
+  "part": "Part 1",
+  "day": "우리",
+  "pageStart": 50,
+  "pageEnd": 177,
+  "order": 22,
+  "source": "가족여행기_한걸음에모든행복이담겨있다 A5 북크크양식 (최종_한번더수정_220501) - ㅁ.docx",
+  "blocks": [
+    [
+      "Crown Range Road Summit"
+    ],
+    [
+      "천적이 없는 동물은 퇴화하는 법이다."
+    ],
+    [
+      "그래서 위협과 두려움은 때로 도움이 될 수 있다."
+    ],
+    [
+      "생존을 위한 감각을 보다 예민하게"
+    ],
+    [
+      "단련시켜 주기 때문이다."
+    ],
+    [
+      "모험은 어느 정도의 위험을 동반한다."
+    ],
+    [
+      "하지만 역설적으로 위험을 동반한 모험이"
+    ],
+    [
+      "오히려 살아남기 위해 필요한 감각을"
+    ],
+    [
+      "유지시켜 주기도 한다고 생각하니 재미있다."
+    ],
+    [
+      "엄마의 이야기"
+    ],
+    [
+      "솔아, 엄마는 솔이가 손을 빨고 있는 모습도 사랑해.",
+      "이제 손을 빨지 않은지 4일밖에 되지 않았는데, 너의 손 빠는 모습이 좀",
+      "그립다. 다시 손 빨라고 할까?",
+      "근심거리 하나가 줄어서 좋을 줄 알았는데 갑자기 또 커버린 것 같아 섭섭한",
+      "마음이 드네."
+    ],
+    [
+      "약속한 엘사 인형은 꼭 사줄게."
+    ],
+    [
+      "손가락에 쓴 약을 발라 놓아도 시간이 지나면 그 쓴 약조차 견뎌내며",
+      "손가락을 입에서 떼지 않던 솔이가 엘사 인형을 사준다는 말에 손 빨기를",
+      "멈췄다."
+    ],
+    [
+      "엘사, 고마워."
+    ]
+  ],
+  "media": [
+    {
+      "afterBlock": 8,
+      "images": [
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-127.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        },
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-128.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        }
+      ]
+    },
+    {
+      "afterBlock": 13,
+      "images": [
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-129.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        },
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-130.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        }
+      ]
+    }
+  ],
+  "characterCount": 334,
+  "readTimeMinutes": 1,
+  "imageCount": 4
+}

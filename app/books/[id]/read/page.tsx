@@ -37,14 +37,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const isEnglishReader = book.id === "meet-on-the-road"
   const language = isEnglishReader ? "en" : "ko-KR"
-  const totalReadTime = reader.chapters.reduce(
-    (sum, chapter) => sum + chapter.readTimeMinutes,
+  const totalCharacters = reader.chapters.reduce(
+    (sum, chapter) => sum + chapter.characterCount,
     0
   )
   const totalWords = reader.chapters.reduce(
     (sum, chapter) => sum + (chapter.wordCount ?? 0),
     0
   )
+  const totalReadTime = estimateTotalReadTime({
+    isEnglishReader,
+    totalCharacters,
+    totalWords,
+  })
   const totalSections = reader.chapters.reduce(
     (sum, chapter) => sum + (chapter.sections?.length ?? 0),
     0
@@ -122,10 +127,11 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
     (sum, chapter) => sum + (chapter.wordCount ?? 0),
     0
   )
-  const totalReadTime = reader.chapters.reduce(
-    (sum, chapter) => sum + chapter.readTimeMinutes,
-    0
-  )
+  const totalReadTime = estimateTotalReadTime({
+    isEnglishReader: book.id === "meet-on-the-road",
+    totalCharacters,
+    totalWords,
+  })
   const totalImageCount = reader.chapters.reduce(
     (sum, chapter) => sum + (chapter.imageCount ?? 0),
     0
@@ -443,4 +449,19 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
       </main>
     </>
   )
+}
+
+function estimateTotalReadTime({
+  isEnglishReader,
+  totalCharacters,
+  totalWords,
+}: {
+  isEnglishReader: boolean
+  totalCharacters: number
+  totalWords: number
+}) {
+  const units = isEnglishReader && totalWords > 0 ? totalWords : totalCharacters
+  const unitsPerMinute = isEnglishReader && totalWords > 0 ? 220 : 520
+
+  return Math.max(1, Math.round(units / unitsPerMinute))
 }

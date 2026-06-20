@@ -1,0 +1,179 @@
+{
+  "slug": "part-0-family-and-new-start",
+  "title": "가족, 사랑, 새로운 출발",
+  "part": "Part 0",
+  "day": "나",
+  "pageStart": 8,
+  "pageEnd": 49,
+  "order": 5,
+  "source": "가족여행기_한걸음에모든행복이담겨있다 A5 북크크양식 (최종_한번더수정_220501) - ㅁ.docx",
+  "blocks": [
+    [
+      "모두가 ”No”라고 해도"
+    ],
+    [
+      "너만 “Yes”라고 해주면 난 괜찮아"
+    ],
+    [
+      "모두를 사랑하기 위해 필요한 것은"
+    ],
+    [
+      "내 가족을 먼저 사랑하는 일"
+    ],
+    [
+      "내 가족을 사랑하기 위해 필요한 것은"
+    ],
+    [
+      "나 자신을 더 먼저 사랑하는 일"
+    ],
+    [
+      "내가 걷고 있는 이 길이"
+    ],
+    [
+      "지속 가능한 길이 아님을 알고 있었다면"
+    ],
+    [
+      "난 이미 다른 길을 찾아 나섰어야 했다"
+    ],
+    [
+      "그리다 만 그림"
+    ],
+    [
+      "아쉬워서 조금만 지웠네"
+    ],
+    [
+      "그 위에 덧그림을 그렸더니"
+    ],
+    [
+      "그림은 더 이상해지고 말았네"
+    ],
+    [
+      "난 이 그림을 부끄러워하면서도 오히려"
+    ],
+    [
+      "마치 당신들이 이해할 수 없는 그림이라도 그린 양"
+    ],
+    [
+      "떠벌이고 다녔네"
+    ],
+    [
+      "하지만 혼자의 시간으로 돌아와"
+    ],
+    [
+      "그림을 들여다 보면"
+    ],
+    [
+      "나 역시도 이해할 수 없어 비참할 뿐이었네"
+    ],
+    [
+      "그리다 만 그림"
+    ],
+    [
+      "혹은 아직 그려본 적이 없었던 그림"
+    ],
+    [
+      "“새로운 출발과 여행을 떠날 준비가 되어있는 자만이"
+    ],
+    [
+      "우리를 마비시키는 습관에서 벗어나리라.”"
+    ],
+    [
+      "- 헤르만 헤세, \\중"
+    ]
+  ],
+  "media": [
+    {
+      "afterBlock": 1,
+      "images": [
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-023.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 935
+        },
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-024.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        },
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-025.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        }
+      ]
+    },
+    {
+      "afterBlock": 3,
+      "images": [
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-026.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        }
+      ]
+    },
+    {
+      "afterBlock": 5,
+      "images": [
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-027.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        },
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-028.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 932
+        }
+      ]
+    },
+    {
+      "afterBlock": 7,
+      "images": [
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-029.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        }
+      ]
+    },
+    {
+      "afterBlock": 8,
+      "images": [
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-030.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 1050
+        }
+      ]
+    },
+    {
+      "afterBlock": 20,
+      "images": [
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-031.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        },
+        {
+          "src": "/images/book-reader/han-geoleum/han-geoleum-photo-032.webp",
+          "alt": "한 걸음에 모든 행복이 담겨있다 본문 사진",
+          "width": 1400,
+          "height": 930
+        }
+      ]
+    }
+  ],
+  "characterCount": 309,
+  "readTimeMinutes": 1,
+  "imageCount": 10
+}
