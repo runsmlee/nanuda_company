@@ -28,10 +28,34 @@ export const metadata: Metadata = {
   description: SITE_META_DESCRIPTION,
   keywords: SITE_KEYWORDS,
   applicationName: SITE_NAME,
+  manifest: '/manifest.webmanifest',
   category: 'books',
   authors: [{ name: '이상민' }, { name: '정예원' }],
   creator: SITE_NAME,
   publisher: SITE_NAME,
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: 'black-translucent',
+  },
+  icons: {
+    icon: [
+      {
+        url: '/images/favicon.svg',
+        type: 'image/svg+xml',
+      },
+      {
+        url: '/icons/icon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      },
+    ],
+    apple: {
+      url: '/icons/apple-touch-icon.png',
+      sizes: '180x180',
+      type: 'image/png',
+    },
+  },
   openGraph: {
     title: '생각을나누다 - 여행 에세이 출판사 | 나누다컴퍼니',
     description: SITE_META_DESCRIPTION,
@@ -174,7 +198,7 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/images/nanuda_logo.png" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="theme-color" content="#D97706" />
         <script
           type="application/ld+json"
