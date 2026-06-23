@@ -309,7 +309,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
           className="mx-auto max-w-3xl px-6 pb-28 pt-12 md:py-16"
         >
           <header className="mb-12">
-            <div className="mb-5 flex flex-wrap items-center gap-3 text-sm text-[#201813]/60">
+            <div className="mb-5 flex flex-wrap items-center gap-3 text-sm text-[#201813]/75">
               <span className="rounded-full bg-[#201813]/10 px-3 py-1 text-[#201813]/75">
                 {chapter.part}
               </span>
@@ -337,7 +337,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
             <h1 className="font-playfair text-4xl font-normal leading-tight md:text-5xl">
               {chapter.title}
             </h1>
-            <p className="mt-5 text-sm leading-7 text-[#201813]/60">
+            <p className="mt-5 text-sm leading-7 text-[#201813]/75">
               {labels.headerDescription}
             </p>
           </header>
@@ -418,7 +418,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                   href={`/books/${book.id}/read/${previous.slug}`}
                   className="group rounded-md border border-[#201813]/15 p-4 transition-colors hover:border-[#9b3f1d]"
                 >
-                  <span className="mb-2 flex items-center gap-2 text-sm text-[#201813]/55">
+                  <span className="mb-2 flex items-center gap-2 text-sm text-[#201813]/70">
                     <ChevronLeft className="h-4 w-4" />
                     {labels.previousChapter}
                   </span>
@@ -435,7 +435,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                   href={`/books/${book.id}/read/${next.slug}`}
                   className="group rounded-md border border-[#201813]/15 p-4 text-right transition-colors hover:border-[#9b3f1d]"
                 >
-                  <span className="mb-2 flex items-center justify-end gap-2 text-sm text-[#201813]/55">
+                  <span className="mb-2 flex items-center justify-end gap-2 text-sm text-[#201813]/70">
                     {labels.nextChapter}
                     <ChevronRight className="h-4 w-4" />
                   </span>
@@ -448,7 +448,7 @@ export default async function BookReaderChapterPage({ params }: PageProps) {
                   href={`/books/${book.id}`}
                   className="group rounded-md border border-[#201813]/15 p-4 text-right transition-colors hover:border-[#9b3f1d]"
                 >
-                  <span className="mb-2 flex items-center justify-end gap-2 text-sm text-[#201813]/55">
+                  <span className="mb-2 flex items-center justify-end gap-2 text-sm text-[#201813]/70">
                     {labels.bookDetail}
                     <BookOpen className="h-4 w-4" />
                   </span>
@@ -557,12 +557,12 @@ function ReaderPhotoGroup({
                 ? "h-auto w-full mix-blend-multiply"
                 : "h-auto w-full rounded-sm shadow-[0_18px_50px_rgba(32,24,19,0.14)]"
             }
-            sizes="(max-width: 768px) 100vw, 720px"
+            sizes="(max-width: 768px) calc(100vw - 40px), 720px"
           />
         ))}
       </div>
       {group.caption && (
-        <figcaption className="mt-3 text-center text-xs leading-5 text-[#201813]/50">
+        <figcaption className="mt-3 text-center text-xs leading-5 text-[#201813]/70">
           {group.caption}
         </figcaption>
       )}

@@ -20,6 +20,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
   const isEnglishBook = book.id === "meet-on-the-road"
   const readerMeta = getOnlineReaderMeta(book.id)
   const purchaseHref = book.naverLink || book.amazonLink
+  const hasBookPreview = hasPreview(book.id)
   const labels = isEnglishBook
     ? {
         author: "Author:",
@@ -67,6 +68,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
       ? `${labels.amazonPurchase} · ${book.price}`
       : null
   const hasMobileActionBar = Boolean(readerMeta || (purchaseHref && purchaseLabel))
+  const hasMobileSecondaryActions = hasBookPreview || Boolean(book.naverLink && book.amazonLink)
 
   // 페이지 로드 시 맨 위로 스크롤
   useEffect(() => {
@@ -119,8 +121,10 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                 alt={`${book.title} ${labels.cover}`}
                 fill
                 priority
+                fetchPriority="high"
+                quality={60}
                 className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                sizes="(max-width: 480px) calc(100vw - 48px), (max-width: 1024px) 448px, 50vw"
               />
             </div>
           </div>
@@ -142,7 +146,10 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                         <span key={name}>
                           {index > 0 && ", "}
                           {slug ? (
-                            <Link href={`/authors/${slug}`} className="hover:underline cursor-pointer">
+                            <Link
+                              href={`/authors/${slug}`}
+                              className="inline-flex min-h-11 min-w-11 items-center hover:underline cursor-pointer md:min-h-0 md:min-w-0"
+                            >
                               {name}
                             </Link>
                           ) : (
@@ -180,10 +187,11 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                 </div>
               )}
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className={`${hasMobileActionBar ? "hidden md:grid" : "grid"} gap-3 sm:grid-cols-2`}>
                 {readerMeta && (
                   <Link
                     href={`/books/${book.id}/read`}
+                    prefetch={false}
                     className="inline-flex items-center justify-center gap-2 bg-text-light text-primary-dark px-5 py-3 font-medium hover:bg-text-light/90 transition-colors text-center cursor-pointer"
                   >
                     <BookOpen className="h-4 w-4" />
@@ -223,7 +231,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                   </a>
                 )}
 
-                {hasPreview(book.id) && (
+                {hasBookPreview && (
                   <button
                     onClick={() => setSelectedImage(1)}
                     title={labels.previewTitle}
@@ -234,6 +242,33 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                   </button>
                 )}
               </div>
+
+              {hasMobileActionBar && hasMobileSecondaryActions && (
+                <div className="mt-4 flex flex-wrap gap-3 md:hidden">
+                  {hasBookPreview && (
+                    <button
+                      onClick={() => setSelectedImage(1)}
+                      title={labels.previewTitle}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 border border-text-gray/40 px-4 text-sm font-medium text-text-gray transition-colors hover:bg-text-gray hover:text-primary-dark cursor-pointer"
+                    >
+                      <Images className="h-4 w-4" />
+                      {labels.preview}
+                    </button>
+                  )}
+
+                  {book.naverLink && book.amazonLink && (
+                    <a
+                      href={book.amazonLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-11 items-center justify-center gap-2 border border-text-gray/40 px-4 text-sm font-medium text-text-gray transition-colors hover:bg-text-gray hover:text-primary-dark cursor-pointer"
+                    >
+                      <ShoppingBag className="h-4 w-4" />
+                      {labels.amazonPurchase}
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>
@@ -274,7 +309,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
             <div className="flex items-center gap-5 border-t border-text-gray/20 pt-6 text-sm text-text-gray">
               <button
                 onClick={handleShare}
-                className="inline-flex items-center gap-2 transition-colors hover:text-accent-orange cursor-pointer"
+                className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-accent-orange cursor-pointer"
               >
                 <Share2 className="h-4 w-4" />
                 {shareCopied ? labels.shareCopied : labels.share}
@@ -297,7 +332,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                       alt={`${relatedBook.title} ${labels.cover}`}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 768px) 100vw, 33vw"
+                      sizes="(max-width: 768px) calc(100vw - 48px), 33vw"
                     />
                   </div>
                   <h4 className="font-semibold mb-2 group-hover:text-accent-orange transition-colors">
@@ -317,6 +352,7 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
             {readerMeta && (
               <Link
                 href={`/books/${book.id}/read`}
+                prefetch={false}
                 className="inline-flex min-h-12 items-center justify-center gap-2 bg-text-light px-4 text-sm font-semibold text-primary-dark transition-colors hover:bg-text-light/90"
               >
                 <BookOpen className="h-4 w-4" />

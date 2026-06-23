@@ -272,7 +272,9 @@ export default async function BookDetailPage({ params }: PageProps) {
           </ol>
         </nav>
 
-        <BookDetailClient book={book} />
+        <main id="book-detail-content">
+          <BookDetailClient book={book} />
+        </main>
       </div>
     </>
   )

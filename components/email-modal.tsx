@@ -2,7 +2,9 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useRef, useState } from "react"
+import * as Dialog from "@radix-ui/react-dialog"
+import { X } from "lucide-react"
 
 interface EmailModalProps {
   isOpen: boolean
@@ -10,36 +12,13 @@ interface EmailModalProps {
 }
 
 export function EmailModal({ isOpen, onClose }: EmailModalProps) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
   })
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "unset"
-    }
-
-    return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [isOpen])
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
-    }
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape)
-    }
-
-    return () => document.removeEventListener("keydown", handleEscape)
-  }, [isOpen, onClose])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,25 +45,39 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
     })
   }
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onClick={onClose} />
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0" />
 
-      {/* Modal */}
-      <div className="relative bg-secondary-dark rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <Dialog.Content
+          className="fixed left-1/2 top-1/2 z-[101] max-h-[90vh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg bg-secondary-dark focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0"
+          onOpenAutoFocus={(event) => {
+            event.preventDefault()
+            closeButtonRef.current?.focus()
+          }}
+        >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-text-gray/20">
-          <h2 className="font-playfair text-3xl font-normal text-text-light">나누다컴퍼니에 연락하기</h2>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors cursor-pointer"
+          <Dialog.Title className="font-playfair text-2xl font-normal text-text-light sm:text-3xl">
+            나누다컴퍼니에 연락하기
+          </Dialog.Title>
+          <Dialog.Close
+            ref={closeButtonRef}
+            aria-label="문의 창 닫기"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange"
           >
-            ✕
-          </button>
+            <X className="h-5 w-5" aria-hidden="true" />
+          </Dialog.Close>
         </div>
+        <Dialog.Description className="sr-only">
+          이름, 이메일, 제목, 메시지를 입력하면 기본 이메일 앱에 문의 내용이 작성됩니다.
+        </Dialog.Description>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -162,20 +155,22 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
           <div className="flex gap-4 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-accent-orange text-white py-3 px-6 rounded-lg font-medium hover:bg-accent-orange/90 transition-colors cursor-pointer"
+              className="flex min-h-11 flex-1 items-center justify-center bg-accent-orange px-6 py-3 font-medium text-white transition-colors hover:bg-accent-orange/90 cursor-pointer"
             >
               이메일 보내기
             </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 border border-text-gray text-text-gray rounded-lg hover:bg-text-gray hover:text-primary-dark transition-colors cursor-pointer"
-            >
-              취소
-            </button>
+            <Dialog.Close asChild>
+              <button
+                type="button"
+                className="min-h-11 px-6 py-3 border border-text-gray text-text-gray hover:bg-text-gray hover:text-primary-dark transition-colors cursor-pointer"
+              >
+                취소
+              </button>
+            </Dialog.Close>
           </div>
         </form>
-      </div>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }

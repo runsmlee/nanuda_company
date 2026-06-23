@@ -41,7 +41,7 @@ export const Footer = memo(forwardRef<HTMLElement>((props, ref) => {
             </div>
 
             <div>
-              <h4 className="text-accent-orange font-medium text-lg mb-6">문의하기</h4>
+              <h2 className="text-accent-orange font-medium text-lg mb-6">문의하기</h2>
               <div className="space-y-4">
                 <button
                   onClick={() => setIsEmailModalOpen(true)}

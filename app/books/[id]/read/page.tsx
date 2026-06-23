@@ -375,7 +375,7 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
                         {String(chapter.order).padStart(2, "0")}
                       </span>
                       <span>
-                        <span className="block text-xs font-medium text-[#201813]/55">
+                        <span className="block text-xs font-medium text-[#201813]/70">
                           {chapter.part}
                           {chapter.day ? ` · ${chapter.day}` : ""}
                         </span>
@@ -383,7 +383,7 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
                           {chapter.title}
                         </span>
                       </span>
-                      <span className="flex items-center gap-2 text-sm text-[#201813]/55">
+                      <span className="flex items-center gap-2 text-sm text-[#201813]/70">
                         {chapter.imageCount
                           ? isEnglishReader
                             ? `${chapter.imageCount} ${labels.photos} · `
@@ -400,7 +400,7 @@ export default async function BookReaderIndexPage({ params }: PageProps) {
                           <Link
                             key={section.slug}
                             href={`/books/${book.id}/read/${chapter.slug}#${section.slug}`}
-                            className="group/section flex min-h-10 items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-[#201813]/65 transition-colors hover:bg-[#201813]/8 hover:text-[#9b3f1d]"
+                            className="group/section flex min-h-10 items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-[#201813]/75 transition-colors hover:bg-[#201813]/8 hover:text-[#9b3f1d]"
                           >
                             <span>{section.title}</span>
                             <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-45 transition-opacity group-hover/section:opacity-100" />

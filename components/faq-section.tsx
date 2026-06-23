@@ -15,7 +15,7 @@ export function FaqSection() {
 
         <dl className="space-y-6">
           {FAQ_ITEMS.map((item) => (
-            <div key={item.question} className="border-l-2 border-accent-orange/70 pl-6">
+            <div key={item.question} className="border-t border-text-gray/15 pt-5 first:border-t-0 first:pt-0">
               <dt className="text-lg font-semibold text-text-light mb-2">{item.question}</dt>
               <dd className="text-text-gray leading-relaxed">{item.answer}</dd>
             </div>

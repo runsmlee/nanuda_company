@@ -72,7 +72,7 @@ export function BooksCatalogModal({ isOpen, onClose, onBookSelect, pendingBookId
             </Dialog.Title>
             <Dialog.Close
               aria-label="닫기"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#a99a8a] transition-colors hover:bg-white/5 hover:text-[#f1e9df] focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-orange/60"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#a99a8a] transition-colors hover:bg-white/5 hover:text-[#f1e9df] focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-orange/60"
             >
               <X className="h-5 w-5" strokeWidth={1.5} />
             </Dialog.Close>
@@ -93,14 +93,14 @@ export function BooksCatalogModal({ isOpen, onClose, onBookSelect, pendingBookId
                 placeholder="책 제목, 부제목, 저자로 검색..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-md border border-[#3a2e25] bg-[#181210] py-3 pl-11 pr-11 text-[#f1e9df] placeholder-[#8a7d6f] focus:border-accent-orange focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-orange/50"
+                className="w-full rounded-md border border-[#3a2e25] bg-[#181210] py-3 pl-11 pr-14 text-[#f1e9df] placeholder-[#8a7d6f] focus:border-accent-orange focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-orange/50"
               />
               {searchTerm && (
                 <button
                   type="button"
                   onClick={() => setSearchTerm("")}
                   aria-label="검색어 지우기"
-                  className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-[#a99a8a] transition-colors hover:bg-white/5 hover:text-[#f1e9df] focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-orange/60"
+                  className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full text-[#a99a8a] transition-colors hover:bg-white/5 hover:text-[#f1e9df] focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-orange/60"
                 >
                   <X className="h-4 w-4" strokeWidth={1.5} />
                 </button>

@@ -1,7 +1,9 @@
 "use client"
 
-import { useEffect, useState, useCallback, useMemo, memo } from "react"
+import { useEffect, useState, useCallback, useMemo, memo, useRef } from "react"
 import Image from "next/image"
+import * as Dialog from "@radix-ui/react-dialog"
+import { ChevronLeft, ChevronRight, RotateCcw, X, ZoomIn, ZoomOut } from "lucide-react"
 import { getTotalImages, getImageSrc, ZOOM_LIMITS, TOUCH_CONSTANTS } from "@/lib/book-preview-utils"
 
 interface BookPreviewModalProps {
@@ -22,6 +24,7 @@ const BookPreviewModalComponent = function BookPreviewModal({
   enableZoom = false 
 }: BookPreviewModalProps) {
   const [imageLoading, setImageLoading] = useState(false)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
   
   // 줌/팬 상태 (enableZoom이 true일 때만 사용)
   const [scale, setScale] = useState(1)
@@ -196,9 +199,7 @@ const BookPreviewModalComponent = function BookPreviewModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedImage === null) return
       
-      if (e.key === 'Escape') {
-        onClose()
-      } else if (e.key === 'ArrowLeft') {
+      if (e.key === 'ArrowLeft') {
         e.preventDefault()
         goToPrevious()
       } else if (e.key === 'ArrowRight') {
@@ -249,41 +250,39 @@ const BookPreviewModalComponent = function BookPreviewModal({
   if (selectedImage === null) return null
 
   return (
-    <div 
-      className="fixed inset-0 z-[200] flex items-center justify-center" 
-      role="dialog" 
-      aria-modal="true"
-      aria-labelledby="preview-modal-title"
-      data-modal="preview"
+    <Dialog.Root
+      open={selectedImage !== null}
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
     >
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/95 backdrop-blur-sm" 
-        onClick={onClose}
-        aria-label="모달 닫기"
-      />
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-sm" />
 
-      {/* Modal Content */}
-      <div 
-        className="relative w-full max-w-[95vw] md:max-w-5xl max-h-[90vh] md:max-h-[95vh] mx-4"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
+        <Dialog.Content
+          className="fixed left-1/2 top-1/2 z-[201] w-[calc(100vw-2rem)] max-w-[95vw] -translate-x-1/2 -translate-y-1/2 focus:outline-none md:max-w-5xl"
+          data-modal="preview"
+          onOpenAutoFocus={(event) => {
+            event.preventDefault()
+            closeButtonRef.current?.focus()
+          }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
         {/* Hidden title for screen readers */}
-        <h2 id="preview-modal-title" className="sr-only">
+        <Dialog.Title className="sr-only">
           {bookTitle} 책 속지 보기 - {selectedImage}페이지
-        </h2>
+        </Dialog.Title>
 
         {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute -top-12 md:-top-16 right-0 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/40 text-white hover:bg-black/60 active:bg-black/70 transition-all duration-200 z-20 cursor-pointer text-lg md:text-xl font-bold backdrop-blur-md border border-white/30 focus:outline-none focus:ring-2 focus:ring-accent-orange shadow-lg"
+        <Dialog.Close
+          ref={closeButtonRef}
+          className="absolute -top-12 md:-top-16 right-0 h-11 w-11 md:h-12 md:w-12 rounded-full bg-black/40 text-white hover:bg-black/60 active:bg-black/70 transition-all duration-200 z-20 cursor-pointer text-lg md:text-xl font-bold backdrop-blur-md border border-white/30 focus:outline-none focus:ring-2 focus:ring-accent-orange shadow-lg"
           aria-label="책 속지 보기 닫기"
-          tabIndex={0}
         >
-          ✕
-        </button>
+          <X className="mx-auto h-5 w-5" aria-hidden="true" />
+        </Dialog.Close>
 
         {/* Navigation Buttons */}
         {selectedImage > 1 && (
@@ -293,7 +292,7 @@ const BookPreviewModalComponent = function BookPreviewModal({
             aria-label={`이전 페이지 (${selectedImage - 1}/${totalImages})`}
             tabIndex={0}
           >
-            ←
+            <ChevronLeft className="h-6 w-6" aria-hidden="true" />
           </button>
         )}
         {selectedImage < totalImages && (
@@ -303,7 +302,7 @@ const BookPreviewModalComponent = function BookPreviewModal({
             aria-label={`다음 페이지 (${selectedImage + 1}/${totalImages})`}
             tabIndex={0}
           >
-            →
+            <ChevronRight className="h-6 w-6" aria-hidden="true" />
           </button>
         )}
 
@@ -353,7 +352,7 @@ const BookPreviewModalComponent = function BookPreviewModal({
               sizes="(max-width: 768px) 95vw, 80vw"
               onLoad={() => setImageLoading(false)}
               onError={() => setImageLoading(false)}
-              priority
+              loading="eager"
               draggable={false}
             />
           </div>
@@ -363,27 +362,27 @@ const BookPreviewModalComponent = function BookPreviewModal({
             <div className="absolute top-2 md:top-4 right-2 md:right-4 flex flex-col gap-1 md:gap-2 z-30">
               <button
                 onClick={zoomIn}
-                className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/40 text-white hover:bg-black/60 active:bg-black/70 transition-all duration-200 backdrop-blur-md border border-white/30 flex items-center justify-center text-sm md:text-lg font-bold focus:outline-none focus:ring-2 focus:ring-accent-orange shadow-lg"
+                className="h-11 w-11 rounded-full bg-black/40 text-white hover:bg-black/60 active:bg-black/70 transition-all duration-200 backdrop-blur-md border border-white/30 flex items-center justify-center text-lg font-bold focus:outline-none focus:ring-2 focus:ring-accent-orange shadow-lg"
                 aria-label="확대"
                 disabled={scale >= ZOOM_LIMITS.MAX}
               >
-                +
+                <ZoomIn className="h-5 w-5" aria-hidden="true" />
               </button>
               <button
                 onClick={zoomOut}
-                className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/40 text-white hover:bg-black/60 active:bg-black/70 transition-all duration-200 backdrop-blur-md border border-white/30 flex items-center justify-center text-sm md:text-lg font-bold focus:outline-none focus:ring-2 focus:ring-accent-orange shadow-lg"
+                className="h-11 w-11 rounded-full bg-black/40 text-white hover:bg-black/60 active:bg-black/70 transition-all duration-200 backdrop-blur-md border border-white/30 flex items-center justify-center text-lg font-bold focus:outline-none focus:ring-2 focus:ring-accent-orange shadow-lg"
                 aria-label="축소"
                 disabled={scale <= ZOOM_LIMITS.MIN}
               >
-                −
+                <ZoomOut className="h-5 w-5" aria-hidden="true" />
               </button>
               <button
                 onClick={resetZoomAndPan}
-                className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/40 text-white hover:bg-black/60 active:bg-black/70 transition-all duration-200 backdrop-blur-md border border-white/30 flex items-center justify-center text-xs font-bold focus:outline-none focus:ring-2 focus:ring-accent-orange shadow-lg"
+                className="h-11 w-11 rounded-full bg-black/40 text-white hover:bg-black/60 active:bg-black/70 transition-all duration-200 backdrop-blur-md border border-white/30 flex items-center justify-center text-xs font-bold focus:outline-none focus:ring-2 focus:ring-accent-orange shadow-lg"
                 aria-label="원본 크기"
                 disabled={scale === 1 && panX === 0 && panY === 0}
               >
-                1:1
+                <RotateCcw className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           )}
@@ -409,12 +408,17 @@ const BookPreviewModalComponent = function BookPreviewModal({
           </div>
         </div>
 
+        <Dialog.Description className="sr-only">
+          {enableZoom ? "스와이프로 이동하고 핀치로 확대할 수 있습니다." : "좌우 버튼으로 책 속지를 이동할 수 있습니다."}
+        </Dialog.Description>
+
         {/* Instructions */}
-        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-white/60 text-xs text-center md:hidden">
+        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-white/60 text-xs text-center md:hidden" aria-hidden="true">
           <p>{enableZoom ? "스와이프로 이동 • 핀치로 확대" : "좌우 버튼으로 이동"}</p>
         </div>
-      </div>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }
 

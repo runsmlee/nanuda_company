@@ -216,7 +216,7 @@ export default async function ColumnDetailPage({ params }: PageProps) {
 
         {/* Content */}
         <div
-          className="prose prose-lg prose-invert max-w-none [&>h1]:text-3xl [&>h1]:font-playfair [&>h1]:font-normal [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:mb-4 [&>h2]:mt-10 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mb-3 [&>h3]:mt-8 [&>p]:mb-6 [&>p]:leading-relaxed [&>blockquote]:border-l-4 [&>blockquote]:border-accent-orange [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-text-gray [&>blockquote]:my-8 [&>ul]:mb-6 [&>ul]:pl-6 [&>li]:mb-2 [&>strong]:text-accent-orange [&>img]:rounded-lg [&>img]:my-8"
+          className="prose prose-lg prose-invert max-w-none [&>h1]:text-3xl [&>h1]:font-playfair [&>h1]:font-normal [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:mb-4 [&>h2]:mt-10 [&>h3]:text-xl [&>h3]:font-semibold [&>h3]:mb-3 [&>h3]:mt-8 [&>p]:mb-6 [&>p]:leading-relaxed [&>blockquote]:border-y [&>blockquote]:border-text-gray/20 [&>blockquote]:py-5 [&>blockquote]:italic [&>blockquote]:text-text-gray [&>blockquote]:my-8 [&>ul]:mb-6 [&>ul]:pl-6 [&>li]:mb-2 [&>strong]:text-accent-orange [&>img]:rounded-lg [&>img]:my-8"
           dangerouslySetInnerHTML={{ __html: content }}
         />
 

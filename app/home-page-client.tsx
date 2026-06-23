@@ -16,19 +16,32 @@ export function HomePageClient() {
   const sectionsRef = useRef<(HTMLElement | null)[]>([])
 
   useEffect(() => {
-    const handleScroll = () => {
-      sectionsRef.current.forEach((section, index) => {
-        if (section) {
-          const rect = section.getBoundingClientRect()
-          if (rect.top <= 200 && rect.bottom >= 200) {
-            setActiveSection(index)
-          }
-        }
-      })
-    }
+    const sections = sectionsRef.current.filter(Boolean) as HTMLElement[]
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    if (sections.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const activeEntry = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
+
+        if (!activeEntry) return
+
+        const nextActiveSection = sectionsRef.current.findIndex((section) => section === activeEntry.target)
+        if (nextActiveSection >= 0) {
+          setActiveSection(nextActiveSection)
+        }
+      },
+      {
+        rootMargin: "-35% 0px -55% 0px",
+        threshold: 0,
+      },
+    )
+
+    sections.forEach((section) => observer.observe(section))
+
+    return () => observer.disconnect()
   }, [])
 
   const scrollToSection = (index: number) => {

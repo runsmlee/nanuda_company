@@ -33,13 +33,13 @@ export function SideNavigation({ activeSection, onSectionClick, onEmailClick }: 
         </div>
       </div>
 
-      <div className="flex flex-col gap-1 sm:gap-2 lg:gap-4">
+      <div className="flex flex-col gap-1 sm:gap-2 lg:gap-3">
         {sections.map((section, index) => (
           <button
             key={index}
             aria-label={`${section} 섹션으로 이동`}
             onClick={() => onSectionClick(index)}
-            className="flex h-11 w-11 items-center justify-center rounded-full transition-colors cursor-pointer"
+            className="flex min-h-[52px] w-12 flex-col items-center justify-center gap-1 rounded-full transition-colors cursor-pointer"
           >
             <span
               className={`block rounded-full transition-all duration-300 ${
@@ -48,6 +48,13 @@ export function SideNavigation({ activeSection, onSectionClick, onEmailClick }: 
                   : "h-2.5 w-2.5 bg-text-gray hover:bg-accent-orange/50"
               }`}
             />
+            <span
+              className={`text-[10px] leading-none transition-colors ${
+                activeSection === index ? "text-accent-orange" : "text-text-gray"
+              }`}
+            >
+              {section}
+            </span>
           </button>
         ))}
       </div>
