@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!book) {
     return {
-      title: "책을 찾을 수 없습니다 - 생각을 나누다",
+      title: "책을 찾을 수 없습니다 - 생각을나누다",
       description: "요청하신 책을 찾을 수 없습니다.",
     }
   }
@@ -67,7 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const pageTitle = isEnglishBook
     ? `${book.title} | South America Travel Memoir`
-    : `${book.title} - ${book.subtitle} | 생각을 나누다`
+    : `${book.title} - ${book.subtitle} | 생각을나누다`
 
   return {
     title: truncateTitle(pageTitle),

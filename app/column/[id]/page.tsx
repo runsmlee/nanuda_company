@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `${post.title} - ${post.category} | 나누다 칼럼`,
+    title: `${post.title} - ${post.category} | 생각을나누다`,
     description: truncateDescription(post.excerpt),
     keywords: post.tags,
     authors: [{ name: post.author }],
