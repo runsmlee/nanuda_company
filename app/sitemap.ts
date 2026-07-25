@@ -34,6 +34,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
+    {
+      url: `${SITE_URL}/publish`,
+      lastModified: siteUpdatedAt,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    },
   ]
 
   const bookPages = BOOKS_DATA.map((book) => ({
