@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { estimateProductPrice } from "@/lib/publishing/pricing"
+import { GUTTER_MARGIN_MM, MIN_IMAGE_DPI, SAFE_MARGIN_MM } from "@/lib/publishing/print-guide"
 
 // ── 타입 (서버 어댑터 타입의 클라이언트 안전 부분집합) ─────────────────────────
 
@@ -19,6 +20,7 @@ export interface WizardSpec {
   priceBase: number
   pricePerIncrement: number
   paperSummary: string
+  bleedMm: number
 }
 
 interface CalculatedSize {
@@ -235,6 +237,9 @@ export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
   const [bookUid, setBookUid] = useState<string | null>(null)
   const [warnings, setWarnings] = useState<string[]>([])
   const attemptId = useRef<string>("")
+  // 인쇄는 되돌릴 수 없다. 흔한 클레임 사유 3가지를 저자가 명시적으로 확인하게 한다.
+  const [acks, setAcks] = useState({ safeArea: false, resolution: false, color: false })
+  const allAcked = acks.safeArea && acks.resolution && acks.color
 
   // step 3 — 배송
   const [shipping, setShipping] = useState<Shipping>({
@@ -307,6 +312,7 @@ export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
     if (!authorName.trim()) es.push("저자명을 입력해주세요.")
     if (!cover) es.push("표지 PDF를 업로드해주세요.")
     if (!contents) es.push("내지 PDF를 업로드해주세요.")
+    if (!allAcked) es.push("보내기 전 확인 항목에 모두 체크해주세요.")
     if (es.length) {
       setErrors(es)
       return
@@ -645,16 +651,61 @@ export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
           </div>
 
           {size && (
-            <div className="border border-white/15 bg-white/5 px-5 py-4 text-sm leading-relaxed">
-              <p className="text-white mb-1">
-                선택한 사양 — {spec.name}, {pages}페이지
-              </p>
-              <p className="text-text-gray">
-                표지 PDF <span className="text-white">{size.coverWidthMm}×{size.coverHeightMm}mm</span> 1페이지 (책등{" "}
-                {size.spineWidthMm}mm 포함) · 내지 PDF{" "}
-                <span className="text-white">{size.innerWidthMm}×{size.innerHeightMm}mm</span> {pages}페이지 · 허용 오차 ±
-                {size.pdfToleranceMm}mm
-              </p>
+            <div className="border border-white/15 bg-white/5 divide-y divide-white/10">
+              <div className="px-5 py-4 space-y-3">
+                <p className="text-white text-sm">
+                  표지 도면 — {spec.name}, {pages}페이지 기준
+                </p>
+                {/* 도면을 눈으로 보여주면 "이 크기가 맞나요" 문의가 사라진다. */}
+                <img
+                  src={`/api/publish/cover-guide?spec=${encodeURIComponent(spec.bookSpecUid)}&pages=${pages}`}
+                  alt={`표지 인쇄 가이드 — 전체 ${size.coverWidthMm}×${size.coverHeightMm}mm, 책등 ${size.spineWidthMm}mm`}
+                  className="w-full max-w-full border border-white/10"
+                />
+                <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-text-gray">
+                  <span>
+                    표지 <span className="text-white">{size.coverWidthMm}×{size.coverHeightMm}mm</span> · 1페이지
+                  </span>
+                  <span>
+                    책등 <span className="text-white">{size.spineWidthMm}mm</span>
+                  </span>
+                  <span>
+                    내지 <span className="text-white">{size.innerWidthMm}×{size.innerHeightMm}mm</span> · {pages}페이지
+                  </span>
+                  <span>허용 오차 ±{size.pdfToleranceMm}mm</span>
+                </div>
+                <a
+                  href={`/api/publish/cover-guide?spec=${encodeURIComponent(spec.bookSpecUid)}&pages=${pages}`}
+                  download={`표지가이드-${spec.bookSpecUid}-${pages}p.svg`}
+                  className="inline-block text-xs text-accent-orange hover:underline"
+                >
+                  ↓ 도면 내려받기 (디자인 도구에 밑그림으로 사용)
+                </a>
+              </div>
+
+              <div className="px-5 py-4 text-xs text-text-gray leading-relaxed space-y-1">
+                <p>
+                  <span className="text-white">글자·얼굴은 가장자리에서 {spec.bleedMm + SAFE_MARGIN_MM}mm 안쪽</span>에
+                  배치하세요. 재단 시 오차로 잘릴 수 있습니다. 배경·사진은 반대로 재단선 밖까지 채워야 흰 선이 생기지
+                  않습니다.
+                </p>
+                <p>
+                  내지는 제본되는 안쪽 여백을 <span className="text-white">{GUTTER_MARGIN_MM}mm 이상</span> 두세요
+                  (무선제본 특성상 안쪽이 말려 들어갑니다).
+                </p>
+                <p>
+                  사진은 <span className="text-white">{MIN_IMAGE_DPI}dpi 이상</span>을 권장합니다. 화면에서 선명해도 인쇄
+                  시 뿌옇게 나올 수 있습니다.
+                </p>
+              </div>
+
+              <div className="px-5 py-4 text-xs text-text-gray leading-relaxed">
+                <p className="text-white mb-1">제작 사양</p>
+                <p>
+                  {spec.paperSummary || "용지 정보 준비 중"} · 무광 라미네이팅 · PUR 무선제본 · CMYK 4도 인쇄
+                </p>
+                <p className="mt-1">제작 5~7 영업일 소요 후 발송됩니다.</p>
+              </div>
             </div>
           )}
 
@@ -681,6 +732,32 @@ export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
             />
           </div>
 
+          <fieldset className="border border-white/15 px-5 py-4 space-y-3">
+            <legend className="px-2 text-sm text-white">보내기 전 확인</legend>
+            {(
+              [
+                [
+                  "safeArea",
+                  `중요한 글자와 얼굴을 가장자리에서 ${spec.bleedMm + SAFE_MARGIN_MM}mm 안쪽에 두었습니다`,
+                ],
+                ["resolution", `사진을 ${MIN_IMAGE_DPI}dpi 이상으로 넣었습니다`],
+                ["color", "인쇄 색이 화면과 다소 다를 수 있음을 이해했습니다"],
+              ] as const
+            ).map(([key, label]) => (
+              <label key={key} className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={acks[key]}
+                  onChange={(e) => setAcks({ ...acks, [key]: e.target.checked })}
+                  className="mt-1 h-4 w-4 shrink-0 accent-[#ff6b35]"
+                />
+                <span className="text-sm text-text-gray group-hover:text-white transition-colors leading-relaxed">
+                  {label}
+                </span>
+              </label>
+            ))}
+          </fieldset>
+
           <p className="text-xs text-text-gray leading-relaxed">
             업로드하면 인쇄소 규격(크기·페이지 수)을 즉시 검증합니다. 규격이 맞지 않으면 이유를
             알려드리니 파일을 수정해 다시 올려주세요. 원고 파일은 인쇄 목적 외에 사용하지 않습니다.
@@ -698,7 +775,7 @@ export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
 
           <div className="flex justify-between gap-3">
             <GhostButton onClick={() => goto(0)}>← 이전</GhostButton>
-            <PrimaryButton onClick={submitBook} disabled={busy}>
+            <PrimaryButton onClick={submitBook} disabled={busy || !allAcked}>
               {busy ? (
                 <>
                   <Spinner /> 규격 검증 중…

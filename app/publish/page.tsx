@@ -47,8 +47,16 @@ const PROCESS = [
   {
     step: "04",
     title: "제작·배송",
-    body: "인쇄·제본·포장을 거쳐 문 앞까지. 주문번호로 언제든 진행 상황을 확인할 수 있습니다.",
+    body: "제작 5~7 영업일 후 발송됩니다. 주문번호로 언제든 진행 상황을 확인할 수 있습니다.",
   },
+]
+
+// 수령 후 "생각과 다르다"가 나오지 않도록 사양을 미리 못 박는다.
+const SPEC_NOTES = [
+  ["인쇄", "CMYK 4도 풀컬러, 오프셋급 디지털 인쇄. 화면 색과는 다소 차이가 있습니다."],
+  ["제본", "PUR 무선제본. 표지는 무광 라미네이팅으로 마감합니다."],
+  ["수량", "1권부터 제작합니다. 여러 권일수록 권당 가격이 내려갑니다."],
+  ["기간", "제작 5~7 영업일 후 발송. 배송 기간은 별도입니다."],
 ]
 
 function coverLabel(type: BookSpec["coverType"]) {
@@ -235,10 +243,24 @@ export default async function PublishPage() {
               주문 사양과 일치해야 하며, 업로드 즉시 규격을 검증해 결과를 보여드립니다.
             </p>
             <p className="text-sm">
+              신청 화면에서 <span className="text-white">판형·페이지 수에 맞는 표지 도면</span>을
+              바로 보여드리고 내려받을 수 있게 해드립니다. 책등 두께까지 계산된 도면이라 그대로
+              디자인하시면 됩니다.
+            </p>
+            <p className="text-sm">
               아직 원고 단계라면 걱정하지 마세요. 조판(원고를 인쇄용 PDF로 만드는 일)이 필요한
               경우 하단 연락처로 문의해주시면 안내해드립니다.
             </p>
           </div>
+
+          <dl className="grid sm:grid-cols-2 gap-x-8 gap-y-4 pt-8 border-t border-white/10">
+            {SPEC_NOTES.map(([k, v]) => (
+              <div key={k}>
+                <dt className="text-sm text-white mb-1">{k}</dt>
+                <dd className="text-sm text-text-gray leading-relaxed">{v}</dd>
+              </div>
+            ))}
+          </dl>
           <div className="text-center pt-6">
             <Link
               href="/publish/start"

@@ -35,6 +35,7 @@ export default async function PublishStartPage() {
       paperSummary: [s.paper?.cover?.paper && `표지 ${s.paper.cover.paper}`, s.paper?.inner?.paper && `내지 ${s.paper.inner.paper}`]
         .filter(Boolean)
         .join(" · "),
+      bleedMm: s.bleedMm,
     }))
   } catch {
     // specs가 비면 위저드가 안내 문구를 보여준다
