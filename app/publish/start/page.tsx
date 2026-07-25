@@ -25,8 +25,8 @@ export default async function PublishStartPage() {
       pageDefault: s.pageDefault,
       pageIncrement: s.pageIncrement,
       coverType: s.coverType,
-      priceBase: s.priceBase,
-      pricePerIncrement: s.pricePerIncrement ?? 0,
+      priceBase: s.priceBase ?? s.sandboxPriceBase ?? 0,
+      pricePerIncrement: s.pricePerIncrement ?? s.sandboxPricePerIncrement ?? 0,
       paperSummary: [s.paper?.cover?.paper && `표지 ${s.paper.cover.paper}`, s.paper?.inner?.paper && `내지 ${s.paper.inner.paper}`]
         .filter(Boolean)
         .join(" · "),

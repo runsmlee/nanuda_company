@@ -17,8 +17,13 @@ export interface BookSpec {
   coverType: "Softcover" | "Hardcover"
   bindingType: string
   priceCurrency: string
+  // Sandbox 응답은 sandbox* 필드로 단가를 제공한다 (문서: 환경 Sandbox/Live).
+  // 실측상 두 필드가 모두 내려오지만, Live에서 커스텀가가 priceBase에 반영되므로
+  // priceBase를 우선하고 없을 때만 sandbox 값으로 떨어진다.
   priceBase: number
   pricePerIncrement: number
+  sandboxPriceBase?: number
+  sandboxPricePerIncrement?: number
   paper?: {
     cover?: { paper?: string }
     inner?: { paper?: string }
@@ -141,6 +146,15 @@ async function request<T>(
   if (init.idempotencyKey) headers.set("Idempotency-Key", init.idempotencyKey)
 
   const res = await fetch(`${API_BASE}${path}`, { ...init, headers, cache: "no-store" })
+
+  // 429는 Retry-After(초)를 존중한다. 본문 shape가 6필드 표준을 따르지 않으므로 먼저 분기.
+  if (res.status === 429) {
+    const retryAfter = Number(res.headers.get("Retry-After")) || 60
+    throw new SweetBookError(429, "ERR_TOO_MANY_REQUESTS", [
+      `요청이 몰리고 있습니다. ${retryAfter}초 후 다시 시도해주세요.`,
+    ], `rate limited, retry after ${retryAfter}s`)
+  }
+
   let body: ApiEnvelope<T>
   try {
     body = (await res.json()) as ApiEnvelope<T>

@@ -29,7 +29,11 @@
 - 핵심 흐름 (PDF 업로드 방식): `POST /books` → `POST /books/{uid}/pdf-cover` → `POST /books/{uid}/pdf-contents` → `POST /books/{uid}/finalization` → `POST /orders/estimate` → `POST /orders`
 - 멱등성: `POST /books`, `POST /orders`가 `Idempotency-Key` 헤더 지원. 동일 키 + 다른 본문은 422.
 - 주문 상태: `PAID → PDF_READY → CONFIRMED → IN_PRODUCTION → COMPLETED → PRODUCTION_COMPLETE → SHIPPED → DELIVERED`, 취소는 `CANCELLED` / `CANCELLED_REFUND`. 취소는 `PAID`/`PDF_READY`에서만 가능하고 충전금으로 전액 환불된다.
-- 웹훅 제공 (`order.created`, `production.*`, `shipping.*`). 폴링도 가능.
+- 웹훅 제공 (9개 이벤트: `order.created`, `production.*`, `shipping.*` 등). `X-Webhook-Signature`(HMAC-SHA256) + `X-Webhook-Timestamp` 서명 검증, `X-Webhook-Delivery`로 중복 수신 판별. 실패 시 최대 3회 재시도 후 `EXHAUSTED`. 폴링도 가능.
+- Rate Limit: 일반 API 300 req/분, 파일 업로드 200 req/분 (모두 API Key 단위 집계). 초과 시 429 + `Retry-After: 60`.
+- 계정 등급: 가입 시 **Personal**(Sandbox 전용). Live는 사업 협의 후 **Business** 전환이 선행되어야 하며, Personal로 Live 도메인 호출 시 403.
+- Sandbox 단가는 `sandboxPriceBase`/`sandboxPricePerIncrement`로도 제공되며 Live 표준가와 동일하다. 협의된 커스텀가는 Live의 `priceBase`에 반영된다.
+- Sandbox 데이터(책·주문·웹훅 설정)는 Live로 이관되지 않는다.
 - PDF 검증은 업로드 시점에 동기 수행: 페이지 수 일치, 판형별 mm 규격(±1mm 톨러런스). **CMYK/PDF-X 요구 없음** — 색공간 제약이 검증 항목에 없어, 당초 우려한 RGB→CMYK 변환 파이프라인은 불필요하다.
 - 판형(실측, sandbox 단가):
 
@@ -84,7 +88,7 @@ Phase 0은 "인쇄용 PDF를 이미 가진 사용자"(직접 제작 또는 운�
 ```
 
 - **Phase 0에는 자체 DB가 없다.** 책·주문·상태의 원천 저장소는 SweetBook이며, `externalRef`에 우리 식별자를 심어 추적한다. 프로젝트 관리(원고 접수, 교정 왕복, 저자 계정)가 필요해지는 Phase 1에서 Postgres(Supabase 또는 Vercel Marketplace 경유 Neon)를 도입한다. ~~Vercel Postgres~~는 단종되어 선택지가 아니다.
-- API 키는 `SWEETBOOK_API_KEY` 서버 환경변수로만 접근한다. 클라이언트 번들에 포함되지 않는다 (`NEXT_PUBLIC_` 금지).
+- API 키는 `SWEETBOOK_API_KEY` 서버 환경변수로만 접근한다 (SweetBook 문서의 `.env` 규약과 동일한 이름). 클라이언트 번들에 포함되지 않는다 (`NEXT_PUBLIC_` 금지). Base URL은 `SWEETBOOK_API_BASE`로 주입해 Sandbox↔Live 전환 시 코드 변경이 없도록 한다 — 키와 도메인의 환경이 어긋나면 403 `ERR_ENV_MISMATCH`.
 
 ### 제작사 어댑터
 
@@ -151,6 +155,8 @@ draft → manuscript_review → typesetting ⇄ proof_ready → quoted → paid
 
 1. 글 위주 단행본 조건 — 200p 초과, 흑백 내지 단가, 본문용 경량 용지 옵션
 2. Live 커스텀 가격·정산 조건, 제작 리드타임, 불량·재인쇄 정책
+
+Live 전환 절차는 문서에 명시되어 있다: 사업 협의 → Business 계정 전환 → Live 키 발급 → 실제 충전금 충전 → `SWEETBOOK_API_BASE`·`SWEETBOOK_API_KEY` 교체. 코드 변경은 없다.
 
 ## 후속 옵션
 

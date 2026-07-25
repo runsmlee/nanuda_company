@@ -159,7 +159,7 @@ export default async function PublishPage() {
                     </p>
                     <p className="text-white">
                       <span className="text-xl font-medium">
-                        {s.priceBase.toLocaleString("ko-KR")}원
+                        {(s.priceBase ?? s.sandboxPriceBase ?? 0).toLocaleString("ko-KR")}원
                       </span>
                       <span className="text-sm text-text-gray"> 부터</span>
                     </p>
