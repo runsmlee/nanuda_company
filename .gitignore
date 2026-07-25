@@ -48,3 +48,4 @@ public/book_preview/**/*.pdf
 Thumbs.db
 .gstack/
 .env*
+.typeset-out/
