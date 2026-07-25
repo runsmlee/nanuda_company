@@ -4,6 +4,7 @@ const nextConfig = {
   // 나타나 자동 추적이 안 되므로 서버리스 번들에 명시적으로 포함시킨다.
   outputFileTracingIncludes: {
     '/api/publish/typeset': ['./assets/fonts/**'],
+    '/api/publish/cover': ['./assets/fonts/**'],
   },
   images: {
     unoptimized: false,  // 이미지 최적화 활성화

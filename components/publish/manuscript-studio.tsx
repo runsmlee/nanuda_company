@@ -26,7 +26,17 @@ interface Summary {
 }
 
 const SIZE_LABEL = { small: "작게", normal: "보통", large: "크게" } as const
+const THEME_LABEL = { ivory: "아이보리", charcoal: "차콜", photo: "사진" } as const
+type CoverTheme = keyof typeof THEME_LABEL
 const krw = (n: number) => `${Math.round(n).toLocaleString("ko-KR")}원`
+
+interface CoverSummary {
+  widthMm: number
+  heightMm: number
+  spineWidthMm: number
+  spineTextIncluded: boolean
+  notes: string[]
+}
 
 // ── PDF 렌더링 ────────────────────────────────────────────────────────────
 
@@ -152,10 +162,64 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
 
+  // 표지 — 내지 조판이 끝나 쪽수가 확정돼야 책등 두께를 계산할 수 있다.
+  const [theme, setTheme] = useState<CoverTheme>("ivory")
+  const [backText, setBackText] = useState("")
+  const [coverImage, setCoverImage] = useState<File | null>(null)
+  const [coverBusy, setCoverBusy] = useState(false)
+  const [coverDoc, setCoverDoc] = useState<PdfDoc | null>(null)
+  const [coverUrl, setCoverUrl] = useState<string | null>(null)
+  const [coverInfo, setCoverInfo] = useState<CoverSummary | null>(null)
+  const [tab, setTab] = useState<"inner" | "cover">("inner")
+
   const spec = specs.find((s) => s.bookSpecUid === specUid)
 
   // blob URL은 반드시 회수한다. 조판을 반복하면 금방 쌓인다.
   useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl) }, [pdfUrl])
+  useEffect(() => () => { if (coverUrl) URL.revokeObjectURL(coverUrl) }, [coverUrl])
+
+  const runCover = useCallback(async () => {
+    if (!summary) return
+    setCoverBusy(true)
+    setError(null)
+
+    const form = new FormData()
+    form.set("bookSpecUid", specUid)
+    form.set("pages", String(summary.pageCount))
+    form.set("theme", theme)
+    form.set("title", title)
+    form.set("authorName", authorName)
+    form.set("backText", backText)
+    if (coverImage) form.set("image", coverImage)
+
+    try {
+      const res = await fetch("/api/publish/cover", { method: "POST", body: form })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        setError(d.error ?? "표지 생성에 실패했습니다.")
+        return
+      }
+      const raw = res.headers.get("X-Cover-Summary")
+      const info: CoverSummary | null = raw
+        ? JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(raw), (c) => c.charCodeAt(0))))
+        : null
+
+      const blob = await res.blob()
+      const bytes = new Uint8Array(await blob.arrayBuffer())
+      const pdfjs = await loadPdfjs()
+      const loaded = await pdfjs.getDocument({ data: bytes }).promise
+
+      if (coverUrl) URL.revokeObjectURL(coverUrl)
+      setCoverUrl(URL.createObjectURL(blob))
+      setCoverDoc(loaded as unknown as PdfDoc)
+      setCoverInfo(info)
+      setTab("cover")
+    } catch {
+      setError("표지 생성 중 문제가 생겼습니다. 다시 시도해주세요.")
+    } finally {
+      setCoverBusy(false)
+    }
+  }, [summary, specUid, theme, title, authorName, backText, coverImage, coverUrl])
 
   const runTypeset = useCallback(async () => {
     if (!file) {
@@ -357,11 +421,93 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
           </ul>
         )}
 
-        {pdfUrl && (
-          <a href={pdfUrl} download={`${title || "원고"}-내지.pdf`}
-            className="inline-block text-sm text-accent-orange hover:underline">
-            ↓ 인쇄용 PDF 내려받기
-          </a>
+        {/* 표지는 쪽수가 확정된 뒤에만 만들 수 있다 — 책등 두께가 쪽수에서 나온다. */}
+        {summary && (
+          <div className="border-t border-white/10 pt-6 space-y-5">
+            <div>
+              <h2 className="text-white font-medium">표지</h2>
+              <p className="text-xs text-text-gray mt-1 leading-relaxed">
+                {summary.pageCount}쪽 기준으로 책등 두께를 계산해 그립니다.
+              </p>
+            </div>
+
+            <Segmented
+              label="스타일"
+              value={theme}
+              onChange={setTheme}
+              options={(["ivory", "charcoal", "photo"] as const).map((v) => ({
+                value: v,
+                label: THEME_LABEL[v],
+              }))}
+            />
+
+            {theme === "photo" && (
+              <div className="space-y-2">
+                <label htmlFor="cover-img" className="block text-sm font-medium text-white">
+                  앞표지 사진
+                </label>
+                <input
+                  id="cover-img"
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  onChange={(e) => setCoverImage(e.target.files?.[0] ?? null)}
+                  className="block w-full text-sm text-text-gray file:mr-3 file:px-4 file:py-2 file:border file:border-white/20 file:bg-transparent file:text-white file:cursor-pointer hover:file:border-white/50"
+                />
+                <p className="text-xs text-text-gray">JPG · PNG, 8MB 이하. 인쇄 선명도를 위해 긴 변 2000px 이상을 권합니다.</p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label htmlFor="back-text" className="block text-sm font-medium text-white">
+                뒤표지 문구 <span className="text-text-gray font-normal">(선택)</span>
+              </label>
+              <textarea
+                id="back-text"
+                rows={4}
+                maxLength={600}
+                value={backText}
+                onChange={(e) => setBackText(e.target.value)}
+                placeholder="책을 소개하는 짧은 글"
+                className={`${inputCls} resize-none leading-relaxed`}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={runCover}
+              disabled={coverBusy}
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 border border-accent-orange text-accent-orange font-medium hover:bg-accent-orange hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {coverBusy ? (<><Spinner /> 표지 만드는 중…</>) : coverDoc ? "표지 다시 만들기" : "표지 만들기"}
+            </button>
+
+            {coverInfo && (
+              <div className="text-xs text-text-gray space-y-1 leading-relaxed">
+                <p>
+                  표지 {coverInfo.widthMm}×{coverInfo.heightMm}mm · 책등{" "}
+                  <span className="text-white">{coverInfo.spineWidthMm}mm</span>
+                </p>
+                {coverInfo.notes.map((n, i) => (<p key={i}>· {n}</p>))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {(pdfUrl || coverUrl) && (
+          <div className="flex flex-col gap-2 border-t border-white/10 pt-5">
+            {pdfUrl && (
+              <a href={pdfUrl} download={`${title || "원고"}-내지.pdf`}
+                className="text-sm text-accent-orange hover:underline">
+                ↓ 내지 PDF 내려받기
+              </a>
+            )}
+            {coverUrl && (
+              <a href={coverUrl} download={`${title || "원고"}-표지.pdf`}
+                className="text-sm text-accent-orange hover:underline">
+                ↓ 표지 PDF 내려받기
+              </a>
+            )}
+          </div>
         )}
       </div>
 
@@ -379,6 +525,38 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
           </div>
         ) : (
           <div className="space-y-5">
+            {coverDoc && (
+              <div role="tablist" aria-label="미리보기 대상" className="flex gap-2">
+                {([["inner", "내지"], ["cover", "표지"]] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    role="tab"
+                    aria-selected={tab === key}
+                    onClick={() => setTab(key)}
+                    className={`px-5 py-2 text-sm border transition-colors ${
+                      tab === key
+                        ? "border-accent-orange bg-accent-orange/10 text-white"
+                        : "border-white/15 text-text-gray hover:text-white hover:border-white/40"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {tab === "cover" && coverDoc ? (
+              <div className="space-y-5">
+                <div className="flex justify-center bg-black/30 border border-white/10 p-4 sm:p-8 overflow-x-auto">
+                  {/* 표지는 펼침면 1장이라 그대로 보여준다. */}
+                  <PageCanvas doc={coverDoc} pageNumber={1} scale={0.44} />
+                </div>
+                <p className="text-xs text-text-gray text-center leading-relaxed">
+                  왼쪽부터 뒤표지 · 책등 · 앞표지입니다. 인쇄 후 접히는 형태 그대로입니다.
+                </p>
+              </div>
+            ) : (
+              <>
             <div className="flex items-start justify-center gap-1 bg-black/30 border border-white/10 p-4 sm:p-8 overflow-x-auto">
               <PageCanvas doc={doc} pageNumber={leftPage} scale={0.62} />
               <PageCanvas doc={doc} pageNumber={rightPage} scale={0.62} />
@@ -404,6 +582,8 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               실제 인쇄에 쓰이는 PDF를 그대로 보여드립니다. 본문 크기나 장 시작 방식을 바꾸면
               쪽수와 금액이 함께 달라집니다.
             </p>
+              </>
+            )}
           </div>
         )}
       </div>
