@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { CustomCursor } from "@/components/custom-cursor"
+import { PUBLISH_ENABLED } from "@/lib/publishing/config"
 import { getOrder, SweetBookError, type Order } from "@/lib/publishing/sweetbook"
 import { RefreshButton } from "./refresh-button"
 
@@ -39,6 +40,8 @@ interface PageProps {
 }
 
 export default async function OrderStatusPage({ params }: PageProps) {
+  if (!PUBLISH_ENABLED) notFound()
+
   const { orderUid } = await params
 
   let order: Order
@@ -130,28 +133,18 @@ export default async function OrderStatusPage({ params }: PageProps) {
             </ol>
           )}
 
-          {/* 주문 내역 */}
+          {/* 주문 내역 — 금액은 제작사 원가이므로 노출하지 않는다.
+              결제 금액은 주문 완료 화면과 (Phase 1) 결제 영수증에서 안내한다. */}
           <div className="border border-white/15 divide-y divide-white/10">
             {(order.items ?? []).map((item) => (
-              <div key={item.itemUid} className="px-5 py-4 flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-white leading-snug">{item.bookTitle}</p>
-                  <p className="text-sm text-text-gray">
-                    {item.pageCount ? `${item.pageCount}페이지 · ` : ""}
-                    {item.quantity}권 · {item.itemStatusDisplay}
-                  </p>
-                </div>
-                <p className="text-white shrink-0">{krw(item.itemAmount)}</p>
+              <div key={item.itemUid} className="px-5 py-4">
+                <p className="text-white leading-snug">{item.bookTitle}</p>
+                <p className="text-sm text-text-gray">
+                  {item.pageCount ? `${item.pageCount}페이지 · ` : ""}
+                  {item.quantity}권 · {item.itemStatusDisplay}
+                </p>
               </div>
             ))}
-            <div className="px-5 py-4 flex items-center justify-between text-sm text-text-gray">
-              <span>배송비</span>
-              <span>{krw(order.totalShippingFee)}</span>
-            </div>
-            <div className="px-5 py-4 flex items-center justify-between bg-white/5">
-              <span className="text-white font-medium">합계</span>
-              <span className="text-lg text-accent-orange font-medium">{krw(order.totalAmount)}</span>
-            </div>
           </div>
 
           <div className="flex items-center justify-between gap-3 text-sm text-text-gray">

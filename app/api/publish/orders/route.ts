@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createOrder, SweetBookError } from "@/lib/publishing/sweetbook"
+import { PUBLISH_ENABLED } from "@/lib/publishing/config"
 import { parseOrderInput } from "../order-input"
 
 export async function POST(req: NextRequest) {
+  if (!PUBLISH_ENABLED) {
+    return NextResponse.json({ error: "주문을 받고 있지 않습니다." }, { status: 503 })
+  }
+
   const parsed = await parseOrderInput(req)
   if ("error" in parsed) {
     return NextResponse.json({ error: parsed.error }, { status: 400 })
@@ -14,14 +19,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const order = await createOrder(parsed.order, parsed.idempotencyKey)
+    // 제작사 금액(원가)은 응답에 담지 않는다. 저자에게 보여줄 금액은 판매가뿐이다.
     return NextResponse.json({
       order: {
         orderUid: order.orderUid,
         orderStatus: order.orderStatus,
         orderStatusDisplay: order.orderStatusDisplay,
-        totalAmount: order.totalAmount,
-        totalProductAmount: order.totalProductAmount,
-        totalShippingFee: order.totalShippingFee,
         orderedAt: order.orderedAt,
       },
     })

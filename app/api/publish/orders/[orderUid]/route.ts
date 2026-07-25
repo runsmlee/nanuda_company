@@ -17,9 +17,7 @@ export async function GET(
         orderUid: o.orderUid,
         orderStatus: o.orderStatus,
         orderStatusDisplay: o.orderStatusDisplay,
-        totalAmount: o.totalAmount,
-        totalProductAmount: o.totalProductAmount,
-        totalShippingFee: o.totalShippingFee,
+        // 제작사 금액(원가)은 응답에서 제외한다.
         recipientName: o.recipientName,
         orderedAt: o.orderedAt,
         isTest: o.isTest,
@@ -27,7 +25,6 @@ export async function GET(
           bookTitle: i.bookTitle,
           quantity: i.quantity,
           pageCount: i.pageCount,
-          itemAmount: i.itemAmount,
           itemStatusDisplay: i.itemStatusDisplay,
         })),
       },

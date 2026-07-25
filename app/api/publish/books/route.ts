@@ -5,10 +5,15 @@ import {
   SweetBookError,
   uploadPdf,
 } from "@/lib/publishing/sweetbook"
+import { PUBLISH_ENABLED } from "@/lib/publishing/config"
 
 // 책 생성 → 표지 업로드 → 내지 업로드 → 최종화를 한 번에 처리한다.
 // 실패 시 어느 단계(step)에서 왜(errors) 실패했는지 반환해 위저드가 해당 단계를 복구하게 한다.
 export async function POST(req: NextRequest) {
+  if (!PUBLISH_ENABLED) {
+    return NextResponse.json({ error: "제작 신청을 받고 있지 않습니다." }, { status: 503 })
+  }
+
   let form: FormData
   try {
     form = await req.formData()

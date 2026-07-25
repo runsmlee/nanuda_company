@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import { estimateProductPrice } from "@/lib/publishing/pricing"
 
 // ── 타입 (서버 어댑터 타입의 클라이언트 안전 부분집합) ─────────────────────────
 
@@ -38,12 +39,11 @@ interface Shipping {
   memo: string
 }
 
+/** 서버가 마진을 얹어 확정한 판매가. 원가는 클라이언트로 내려오지 않는다. */
 interface Estimate {
-  productAmount?: number
-  shippingFee?: number
-  totalAmount?: number
-  paidCreditAmount: number
-  creditSufficient: boolean
+  totalPrice: number
+  unitPrice: number
+  quantity: number
 }
 
 const STEPS = ["판형 선택", "원고 업로드", "배송 정보", "최종 확인"] as const
@@ -51,12 +51,6 @@ const STEPS = ["판형 선택", "원고 업로드", "배송 정보", "최종 확
 const FEATURED_SPEC = "PHOTOBOOK_A5_SC"
 
 const krw = (n: number) => `${Math.round(n).toLocaleString("ko-KR")}원`
-
-function unitPrice(spec: WizardSpec, pages: number) {
-  const extra = Math.max(0, pages - spec.pageMin)
-  const increments = spec.pageIncrement > 0 ? extra / spec.pageIncrement : 0
-  return spec.priceBase + increments * (spec.pricePerIncrement || 0)
-}
 
 function pagesValid(spec: WizardSpec, pages: number) {
   return (
@@ -257,7 +251,9 @@ export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
   const orderKey = useRef<string>("")
   const [done, setDone] = useState<{ orderUid: string; totalAmount: number } | null>(null)
 
-  const priceEach = spec && pagesValid(spec, pages) ? unitPrice(spec, pages) : null
+  // 1단계 개략가(상품만, 부가세·마진 반영). 확정가는 서버 견적이 배송비까지 넣어 다시 준다.
+  const estimatedTotal =
+    spec && pagesValid(spec, pages) ? estimateProductPrice(spec, pages, quantity) : null
 
   // 판형·페이지가 확정되면 요구 PDF 규격을 조회한다 (업로드 단계 안내용)
   useEffect(() => {
@@ -409,7 +405,8 @@ export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
         setErrors(data.errors ?? [data.error ?? "주문 생성에 실패했습니다."])
         return
       }
-      setDone({ orderUid: data.order.orderUid, totalAmount: data.order.totalAmount })
+      // 완료 화면 금액은 저자가 4단계에서 확인한 판매가를 그대로 쓴다 (제작사 원가 아님).
+      setDone({ orderUid: data.order.orderUid, totalAmount: estimate?.totalPrice ?? 0 })
       window.scrollTo({ top: 0, behavior: "smooth" })
     } catch {
       // 멱등키가 있으므로 같은 키로 재시도해도 이중 주문은 생기지 않는다
@@ -583,18 +580,28 @@ export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
             </Field>
           </div>
 
-          <div className="border border-white/15 bg-white/5 px-5 py-4 flex items-baseline justify-between">
-            <span className="text-sm text-text-gray">예상 제작비 (배송비 별도)</span>
-            <span className="text-lg text-white">
-              {priceEach !== null ? (
-                <>
-                  {krw(priceEach)} × {quantity}권 ={" "}
-                  <span className="text-accent-orange font-medium">{krw(priceEach * quantity)}</span>
-                </>
-              ) : (
-                <span className="text-text-gray text-sm">페이지 수를 확인해주세요</span>
-              )}
-            </span>
+          <div className="border border-white/15 bg-white/5 px-5 py-4 space-y-1">
+            <div className="flex items-baseline justify-between">
+              <span className="text-sm text-text-gray">예상 금액 (배송비 별도)</span>
+              <span className="text-lg text-white">
+                {estimatedTotal !== null ? (
+                  <>
+                    <span className="text-accent-orange font-medium">{krw(estimatedTotal)}</span>
+                    {quantity > 1 && (
+                      <span className="text-sm text-text-gray">
+                        {" "}
+                        · 권당 {krw(estimatedTotal / quantity)}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-text-gray text-sm">페이지 수를 확인해주세요</span>
+                )}
+              </span>
+            </div>
+            <p className="text-xs text-text-gray">
+              부가세 포함. 여러 권을 주문하면 권당 가격이 내려갑니다.
+            </p>
           </div>
 
           <div className="flex justify-end">
@@ -808,16 +815,16 @@ export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
               k="배송지"
               v={`${shipping.recipientName} · ${shipping.address1} ${shipping.address2} (${shipping.postalCode})`}
             />
-            {typeof estimate.productAmount === "number" && (
-              <SummaryRow k="제작비" v={krw(estimate.productAmount)} />
-            )}
-            {typeof estimate.shippingFee === "number" && (
-              <SummaryRow k="배송비" v={krw(estimate.shippingFee)} />
+            {estimate.quantity > 1 && (
+              <SummaryRow k="권당 가격" v={krw(estimate.unitPrice)} />
             )}
             <div className="flex items-center justify-between px-5 py-4 bg-white/5">
-              <span className="text-white font-medium">최종 결제 금액</span>
+              <div>
+                <span className="text-white font-medium">최종 결제 금액</span>
+                <p className="text-xs text-text-gray">배송비·부가세 포함</p>
+              </div>
               <span className="text-xl text-accent-orange font-medium">
-                {krw(estimate.totalAmount ?? estimate.paidCreditAmount)}
+                {krw(estimate.totalPrice)}
               </span>
             </div>
           </div>

@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { Metadata } from "next"
 import { CustomCursor } from "@/components/custom-cursor"
+import { PUBLISH_ENABLED } from "@/lib/publishing/config"
+import { estimateProductPrice } from "@/lib/publishing/pricing"
 import { listBookSpecs, type BookSpec } from "@/lib/publishing/sweetbook"
 import { absoluteUrl, SITE_NAME } from "@/lib/site-config"
 
@@ -14,6 +16,8 @@ export const metadata: Metadata = {
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
   alternates: { canonical: absoluteUrl("/publish") },
+  // 준비중일 때는 색인하지 않는다 (sitemap에서도 제외됨).
+  robots: PUBLISH_ENABLED ? undefined : { index: false, follow: false },
   openGraph: {
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
@@ -80,6 +84,18 @@ export default async function PublishPage() {
         </div>
       </nav>
 
+      {/* 준비중 배너 */}
+      {!PUBLISH_ENABLED && (
+        <div className="px-6 sm:px-8 lg:px-16">
+          <div className="max-w-6xl mx-auto border border-accent-orange/40 bg-accent-orange/10 px-5 py-4 text-center">
+            <p className="text-sm sm:text-base text-white">
+              <span className="text-accent-orange font-medium">준비중</span> — 자가출판 서비스는
+              오픈 준비 중입니다. 아래 내용은 실제 제작 사양과 가격 기준입니다.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 히어로 */}
       <section className="px-6 sm:px-8 lg:px-16 pt-16 pb-24 sm:pt-24 sm:pb-32 relative">
         <div className="max-w-6xl mx-auto text-center">
@@ -96,13 +112,28 @@ export default async function PublishPage() {
             <br className="hidden sm:block" />
             출판사 생각을나누다가 원고에서 배송까지 책의 마지막 한 걸음을 함께합니다.
           </p>
-          <Link
-            href="/publish/start"
-            className="inline-flex items-center gap-3 px-8 py-4 border-2 border-accent-orange text-accent-orange font-medium hover:bg-accent-orange hover:text-white transition-all duration-300 text-lg"
-          >
-            내 책 만들기
-            <span aria-hidden>→</span>
-          </Link>
+          {PUBLISH_ENABLED ? (
+            <Link
+              href="/publish/start"
+              className="inline-flex items-center gap-3 px-8 py-4 border-2 border-accent-orange text-accent-orange font-medium hover:bg-accent-orange hover:text-white transition-all duration-300 text-lg"
+            >
+              내 책 만들기
+              <span aria-hidden>→</span>
+            </Link>
+          ) : (
+            <div className="space-y-4">
+              <span
+                aria-disabled="true"
+                className="inline-flex items-center gap-3 px-8 py-4 border-2 border-white/20 text-white/40 font-medium text-lg cursor-not-allowed select-none"
+              >
+                내 책 만들기
+                <span aria-hidden>→</span>
+              </span>
+              <p className="text-sm text-text-gray">
+                곧 만나요. 준비가 끝나면 이 페이지에서 바로 신청할 수 있습니다.
+              </p>
+            </div>
+          )}
         </div>
         <div className="absolute top-20 right-20 w-2 h-2 bg-accent-orange rounded-full opacity-60" aria-hidden />
         <div className="absolute bottom-16 left-24 w-1 h-1 bg-accent-orange rounded-full opacity-40" aria-hidden />
@@ -159,7 +190,17 @@ export default async function PublishPage() {
                     </p>
                     <p className="text-white">
                       <span className="text-xl font-medium">
-                        {(s.priceBase ?? s.sandboxPriceBase ?? 0).toLocaleString("ko-KR")}원
+                        {estimateProductPrice(
+                          {
+                            pageMin: s.pageMin,
+                            pageIncrement: s.pageIncrement,
+                            priceBase: s.priceBase ?? s.sandboxPriceBase ?? 0,
+                            pricePerIncrement: s.pricePerIncrement ?? s.sandboxPricePerIncrement ?? 0,
+                          },
+                          s.pageMin,
+                          1,
+                        ).toLocaleString("ko-KR")}
+                        원
                       </span>
                       <span className="text-sm text-text-gray"> 부터</span>
                     </p>
@@ -171,7 +212,8 @@ export default async function PublishPage() {
               })}
             </div>
             <p className="text-xs text-text-gray text-center mt-8">
-              배송비 3,000원(주문당) 별도. 최종 금액은 주문 전에 확정 견적으로 안내됩니다.
+              부가세 포함 가격입니다. 배송비 별도이며, 여러 권을 주문하면 권당 가격이 내려갑니다.
+              최종 금액은 주문 전에 확정 견적으로 안내됩니다.
             </p>
           </div>
         </section>

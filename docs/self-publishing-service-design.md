@@ -112,6 +112,36 @@ draft → manuscript_review → typesetting ⇄ proof_ready → quoted → paid
 - `proof_ready ⇄ typesetting` 역방향 전이(교정 왕복)를 명시한다 — 실무에서 가장 자주 밟는 경로다.
 - `cancelled`·`refunded`를 정식 상태로 둔다. 전자상거래법상 청약철회 경로가 화이트리스트에 존재해야 한다. SweetBook 쪽 취소는 `PAID`/`PDF_READY`까지만 가능하므로, 우리 환불 정책도 "제작확정 전까지"로 정렬한다.
 
+### 가격 정책
+
+**중대 발견:** SweetBook의 `totalAmount`는 **부가세 제외** 금액이고, 충전금에서 실제 차감되는 금액은 `paidCreditAmount = floor(totalAmount × 1.1 / 10) × 10` 이다. 초기 구현은 `totalAmount`를 그대로 "최종 결제 금액"으로 노출해 **건당 약 10% 역마진** 상태였다 (14,627원 표시 / 16,080원 지출). 원가는 반드시 부가세 포함 금액으로 잡는다.
+
+판매가 = 원가(부가세 포함) ÷ (1 − 마진율), 100원 단위 올림. **마진율은 매출 총이익률** 기준이다 (원가 대비 markup 아님).
+
+| 수량 | 마진율 | 예: A5 50p 기준 권당 |
+|---|---|---|
+| 1권 | 40% | 26,800원 |
+| 2~4권 | 35% | 22,450원 |
+| 5~9권 | 30% | 19,560원 |
+| 10~29권 | 25% | 17,860원 |
+| 30권~ | 20% | 16,490원 |
+
+- 정책은 `lib/publishing/pricing.ts`의 `MARGIN_TIERS` 한 곳에 있다. 검증은 `pricing.test.mjs` (`node lib/publishing/pricing.test.mjs`) — 실현 마진이 목표 미만이거나 판매가가 원가 이하면 실패한다.
+- **원가·마진율은 클라이언트로 내려보내지 않는다.** 견적·주문·상태 조회 API 응답에서 제작사 금액 필드를 모두 제거했다.
+- 위저드 1단계는 배송비를 모르는 시점이라 상품가만 개략 표시하고, 확정가는 서버 견적이 배송비까지 반영해 다시 준다.
+
+### 서비스 활성화 게이트
+
+결제(PG) 연동 전까지 프로덕션에서 신청을 받지 않는다. `PUBLISH_ENABLED=true` 환경변수로 제어한다 (`lib/publishing/config.ts`).
+
+| 대상 | 게이트 OFF 동작 |
+|---|---|
+| `/publish` | "준비중" 배너 + CTA 비활성, `noindex`, sitemap 제외 |
+| `/publish/start`, `/publish/orders/*` | 404 |
+| `app/api/publish/*` (books·estimate·orders) | 503 |
+
+Preview 환경에만 `true`를 넣어 내부 테스트를 계속한다.
+
 ### 결제와 정합성
 
 - **저자 → 나누다**: Phase 1에서 국내 PG(토스페이먼츠 또는 포트원) 연동. **나누다 → SweetBook**: 충전금 선차감. 두 결제가 분리되어 있으므로, 저자 결제 성공 후 SweetBook 주문 실패 시 충전금은 차감되지 않고(주문 자체가 실패) 저자 환불만 처리하면 된다 — 당초 우려한 이중 정산 경로가 구조적으로 단순해진다.

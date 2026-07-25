@@ -1,7 +1,9 @@
 import Link from "next/link"
 import { Metadata } from "next"
+import { notFound } from "next/navigation"
 import { CustomCursor } from "@/components/custom-cursor"
 import { PublishWizard, type WizardSpec } from "@/components/publish/publish-wizard"
+import { PUBLISH_ENABLED } from "@/lib/publishing/config"
 import { listBookSpecs } from "@/lib/publishing/sweetbook"
 
 export const metadata: Metadata = {
@@ -12,6 +14,9 @@ export const metadata: Metadata = {
 export const revalidate = 3600
 
 export default async function PublishStartPage() {
+  // 결제 연동 전까지 프로덕션에서는 신청 자체를 막는다.
+  if (!PUBLISH_ENABLED) notFound()
+
   let specs: WizardSpec[] = []
   try {
     const raw = await listBookSpecs()
