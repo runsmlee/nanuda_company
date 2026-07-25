@@ -1,0 +1,89 @@
+# Sweetbook API 개발문서
+
+> 포토북 PDF 생성·주문·배송 자동화를 위한 REST API.
+> Base URL: https://api.sweetbook.com (Live) / https://api-sandbox.sweetbook.com (Sandbox).
+> 인증: Bearer API Key. 충전금 결제 모델.
+
+## 시작하기
+
+- [개요](https://api.sweetbook.com/docs.md)
+- [파트너 등록](https://api.sweetbook.com/docs/registration.md)
+- [환경 (Sandbox / Live)](https://api.sweetbook.com/docs/environments.md)
+- [인증 (API Key)](https://api.sweetbook.com/docs/authentication.md)
+
+## 빠른 시작
+
+- [전체 워크플로우](https://api.sweetbook.com/docs/guides/workflow.md)
+- [SDKs & Demo Apps](https://api.sweetbook.com/docs/sdks-and-demos.md)
+
+### AI 에이전트 지원
+
+- [개요](https://api.sweetbook.com/docs/ai-agents/overview.md)
+- [llms.txt · llms-full.txt 사용법](https://api.sweetbook.com/docs/ai-agents/llms-txt.md)
+- [.md URL 사용법](https://api.sweetbook.com/docs/ai-agents/md-url.md)
+
+## 책
+
+- [창작 방식](https://api.sweetbook.com/docs/concepts/creation-types.md)
+
+### 시나리오
+
+- [PDF 업로드 시나리오](https://api.sweetbook.com/docs/guides/scenario-pdf.md)
+- [템플릿 기반 시나리오](https://api.sweetbook.com/docs/guides/scenario-template.md)
+- [혼합 방식 시나리오](https://api.sweetbook.com/docs/guides/scenario-mix.md)
+
+### API
+
+- [Books API — PDF 기반](https://api.sweetbook.com/docs/api/books-pdf.md)
+- [Books API — 템플릿 기반](https://api.sweetbook.com/docs/api/books-template.md)
+- [BookSpecs API](https://api.sweetbook.com/docs/api/book-specs.md)
+- [Templates API](https://api.sweetbook.com/docs/api/templates.md)
+
+### PDF 생성 가이드
+
+- [PDF 표지/내지 사이즈](https://api.sweetbook.com/docs/concepts/pdf-size.md)
+- [사이즈 계산 API](https://api.sweetbook.com/docs/concepts/pdf-size-api.md)
+
+### 템플릿 개념
+
+- [템플릿 구조와 바인딩](https://api.sweetbook.com/docs/concepts/template-structure.md)
+- [레이아웃 동작 원리](https://api.sweetbook.com/docs/concepts/layout-principles.md)
+- [갤러리 템플릿](https://api.sweetbook.com/docs/concepts/gallery.md)
+- [베이스 레이어](https://api.sweetbook.com/docs/concepts/base-layer.md)
+
+## 주문
+
+- [Orders API](https://api.sweetbook.com/docs/api/orders.md)
+- [주문 상태 흐름](https://api.sweetbook.com/docs/operations/order-status.md)
+
+## 충전금
+
+- [충전금 모델](https://api.sweetbook.com/docs/concepts/credit-model.md)
+- [Credits API](https://api.sweetbook.com/docs/api/credits.md)
+- [충전금 운영 절차](https://api.sweetbook.com/docs/operations/credits.md)
+
+## 웹훅
+
+- [Webhooks API](https://api.sweetbook.com/docs/api/webhooks.md)
+- [Webhook Events](https://api.sweetbook.com/docs/api/webhook-events.md)
+
+## 공통 정책
+
+- [API 공통 사항](https://api.sweetbook.com/docs/api/common.md)
+- [환경 매트릭스](https://api.sweetbook.com/docs/operations/environment-matrix.md)
+- [멱등성](https://api.sweetbook.com/docs/operations/idempotency.md)
+- [페이지네이션](https://api.sweetbook.com/docs/operations/pagination.md)
+- [Rate Limiting](https://api.sweetbook.com/docs/operations/rate-limiting.md)
+
+## 에러 핸들링
+
+- [에러 코드 & 트러블슈팅](https://api.sweetbook.com/docs/operations/errors.md)
+- [에러 핸들링 & Retry 전략](https://api.sweetbook.com/docs/operations/error-handling.md)
+
+## 운영
+
+- [운영 전환 체크리스트](https://api.sweetbook.com/docs/guides/go-live.md)
+
+## 참고
+
+- [변경이력](https://api.sweetbook.com/docs/changelog.md)
