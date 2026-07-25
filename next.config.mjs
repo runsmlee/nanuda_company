@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 조판은 런타임에 assets/fonts의 TTF를 읽는다. 경로가 코드에 문자열로만
+  // 나타나 자동 추적이 안 되므로 서버리스 번들에 명시적으로 포함시킨다.
+  outputFileTracingIncludes: {
+    '/api/publish/typeset': ['./assets/fonts/**'],
+  },
   images: {
     unoptimized: false,  // 이미지 최적화 활성화
     remotePatterns: [

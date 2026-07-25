@@ -76,11 +76,15 @@ export async function typeset(
   const pageHpt = mmToPt(opts.trimHeightMm + opts.bleedMm * 2)
   const bleedPt = mmToPt(opts.bleedMm)
 
+  const bodyFont = join(fontDir, FONT_REGULAR)
   const doc = new PDFDocument({
     size: [pageWpt, pageHpt],
     margin: 0,
     autoFirstPage: false,
     bufferPages: true,
+    // 초기 폰트를 지정하지 않으면 pdfkit이 기본 Helvetica의 .afm을 찾는데,
+    // 번들된 환경에서는 그 경로가 존재하지 않아 ENOENT로 죽는다.
+    font: bodyFont,
     info: { Title: opts.title, Author: opts.authorName },
   })
 
@@ -88,7 +92,7 @@ export async function typeset(
   doc.on("data", (c: Buffer) => chunks.push(c))
   const done = new Promise<Buffer>((resolve) => doc.on("end", () => resolve(Buffer.concat(chunks))))
 
-  doc.registerFont("body", join(fontDir, FONT_REGULAR))
+  doc.registerFont("body", bodyFont)
   doc.registerFont("head", join(fontDir, FONT_BOLD))
 
   let pageIndex = 0
@@ -298,23 +302,48 @@ export function estimatePages(charCount: number, textSize: TextSize): number {
   return Math.max(1, Math.ceil(charCount / perPage))
 }
 
-/** 원고가 이 판형으로 제작 가능한지, 어떤 본문 크기를 써야 하는지 판정한다. */
+export interface FitOption {
+  textSize: TextSize
+  /** 빈 페이지 채움까지 반영한 최종 예상 쪽수. */
+  pages: number
+  /** 최소 쪽수를 채우려고 넣게 될 빈 페이지 수. */
+  padded: number
+  /** 상한 초과라 이 판형으로는 제작 자체가 불가능. */
+  blocked: boolean
+  /** 빈 페이지 없이 규격에 딱 맞음. */
+  ok: boolean
+}
+
+/**
+ * 원고가 이 판형으로 제작 가능한지, 어떤 본문 크기가 좋은지 판정한다.
+ *
+ * 최소 쪽수 미달은 빈 페이지로 채워 제작할 수 있으므로 **막지 않는다**.
+ * 막아야 하는 것은 상한 초과뿐이다. 미달을 막으면 짧은 원고를 든 저자가
+ * 모든 선택지를 잃고 갇힌다.
+ */
 export function fitToSpec(
   charCount: number,
   spec: { pageMin: number; pageMax: number },
-): { fits: boolean; options: { textSize: TextSize; pages: number; ok: boolean }[]; advice: string } {
-  const options = (Object.keys(TEXT_SIZES) as TextSize[]).map((textSize) => {
-    const pages = estimatePages(charCount, textSize)
-    return { textSize, pages, ok: pages >= spec.pageMin && pages <= spec.pageMax }
+): { fits: boolean; options: FitOption[]; advice: string } {
+  const options: FitOption[] = (Object.keys(TEXT_SIZES) as TextSize[]).map((textSize) => {
+    const raw = estimatePages(charCount, textSize)
+    const padded = Math.max(0, spec.pageMin - raw)
+    return {
+      textSize,
+      pages: Math.max(raw, spec.pageMin),
+      padded,
+      blocked: raw > spec.pageMax,
+      ok: padded === 0 && raw <= spec.pageMax,
+    }
   })
-  const fits = options.some((o) => o.ok)
+
+  const fits = options.some((o) => !o.blocked)
   let advice = ""
   if (!fits) {
-    const shortest = Math.min(...options.map((o) => o.pages))
-    advice =
-      shortest > spec.pageMax
-        ? `원고가 이 판형의 상한(${spec.pageMax}p)을 넘습니다. 분권을 검토해주세요.`
-        : `원고가 짧아 최소 ${spec.pageMin}p에 못 미칩니다. 내용을 더하거나 다른 판형을 골라주세요.`
+    advice = `원고가 이 판형의 상한(${spec.pageMax}쪽)을 넘습니다. 본문을 줄이거나 분권을 검토해주세요.`
+  } else if (!options.some((o) => o.ok)) {
+    const best = options.reduce((a, b) => (a.padded <= b.padded ? a : b))
+    advice = `원고가 짧아 최소 ${spec.pageMin}쪽을 채우려면 빈 페이지가 ${best.padded}장 안팎 생깁니다. 본문을 더하거나 더 작은 판형을 고려해보세요.`
   }
   return { fits, options, advice }
 }

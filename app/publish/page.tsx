@@ -121,13 +121,21 @@ export default async function PublishPage() {
             출판사 생각을나누다가 원고에서 배송까지 책의 마지막 한 걸음을 함께합니다.
           </p>
           {PUBLISH_ENABLED ? (
-            <Link
-              href="/publish/start"
-              className="inline-flex items-center gap-3 px-8 py-4 border-2 border-accent-orange text-accent-orange font-medium hover:bg-accent-orange hover:text-white transition-all duration-300 text-lg"
-            >
-              내 책 만들기
-              <span aria-hidden>→</span>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              <Link
+                href="/publish/studio"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-accent-orange text-white font-medium hover:bg-accent-orange/85 transition-colors text-lg"
+              >
+                원고로 책 만들기
+                <span aria-hidden>→</span>
+              </Link>
+              <Link
+                href="/publish/start"
+                className="inline-flex items-center gap-2 px-6 py-4 border border-white/20 text-text-gray hover:text-white hover:border-white/50 transition-colors"
+              >
+                인쇄용 PDF가 이미 있어요
+              </Link>
+            </div>
           ) : (
             <div className="space-y-4">
               <span
