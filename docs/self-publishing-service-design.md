@@ -4,196 +4,153 @@
 
 나누다컴퍼니가 보유한 출판사 자격을 기반으로, 다른 사람의 원고를 책으로 만들어주는 자가출판 서비스를 웹사이트에 붙인다.
 
-1차 목표는 **제작(원고 → 조판 → 인쇄 → 배송)** 까지다. ISBN 발급과 온라인 서점 유통은 이 문서의 범위에 포함하지 않고 후속 단계로 분리한다.
+1차 목표는 **제작(인쇄용 PDF → 인쇄 → 배송)** 까지다. ISBN 발급과 온라인 서점 유통은 이 문서의 범위에 포함하지 않고 후속 단계로 분리한다.
 
-## 전제와 미확인 사항
+## 설계 원칙 (우선순위 순)
 
-이 설계에서 **확인된 사실**은 다음과 같다.
+1. **최고의 UI/UX가 최우선이다.** 자가출판 신청은 저자에게 감정적으로 큰 행위다. 신청 흐름의 모든 화면은 기존 사이트의 디자인 언어(다크 `#1a1a1a`, 오렌지 `#ff6b35`, 명조 디스플레이 타이포그래피, 넉넉한 여백)를 따르고, 각 단계에서 지금 무슨 일이 일어나는지·다음에 무엇을 해야 하는지가 항상 명확해야 한다. 기능이 같다면 더 좋은 경험 쪽을 택한다.
+2. 외부 제작사 API에 코드를 직접 결합하지 않는다. 내부 도메인 모델과 제작사 어댑터를 분리한다.
+3. 결제·인쇄가 얽힌 경로는 멱등성과 명시적 상태 전이로 보호한다.
+
+## 전제와 확인된 사실
+
+**사이트 전제**
 
 - 나누다컴퍼니는 출판사 신고가 완료되어 있다. (ISBN 발행자번호 확보 가능)
-- 현재 사이트는 Next.js 15 App Router + Vercel 기반이며, **DB·인증·파일 업로드·API 라우트가 전혀 없는 정적 콘텐츠 사이트**다. 책과 칼럼 데이터는 `lib/books-data.ts`, `content/` 의 정적 파일로 관리한다.
-- 따라서 자가출판 서비스는 이 사이트의 **첫 상태 저장(stateful) 기능**이 된다.
+- 현재 사이트는 Next.js 15 App Router + Vercel 기반이며, 이번 작업 전까지 DB·인증·파일 업로드·API 라우트가 전혀 없는 정적 콘텐츠 사이트였다.
 
-다음은 **아직 확인되지 않은 사항**이며, 설계상 리스크로 명시한다.
+**SweetBook "Book Print API" — Sandbox 실측으로 확인 (2026-07-25)**
 
-- `api.sweetbook.com` 및 `sweetbook.com` 은 자동 조회 시 **HTTP 403** 을 반환해 API 스펙 원문을 확인하지 못했다. 인증 방식, 엔드포인트, 요청·응답 스키마, 웹훅 유무가 모두 미확인이다.
-- 스위트북은 본래 **포토북·달력·굿즈 중심 인쇄 서비스**다. 나누다컴퍼니가 다루는 **글 위주 단행본**(200~300페이지 흑백 내지, 무선제본)을 지원하는지 확인이 필요하다.
-- 단가표, 최소 주문 수량, 개인 단위 1권 배송 가능 여부, 정산 조건이 미확인이다.
+당초 `api.sweetbook.com`이 403을 반환해 미확인이었으나, 샌드박스 키 발급 후 전체 스펙을 확인했다. 개발문서는 `https://api.sweetbook.com/docs` (AI 에이전트용 `docs/llms-full.txt` 제공).
 
-**설계 원칙:** 위 미확인 사항 때문에 SweetBook API 스키마에 코드를 직접 결합하지 않는다. 내부 도메인 모델과 제작사 어댑터를 분리해, 스펙이 확정되면 어댑터 한 곳만 교체하도록 설계한다.
+- Base URL: `https://api-sandbox.sweetbook.com/v1` (Sandbox) / `https://api.sweetbook.com/v1` (Live). 키의 환경과 도메인이 일치해야 한다 (`ERR_ENV_MISMATCH`).
+- 인증: `Authorization: Bearer {API_KEY}`
+- 결제 모델: **충전금(선불 크레딧)**. 주문 생성 시 즉시 차감. Sandbox는 `POST /credits/sandbox/charge`로 테스트 충전.
+- 핵심 흐름 (PDF 업로드 방식): `POST /books` → `POST /books/{uid}/pdf-cover` → `POST /books/{uid}/pdf-contents` → `POST /books/{uid}/finalization` → `POST /orders/estimate` → `POST /orders`
+- 멱등성: `POST /books`, `POST /orders`가 `Idempotency-Key` 헤더 지원. 동일 키 + 다른 본문은 422.
+- 주문 상태: `PAID → PDF_READY → CONFIRMED → IN_PRODUCTION → COMPLETED → PRODUCTION_COMPLETE → SHIPPED → DELIVERED`, 취소는 `CANCELLED` / `CANCELLED_REFUND`. 취소는 `PAID`/`PDF_READY`에서만 가능하고 충전금으로 전액 환불된다.
+- 웹훅 제공 (`order.created`, `production.*`, `shipping.*`). 폴링도 가능.
+- PDF 검증은 업로드 시점에 동기 수행: 페이지 수 일치, 판형별 mm 규격(±1mm 톨러런스). **CMYK/PDF-X 요구 없음** — 색공간 제약이 검증 항목에 없어, 당초 우려한 RGB→CMYK 변환 파이프라인은 불필요하다.
+- 판형(실측, sandbox 단가):
+
+| bookSpecUid | 판형 | 페이지 | 기본가(KRW) | 추가(2p당) |
+|---|---|---|---|---|
+| `PHOTOBOOK_A5_SC` | A5 소프트커버 (148×210) | 50~200 | 11,900 | 200 |
+| `PHOTOBOOK_A4_SC` | A4 소프트커버 (210×297) | 24~130 | 12,400 | 400 |
+| `SQUAREBOOK_SC` | 스퀘어 소프트커버 (243×248) | 24~130 | 10,800 | — |
+| `SQUAREBOOK_HC` | 스퀘어 하드커버 (243×248) | 24~130 | 12,600 | 280 |
+
+- PDF 규격 공식 (소프트커버): 내지 `w=trim+6mm, h=trim+6mm` (도련 3mm), 표지 `w=(trim폭×2)+6+책등, h=trim높이+6`, 책등 `=1.0+(0.054×페이지수)`. 배송비 3,000원/주문.
+
+**남은 미확인 사항**
+
+- 글 위주 단행본에 맞는 전용 판형 부재 — 현재 4종 모두 포토북 계열(내지 90~130g 사진 용지). A5 소프트커버(최대 200p)가 가장 근접하지만, 200p 초과 원고와 흑백 내지 단가(현재 컬러 단일가)는 협의 필요.
+- Live 전환 조건: 사업 협의 → 커스텀 가격 결정 → Live 키 발급 절차 필요 (파트너 여정에 명시됨).
 
 ## 단계 구분
 
-API 키와 스펙 없이는 연동 코드를 작성할 수 없으므로, 검증 가능한 단위로 단계를 나눈다.
-
-| 단계 | 내용 | SweetBook 의존 |
+| 단계 | 내용 | 상태 |
 |---|---|---|
-| **Phase 0** | 신청 접수 창구 + 원고 업로드, 이후 공정은 운영자가 수동 처리 | 없음 |
-| **Phase 1** | 조판 파이프라인 자동화, 페이지 수 산출, 견적 확정 | 단가표만 필요 |
-| **Phase 2** | 제작사 어댑터를 통한 인쇄 주문 자동 제출 및 상태 추적 | 스펙 + 키 필요 |
+| **Phase 0** | `/publish` 소개 + 인쇄용 PDF 업로드 → 검증 → 견적 → 샌드박스 주문 → 상태 추적. DB·로그인 없음 | **구현됨 (이 PR)** |
+| **Phase 1** | 원고(.docx/.md) 접수 + 운영자 조판 워크플로우, 저자 결제(PG), 프로젝트 DB | 대기 |
+| **Phase 2** | Live 키 전환, 웹훅 수신, 자동 알림 | 대기 |
 | **Phase 3** | ISBN 발급, 온라인 서점 유통 | 범위 외 |
 
-Phase 0 을 먼저 배포해 수요를 검증하고, 그동안 스위트북에 스펙·단가를 확인한다.
+Phase 0은 "인쇄용 PDF를 이미 가진 사용자"(직접 제작 또는 운영자가 조판해준 파일)를 대상으로 전체 파이프라인을 실작동시킨다. 임의 원고의 자동 조판(당초 Phase 1)은 가장 비싼 항목이므로, **월 신청량이 수동 조판 한계를 넘을 때** 착수한다.
 
-## 사용자 경험
+## 사용자 경험 (Phase 0)
 
-저자 관점의 흐름은 다음과 같다.
+1. `/publish` — 서비스 소개, 판형·가격 안내(살아있는 단가로 표시), 제작 과정 안내.
+2. `/publish/start` — 4단계 위저드:
+   - **판형 선택**: 판형 카드에서 선택, 페이지 수 입력 → 예상 가격 즉시 표시
+   - **책 정보 + PDF 업로드**: 제목·저자명, 표지/내지 PDF 업로드. 요구 규격(mm)을 화면에 계산해서 보여준다
+   - **검증 + 견적**: SweetBook 동기 검증 결과(성공/실패 사유)를 그대로 보여주고, 확정 견적 제시
+   - **배송지 + 주문**: 배송 정보 입력 → 주문 생성 → 주문번호 발급
+3. `/publish/orders/[orderUid]` — 상태 타임라인(결제완료 → 제작확정 → 제작중 → 발송 → 배송완료). 주문번호만 알면 조회 가능.
 
-1. `/publish` 에서 서비스 소개와 예상 비용 안내를 본다.
-2. 신청 폼에서 책 정보(제목, 저자명, 판형, 흑백/컬러)와 원고 파일을 업로드한다.
-3. 조판된 **교정용 PDF(proof)** 를 확인하고 승인하거나 수정을 요청한다.
-4. 확정된 페이지 수 기준 견적을 받고 결제한다.
-5. 진행 상황 페이지에서 제작·배송 상태를 추적한다.
-
-핵심 제약: **POD 단가는 페이지 수에 종속**된다. 따라서 견적은 조판이 끝나 페이지 수가 확정된 뒤에만 제시할 수 있다. 조판 → 페이지 수 → 견적 → 결제 → 인쇄 순서를 어길 수 없다.
-
-## 구현 범위
-
-### Phase 0 MVP
-
-- `/publish` 소개 페이지, `/publish/apply` 신청 폼, `/publish/[projectId]` 진행 상황 페이지
-- 원고 파일 업로드(`.docx`, `.md`, `.txt`)와 비공개 오브젝트 스토리지 저장
-- 프로젝트 상태를 저장하는 최소 스키마와 상태 전이
-- 저자 인증(이메일 매직링크 수준)
-- 운영자용 상태 변경 수단
-- 신청·상태 변경 시 이메일 알림
-- 약관·개인정보처리방침에 원고 취급 조항 추가
-
-### 제외 범위
-
-- ISBN 발급과 온라인 서점 유통 (Phase 3)
-- 표지 디자인 에디터 (Phase 1 에서 템플릿 기반으로 최소 대응)
-- 저자에게 지급하는 판매 인세 정산
-- 전자책(EPUB) 변환
-- 원고 교정·교열·윤문 등 편집 서비스
-- 기존 책 상세/리더 라우팅, SEO, JSON-LD 구조 변경
+실패는 단계 안에서 복구한다: PDF 규격 불일치 시 SweetBook의 측정값·허용 규격 메시지를 그대로 노출하고 해당 단계에서 재업로드하게 한다.
 
 ## 기술 설계
 
-### 아키텍처 개요
+### 아키텍처 (Phase 0)
 
 ```
-저자 ─ /publish (Next.js)
+저자 ─ /publish/* (Next.js, 기존 디자인 시스템)
          │
-         ├─ 원고 업로드 ──→ 비공개 오브젝트 스토리지
-         │
-         ├─ 프로젝트 상태 ──→ DB (상태 기계)
-         │
-         └─ 비동기 작업 큐
-                 ├─ 조판 워커: 원고 → 내지 PDF, 페이지 수 산출
-                 └─ 주문 워커: PrintProvider 어댑터 호출
-                                    ├─ SweetBookProvider  (Phase 2)
-                                    └─ MockProvider       (개발·테스트)
+         └─ app/api/publish/* (Route Handlers, 서버 전용)
+                 │  SWEETBOOK_API_KEY는 서버 env에만 존재
+                 └─ lib/publishing/sweetbook.ts (제작사 어댑터)
+                         └─ SweetBook Sandbox API
 ```
 
-### 제작사 어댑터 (핵심 결정)
+- **Phase 0에는 자체 DB가 없다.** 책·주문·상태의 원천 저장소는 SweetBook이며, `externalRef`에 우리 식별자를 심어 추적한다. 프로젝트 관리(원고 접수, 교정 왕복, 저자 계정)가 필요해지는 Phase 1에서 Postgres(Supabase 또는 Vercel Marketplace 경유 Neon)를 도입한다. ~~Vercel Postgres~~는 단종되어 선택지가 아니다.
+- API 키는 `SWEETBOOK_API_KEY` 서버 환경변수로만 접근한다. 클라이언트 번들에 포함되지 않는다 (`NEXT_PUBLIC_` 금지).
 
-SweetBook API 스펙이 미확인이므로, 내부 인터페이스를 먼저 고정한다.
+### 제작사 어댑터
 
-```ts
-// lib/publishing/print-provider.ts
-export interface PrintProvider {
-  readonly name: string
-  quote(input: QuoteInput): Promise<Quote>
-  submitOrder(input: SubmitOrderInput): Promise<ProviderOrder>
-  getOrder(providerOrderId: string): Promise<ProviderOrderStatus>
-}
+`lib/publishing/sweetbook.ts` 한 파일에 SweetBook 필드 매핑을 격리한다. 스펙이 실측으로 확정됐으므로 당초 계획의 `MockProvider`는 만들지 않는다 — **Sandbox 환경 자체가 테스트 대역**이다. 다른 제작사(교보 바로출판 POD 등)를 붙일 때 인터페이스 추출을 그때 한다.
+
+당초 설계의 `quote()`는 SweetBook의 실제 엔드포인트 `POST /orders/estimate`로 대응된다 (잔액 충분 여부 `creditSufficient`까지 반환).
+
+### 상태 모델
+
+Phase 0은 SweetBook의 주문 상태를 그대로 사용한다 (자체 상태 기계 없음). UI 분기는 `orderStatus` enum, 표시는 `orderStatusDisplay` 한글 문자열.
+
+Phase 1에서 프로젝트 DB를 도입할 때의 내부 상태 기계(당초 설계 갱신):
+
+```
+draft → manuscript_review → typesetting ⇄ proof_ready → quoted → paid
+      → print_submitted → (SweetBook 상태 미러링) → delivered
+비정상 경로: rejected(콘텐츠 거절) / cancelled(결제 전 취소)
+           / refunded(결제 후 취소·환불) / failed(운영자 개입)
 ```
 
-- `MockProvider` 로 전체 플로우를 스펙 확정 전에 개발·테스트한다.
-- `SweetBookProvider` 는 Phase 2 에서 추가하며, 필드 매핑을 이 파일 안에 격리한다.
-- 향후 교보 바로출판 POD 등 다른 제작사를 붙일 때도 어댑터만 추가한다. 제작사 종속을 피하는 것이 이 구조의 목적이다.
-
-### 도메인 모델
-
-```ts
-// lib/publishing/types.ts
-export type ProjectStatus =
-  | "draft"              // 신청 작성 중
-  | "manuscript_review"  // 원고 접수, 콘텐츠 검토 대기
-  | "typesetting"        // 조판 진행
-  | "proof_ready"        // 교정용 PDF 준비, 저자 확인 대기
-  | "quoted"             // 페이지 수 확정, 견적 제시
-  | "paid"               // 결제 완료
-  | "print_submitted"    // 제작사에 주문 제출
-  | "printing"
-  | "shipped"
-  | "delivered"
-  | "rejected"           // 콘텐츠 정책 위반 등으로 거절
-  | "failed"             // 조판·주문 실패, 운영자 개입 필요
-
-export interface BookSpec {
-  title: string
-  authorName: string
-  trimSize: "a5" | "b6" | "shinguk"
-  colorMode: "mono" | "color"
-  binding: "perfect"
-  copies: number
-}
-```
-
-상태 전이는 명시적 화이트리스트로 검증한다. 결제와 인쇄가 얽힌 흐름이므로 임의 전이를 허용하지 않는다.
-
-### 조판 파이프라인
-
-가장 난도가 높은 구간이다. 원고를 **인쇄 가능한 PDF** 로 만들어야 한다.
-
-- 입력: `.docx` / `.md` / `.txt` → 중간 표현(HTML 또는 마크다운) → PDF
-- 필요 요건: 판형에 맞는 재단 여백(bleed), 페이지 번호, 한글 폰트 임베딩, 좌우 페이지 여백 비대칭
-- 폰트는 임베딩 재배포가 가능한 라이선스만 사용한다. (본명조·본고딕 계열은 SIL OFL)
-- **리스크:** 인쇄소는 통상 CMYK/PDF-X 계열 규격을 요구하는데, headless Chrome 기반 HTML→PDF 는 RGB 출력이라 규격을 맞추기 어렵다. 스위트북이 실제로 요구하는 PDF 규격을 확인한 뒤 렌더링 방식을 확정한다. 규격이 엄격하면 Typst/LaTeX 계열 조판 엔진을 검토한다.
-- **실행 환경 제약:** PDF 렌더링은 Vercel 서버리스 함수의 실행 시간·메모리 한계를 넘길 수 있다. 요청-응답 안에서 처리하지 않고 반드시 비동기 작업으로 분리한다.
+- `proof_ready ⇄ typesetting` 역방향 전이(교정 왕복)를 명시한다 — 실무에서 가장 자주 밟는 경로다.
+- `cancelled`·`refunded`를 정식 상태로 둔다. 전자상거래법상 청약철회 경로가 화이트리스트에 존재해야 한다. SweetBook 쪽 취소는 `PAID`/`PDF_READY`까지만 가능하므로, 우리 환불 정책도 "제작확정 전까지"로 정렬한다.
 
 ### 결제와 정합성
 
-- 국내 PG(토스페이먼츠 또는 포트원) 연동이 필요하다.
-- 결제는 **인쇄 주문 제출 전에** 완료한다.
-- `submitOrder` 는 프로젝트 단위 **멱등키**를 반드시 전달한다. 재시도로 인한 이중 인쇄·이중 청구를 막는다.
-- 결제 성공 후 주문 제출이 실패하면 `failed` 로 전이시키고 운영자에게 알린 뒤 환불 절차를 따른다. 자동 재시도는 멱등키가 보장될 때만 허용한다.
-- 상태 추적은 **폴링을 기본**으로 설계한다. 스위트북 웹훅 제공 여부가 미확인이므로, 웹훅은 확인되면 추가하는 최적화로 취급한다.
+- **저자 → 나누다**: Phase 1에서 국내 PG(토스페이먼츠 또는 포트원) 연동. **나누다 → SweetBook**: 충전금 선차감. 두 결제가 분리되어 있으므로, 저자 결제 성공 후 SweetBook 주문 실패 시 충전금은 차감되지 않고(주문 자체가 실패) 저자 환불만 처리하면 된다 — 당초 우려한 이중 정산 경로가 구조적으로 단순해진다.
+- `POST /orders` 멱등키는 위저드가 주문 단계에 진입할 때 클라이언트에서 생성해 재시도 간 유지한다. 이중 인쇄·이중 청구 방지.
+- 주문 전 `POST /orders/estimate`로 금액·잔액을 사전 검증한다. 402(`ERR_INSUFFICIENT_CREDIT`) 시 운영자에게 충전 필요를 알린다.
+- 상태 추적은 폴링 기본, 웹훅은 Phase 2에서 추가 (스펙 확인됨: `production.*`, `shipping.*`).
 
-### 데이터 저장
+### 파일 취급
 
-- DB: Postgres (Supabase 또는 Vercel Postgres). 현재 사이트에 DB 가 없으므로 신규 도입이다.
-- 파일: 원고와 PDF 는 **비공개** 버킷에 저장하고, 접근은 만료되는 서명 URL로만 허용한다. `public/` 에 두지 않는다.
-- 원고는 미공개 저작물이므로 로그·에러 리포트에 본문이 남지 않도록 한다.
+- Phase 0에서 PDF는 서버를 경유해 SweetBook으로 즉시 전달되며 우리 스토리지에 저장하지 않는다.
+- **알려진 제약**: Vercel 배포 시 Route Handler 요청 본문 한도(~4.5MB)로 대용량 PDF 업로드가 실패한다. 로컬/데모에는 문제없고, 운영 전환 시 Vercel Blob 직접 업로드(presigned)로 우회한다. Phase 1에서 원고를 자체 보관하게 되면 비공개 버킷 + 만료 서명 URL 원칙을 적용한다.
+- 원고·PDF 본문이 로그·에러 리포트에 남지 않도록 한다.
 
 ### 라우팅과 기존 사이트 영향
 
-- `/publish` 이하 신규 라우트와 `app/api/publish/*` Route Handler 를 추가한다. 이 시점부터 사이트는 순수 정적이 아니게 된다.
-- 신청 폼과 진행 상황 페이지는 `noindex` 로 설정하고 `app/sitemap.ts` 에서 제외한다. `/publish` 소개 페이지만 색인 대상으로 둔다.
-- 기존 `pnpm check:llms` 빌드 게이트가 계속 통과하도록 `scripts/generate-llms.js` 의 대상 범위를 확인한다.
+- 신규: `/publish`(색인 대상), `/publish/start`·`/publish/orders/[orderUid]`(`noindex`), `app/api/publish/*`.
+- `app/sitemap.ts`에는 `/publish`만 추가한다.
+- `pnpm check:llms` 게이트는 `content/book-reader`만 스캔하므로 영향 없음 — 빌드로 확인한다.
+- 기존 책 상세/리더 라우팅, SEO, JSON-LD는 건드리지 않는다.
 
-### 정책과 법무
+### 정책과 법무 (Phase 1 착수 전 확정)
 
 - 원고 저작권은 저자에게 있음을 약관에 명시하고, 이용 목적을 제작 범위로 한정한다.
-- 불법 콘텐츠·표절·명예훼손·타인 개인정보 포함 원고에 대한 거절권을 명문화한다. `rejected` 상태가 이를 반영한다.
-- 개인정보처리방침에 원고 파일과 배송지 정보의 보관 기간·위탁(제작사·PG) 사실을 추가한다.
-- 출판사 명의로 제작되므로, 나누다컴퍼니 브랜드로 나가는 책의 최소 품질·내용 기준을 정해둔다.
+- 불법 콘텐츠·표절·명예훼손·타인 개인정보 포함 원고에 대한 거절권을 명문화한다 (`rejected` 상태).
+- 개인정보처리방침에 배송지 정보의 보관 기간·위탁(제작사·PG) 사실을 추가한다.
+- 나누다컴퍼니 브랜드로 나가는 책의 최소 품질·내용 기준을 정한다.
 
-## 검증 기준
+## 검증 기준 (Phase 0)
 
 - `pnpm build` 와 `pnpm check:llms` 가 통과한다.
-- `MockProvider` 로 신청 → 조판 → 견적 → 결제 → 주문 → 배송까지 전체 상태 전이가 통과한다.
-- 허용되지 않은 상태 전이가 거부된다.
-- 원고·PDF 파일이 서명 URL 없이 직접 접근되지 않는다.
-- 조판 결과 PDF 의 판형·페이지 수·여백이 지정값과 일치한다.
-- 동일 멱등키로 `submitOrder` 를 두 번 호출해도 주문이 하나만 생성된다.
-- `/publish/apply` 와 `/publish/[projectId]` 가 `noindex` 이며 sitemap 에 없다.
-- 기존 책 상세·리더 라우팅과 SEO 메타데이터가 변경되지 않는다.
+- Sandbox에서 실제로: 책 생성 → 표지/내지 PDF 업로드(동기 검증 통과) → 최종화 → 견적 → 주문 생성 → 주문 조회까지 전체 흐름이 성공한다.
+- 규격 불일치 PDF 업로드 시 SweetBook 검증 에러가 사용자에게 이유와 함께 표시된다.
+- 동일 멱등키로 주문을 재시도해도 주문이 하나만 생성된다.
+- `/publish/start` 와 `/publish/orders/*` 가 `noindex` 이며 sitemap에 없다. `/publish`는 sitemap에 있다.
+- API 키가 클라이언트 번들·저장소에 노출되지 않는다.
+- 기존 라우트의 SEO 메타데이터가 변경되지 않는다.
 
-## 스위트북 확인 필요 항목
+## SweetBook 협의 필요 항목 (Live 전환 전)
 
-Phase 2 착수 전 다음을 확인한다.
+당초 8개 확인 항목 중 6개는 샌드박스 실측으로 해소됐다. 남은 것:
 
-1. 글 위주 단행본(200~300p, 흑백 내지, 무선제본) 제작 지원 여부
-2. 요구 PDF 규격 — 색공간(CMYK/RGB), 재단 여백, PDF 버전, 폰트 임베딩 요건
-3. 지원 판형과 페이지 수 범위
-4. 페이지 수별 단가표, 최소 주문 수량
-5. 개인 주소 1권 단위 배송 가능 여부, 배송비 정책
-6. API 인증 방식, 주문 생성·조회 엔드포인트, 멱등성 지원, 웹훅 제공 여부
-7. 샌드박스 환경 제공 여부
-8. 제작 리드타임과 불량·재인쇄 정책
+1. 글 위주 단행본 조건 — 200p 초과, 흑백 내지 단가, 본문용 경량 용지 옵션
+2. Live 커스텀 가격·정산 조건, 제작 리드타임, 불량·재인쇄 정책
 
 ## 후속 옵션
 
