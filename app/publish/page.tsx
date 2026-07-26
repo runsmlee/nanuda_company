@@ -31,18 +31,18 @@ export const metadata: Metadata = {
 const PROCESS = [
   {
     step: "01",
-    title: "판형 선택",
-    body: "에세이에 어울리는 A5 소프트커버부터 하드커버까지, 페이지 수에 따른 가격을 바로 확인합니다.",
+    title: "원고 올리기",
+    body: "워드 파일을 그대로 올리면 됩니다. 글자 수를 세어 어떤 판형에 맞는지 바로 알려드립니다.",
   },
   {
     step: "02",
-    title: "원고 업로드",
-    body: "인쇄용 표지·내지 PDF를 올리면 인쇄소 규격을 즉시 검증합니다. 맞지 않으면 이유를 알려드립니다.",
+    title: "조판·미리보기",
+    body: "인쇄 가능한 책으로 조판해 펼침면으로 보여드립니다. 본문 크기를 바꾸면 쪽수와 금액이 함께 움직입니다.",
   },
   {
     step: "03",
-    title: "주문 확정",
-    body: "확정 견적을 확인하고 배송지를 입력하면 인쇄가 접수됩니다.",
+    title: "표지 만들기",
+    body: "제목과 저자명을 넣으면 표지가 만들어집니다. 책등 두께는 쪽수에서 자동으로 계산됩니다.",
   },
   {
     step: "04",
@@ -84,7 +84,7 @@ export default async function PublishPage() {
             ← 생각을나누다
           </Link>
           <Link
-            href="/publish/start"
+            href="/publish/studio"
             className="text-sm text-accent-orange hover:text-white transition-colors"
           >
             바로 시작하기 →
@@ -239,25 +239,25 @@ export default async function PublishPage() {
       <section className="px-6 sm:px-8 lg:px-16 py-20 border-t border-white/10">
         <div className="max-w-3xl mx-auto space-y-6">
           <h2 className="font-playfair text-3xl sm:text-4xl font-light text-center mb-10">
-            준비물은 인쇄용 PDF 두 개
+            준비물은 워드 파일 하나
           </h2>
           <div className="space-y-4 text-text-gray leading-relaxed">
             <p>
-              <span className="text-white">표지 PDF 1페이지</span> — 뒤표지·책등·앞표지가 이어진
-              펼침 형태입니다. 판형과 페이지 수를 고르면 정확한 크기(mm)를 화면에서 알려드립니다.
+              <span className="text-white">원고 파일(.docx)</span>만 있으면 됩니다. 책등 두께나
+              재단 여백 같은 인쇄 규격은 저희가 맞춥니다. 저자분은 글에만 집중하세요.
             </p>
             <p>
-              <span className="text-white">내지 PDF</span> — 본문 전체를 한 파일로. 페이지 수가
-              주문 사양과 일치해야 하며, 업로드 즉시 규격을 검증해 결과를 보여드립니다.
+              한글(.hwp)을 쓰신다면 <span className="text-white">다른 이름으로 저장 → .docx</span>로
+              저장해 올려주세요. 마크다운(.md)과 텍스트(.txt)도 받습니다.
             </p>
             <p className="text-sm">
-              신청 화면에서 <span className="text-white">판형·페이지 수에 맞는 표지 도면</span>을
-              바로 보여드리고 내려받을 수 있게 해드립니다. 책등 두께까지 계산된 도면이라 그대로
-              디자인하시면 됩니다.
+              제목 스타일로 장을 나눠두시면 그대로 장 구분이 됩니다. 아직은 순수 글 원고를
+              지원하며, 표와 본문 이미지는 다음 단계에서 지원할 예정입니다.
             </p>
             <p className="text-sm">
-              아직 원고 단계라면 걱정하지 마세요. 조판(원고를 인쇄용 PDF로 만드는 일)이 필요한
-              경우 하단 연락처로 문의해주시면 안내해드립니다.
+              이미 인쇄용 PDF를 직접 만드셨다면{" "}
+              <span className="text-white">인쇄용 PDF가 이미 있어요</span> 쪽으로 바로 주문하실 수
+              있습니다. 판형·쪽수에 맞는 표지 도면도 내려받을 수 있습니다.
             </p>
           </div>
 
@@ -271,10 +271,10 @@ export default async function PublishPage() {
           </dl>
           <div className="text-center pt-6">
             <Link
-              href="/publish/start"
+              href="/publish/studio"
               className="inline-flex items-center gap-3 px-8 py-4 bg-accent-orange text-white font-medium hover:bg-accent-orange/85 transition-colors text-lg"
             >
-              지금 시작하기
+              원고로 시작하기
               <span aria-hidden>→</span>
             </Link>
           </div>
