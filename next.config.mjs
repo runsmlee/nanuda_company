@@ -5,6 +5,8 @@ const nextConfig = {
   outputFileTracingIncludes: {
     '/api/publish/typeset': ['./assets/fonts/**'],
     '/api/publish/cover': ['./assets/fonts/**'],
+    '/api/publish/checkout': ['./assets/fonts/**'],
+    '/api/publish/webhook/lemonsqueezy': ['./assets/fonts/**'],
   },
   images: {
     unoptimized: false,  // 이미지 최적화 활성화
