@@ -69,6 +69,12 @@ export class LemonSqueezyProvider implements PaymentProvider {
     private apiKey: string,
     private storeId: string,
     private webhookSecret: string,
+    /**
+     * 스토어 통화. `custom_price`는 **스토어 통화의 최소 단위**로 해석된다.
+     * 원화는 소수가 없어 26800 → 26,800원이지만, 스토어가 USD면 26800 → $268.00으로
+     * 13배 넘게 청구된다. 통화가 KRW가 아니면 결제를 만들지 않는다.
+     */
+    private storeCurrency: string,
   ) {}
 
   /**
@@ -79,6 +85,13 @@ export class LemonSqueezyProvider implements PaymentProvider {
   async createCheckout(input: CheckoutInput) {
     if (input.lines.length !== 1) {
       throw new PaymentError(400, "레몬스퀴지 체크아웃은 항목 하나만 지원합니다.")
+    }
+    // 통화가 어긋나면 조용히 과청구된다. 만들지 않고 멈추는 편이 낫다.
+    if (this.storeCurrency !== "KRW") {
+      throw new PaymentError(
+        503,
+        `결제 스토어 통화가 ${this.storeCurrency}입니다. 원화 가격을 그대로 보내면 과청구되므로 결제를 만들지 않았습니다.`,
+      )
     }
     const line = input.lines[0]
 
@@ -168,8 +181,11 @@ export function getPaymentProvider(): PaymentProvider {
   const apiKey = process.env.LEMONSQUEEZY_API_KEY
   const storeId = process.env.LEMONSQUEEZY_STORE_ID
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET
-  if (!apiKey || !storeId || !secret) {
+  // 스토어 통화는 명시적으로 받는다. 기본값을 KRW로 두면 USD 스토어에서
+  // 과청구가 조용히 지나간다.
+  const currency = process.env.LEMONSQUEEZY_STORE_CURRENCY
+  if (!apiKey || !storeId || !secret || !currency) {
     throw new PaymentError(500, "결제 설정이 완료되지 않았습니다.")
   }
-  return new LemonSqueezyProvider(apiKey, storeId, secret)
+  return new LemonSqueezyProvider(apiKey, storeId, secret, currency)
 }
