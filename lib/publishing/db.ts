@@ -3,6 +3,7 @@
 // RLS를 전면 차단해 두었으므로 모든 접근은 service role로 서버에서만 이뤄진다.
 // 원고는 미공개 저작물이고 주문에는 배송지가 들어 있어 클라이언트에 열지 않는다.
 
+import { randomBytes } from "node:crypto"
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
 export const MANUSCRIPT_BUCKET = "publishing-manuscripts"
@@ -56,9 +57,18 @@ export interface Order {
   shipping_memo: string | null
 }
 
-/** 원고 파일을 비공개 버킷에 올린다. 경로는 프로젝트별로 격리한다. */
+/**
+ * 원고 파일을 비공개 버킷에 올린다. 경로는 프로젝트별로 격리한다.
+ *
+ * Storage 키는 ASCII만 받는다. 한글 파일명(대부분의 국내 원고)을 그대로 쓰면
+ * `Invalid key`로 거부되므로 확장자만 살리고 키는 무작위로 만든다.
+ * 원래 파일명은 DB의 manuscript_name 컬럼에 따로 보관한다.
+ */
 export async function putManuscript(projectId: string, fileName: string, body: Buffer) {
-  const path = `${projectId}/${Date.now()}-${fileName.replace(/[^\w.\-가-힣]/g, "_")}`
+  const dot = fileName.lastIndexOf(".")
+  const rawExt = dot > 0 ? fileName.slice(dot + 1).toLowerCase() : ""
+  const ext = /^[a-z0-9]{1,8}$/.test(rawExt) ? `.${rawExt}` : ""
+  const path = `${projectId}/${Date.now()}-${randomBytes(6).toString("hex")}${ext}`
   const { error } = await db()
     .storage.from(MANUSCRIPT_BUCKET)
     .upload(path, body, { contentType: "application/octet-stream", upsert: false })
