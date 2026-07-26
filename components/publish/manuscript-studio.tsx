@@ -509,6 +509,22 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
             )}
           </div>
         )}
+
+        {/* 결제 연동 전이라 주문 버튼이 없다. 없는 이유를 여기서 밝힌다. */}
+        {summary && (
+          <div className="border border-white/15 bg-white/[0.03] px-4 py-4 space-y-2">
+            <p className="text-sm text-white flex items-center gap-2">
+              <span className="text-xs border border-accent-orange/50 text-accent-orange px-2 py-0.5">
+                준비중
+              </span>
+              온라인 주문 · 결제
+            </p>
+            <p className="text-xs text-text-gray leading-relaxed">
+              결제 연동을 준비하고 있습니다. 지금은 위 PDF를 내려받아 확인하실 수 있고,
+              실제 제작은 문의로 도와드립니다.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* 미리보기 */}

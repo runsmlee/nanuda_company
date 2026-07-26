@@ -3,7 +3,7 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { CustomCursor } from "@/components/custom-cursor"
 import { PublishWizard, type WizardSpec } from "@/components/publish/publish-wizard"
-import { PUBLISH_ENABLED } from "@/lib/publishing/config"
+import { PUBLISH_ENABLED, PUBLISH_ORDERS_ENABLED } from "@/lib/publishing/config"
 import { listBookSpecs } from "@/lib/publishing/sweetbook"
 
 export const metadata: Metadata = {
@@ -60,7 +60,7 @@ export default async function PublishStartPage() {
             네 단계로 끝납니다. 어느 단계에서든 뒤로 돌아가 수정할 수 있습니다.
           </p>
         </header>
-        <PublishWizard specs={specs} />
+        <PublishWizard specs={specs} ordersEnabled={PUBLISH_ORDERS_ENABLED} />
       </main>
     </div>
   )

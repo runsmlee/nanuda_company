@@ -60,7 +60,12 @@ export default async function StudioPage() {
 
       <main className="px-6 sm:px-8 lg:px-12 pb-24">
         <header className="max-w-3xl mx-auto text-center mb-12">
-          <p className="text-accent-orange text-sm tracking-[0.3em] uppercase mb-4">Studio</p>
+          <p className="text-accent-orange text-sm tracking-[0.3em] uppercase mb-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+            Studio
+            <span className="tracking-normal normal-case text-xs whitespace-nowrap border border-accent-orange/50 px-2 py-0.5">
+              베타
+            </span>
+          </p>
           <h1 className="font-playfair text-3xl sm:text-4xl lg:text-5xl font-light mb-4">
             원고로 책 만들기
           </h1>

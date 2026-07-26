@@ -215,7 +215,14 @@ function PdfDropField({
 
 // ── 위저드 본체 ──────────────────────────────────────────────────────────────
 
-export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
+export function PublishWizard({
+  specs,
+  ordersEnabled,
+}: {
+  specs: WizardSpec[]
+  /** 결제 연동 전에는 false. 주문 버튼 대신 준비중 안내가 뜬다. */
+  ordersEnabled: boolean
+}) {
   const [step, setStep] = useState(0)
   const [busy, setBusy] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
@@ -906,22 +913,39 @@ export function PublishWizard({ specs }: { specs: WizardSpec[] }) {
             </div>
           </div>
 
-          <p className="text-xs text-text-gray leading-relaxed">
-            주문 확정 시 인쇄가 접수됩니다. 제작이 시작되기 전(결제완료·PDF준비 단계)까지는 취소가
-            가능하며, 이후에는 취소할 수 없습니다. 문의: 소개 페이지 하단 연락처.
-          </p>
+          {ordersEnabled ? (
+            <p className="text-xs text-text-gray leading-relaxed">
+              주문 확정 시 인쇄가 접수됩니다. 제작이 시작되기 전(결제완료·PDF준비 단계)까지는 취소가
+              가능하며, 이후에는 취소할 수 없습니다. 문의: 소개 페이지 하단 연락처.
+            </p>
+          ) : (
+            <div className="border border-white/15 bg-white/[0.03] px-5 py-4 space-y-2">
+              <p className="text-sm text-white flex items-center gap-2">
+                <span className="text-xs border border-accent-orange/50 text-accent-orange px-2 py-0.5">
+                  준비중
+                </span>
+                온라인 주문 · 결제
+              </p>
+              <p className="text-xs text-text-gray leading-relaxed">
+                결제 연동을 준비하고 있습니다. 위 금액은 실제 제작 사양에 따른 견적이며,
+                제작을 원하시면 소개 페이지 하단 연락처로 문의해주세요.
+              </p>
+            </div>
+          )}
 
           <div className="flex justify-between gap-3">
             <GhostButton onClick={() => goto(2)}>← 이전</GhostButton>
-            <PrimaryButton onClick={submitOrder} disabled={busy}>
-              {busy ? (
-                <>
-                  <Spinner /> 주문 접수 중…
-                </>
-              ) : (
-                "주문 확정하기"
-              )}
-            </PrimaryButton>
+            {ordersEnabled && (
+              <PrimaryButton onClick={submitOrder} disabled={busy}>
+                {busy ? (
+                  <>
+                    <Spinner /> 주문 접수 중…
+                  </>
+                ) : (
+                  "주문 확정하기"
+                )}
+              </PrimaryButton>
+            )}
           </div>
         </section>
       )}

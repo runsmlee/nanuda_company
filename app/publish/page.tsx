@@ -107,8 +107,11 @@ export default async function PublishPage() {
       {/* 히어로 */}
       <section className="px-6 sm:px-8 lg:px-16 pt-16 pb-24 sm:pt-24 sm:pb-32 relative">
         <div className="max-w-6xl mx-auto text-center">
-          <p className="text-accent-orange text-sm tracking-[0.3em] uppercase mb-6">
+          <p className="text-accent-orange text-sm tracking-[0.3em] uppercase mb-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
             Self Publishing
+            <span className="tracking-normal normal-case text-xs whitespace-nowrap border border-accent-orange/50 px-2 py-0.5">
+              베타
+            </span>
           </p>
           <h1 className="font-playfair text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light mb-8 leading-tight">
             당신의 이야기를

@@ -251,6 +251,27 @@ export function joinWrappedLines(lines: string[]): string {
 }
 
 /**
+ * 마크다운 인라인 문법을 벗긴다.
+ *
+ * .md 원고를 그대로 조판하면 `**강조**`나 링크 URL이 종이에 인쇄된다.
+ * 이미지는 인쇄본에서 의미가 없으니 통째로 버리고, 링크는 글자만 남긴다.
+ *
+ * 밑줄 기울임(_x_)과 장면 구분선(---)은 건드리지 않는다. 전자는 file_name 같은
+ * 낱말을 망가뜨리고, 후자는 저자가 의도한 구분선일 수 있다.
+ */
+export function stripInlineMarkdown(text: string): string {
+  return text
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, "") // 이미지 — 통째로 제거
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // 링크 — 글자만 남김
+    .replace(/`([^`]+)`/g, "$1")
+    // 별표가 더 붙어 있으면 강조가 아니다. `*** 3장 ***` 같은 장식을 지키려면
+    // 구분자 바깥쪽에도 별표가 없어야 한다.
+    .replace(/(?<![*\w])\*\*([^*]+?)\*\*(?![*\w])/g, "$1")
+    .replace(/(?<!\w)__([^_]+?)__(?!\w)/g, "$1")
+    .replace(/(?<![*\w])\*([^*\n]+?)\*(?![*\w])/g, "$1")
+}
+
+/**
  * 원고 텍스트를 장·문단으로 나눈다.
  * 실제 저자 원고는 임의 줄바꿈이 섞여 있으므로, 빈 줄을 문단 경계로 보고
  * 문단 안의 줄바꿈은 위 규칙으로 합친다.
@@ -262,7 +283,7 @@ export function parseManuscript(raw: string): Chapter[] {
   let buf: string[] = []
 
   const flushPara = () => {
-    const text = joinWrappedLines(buf).replace(/\s+/g, " ").trim()
+    const text = stripInlineMarkdown(joinWrappedLines(buf)).replace(/\s+/g, " ").trim()
     buf = []
     if (!text) return
     if (!current) current = { title: "", paragraphs: [] }
@@ -279,7 +300,7 @@ export function parseManuscript(raw: string): Chapter[] {
     const head = /^#{1,3}\s+(.*)$/.exec(t)
     if (head) {
       flushChapter()
-      current = { title: head[1].trim(), paragraphs: [] }
+      current = { title: stripInlineMarkdown(head[1]).trim(), paragraphs: [] }
       continue
     }
     if (!t) {

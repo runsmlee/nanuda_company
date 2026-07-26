@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createOrder, SweetBookError } from "@/lib/publishing/sweetbook"
-import { PUBLISH_ENABLED } from "@/lib/publishing/config"
+import { PUBLISH_ENABLED, PUBLISH_ORDERS_ENABLED } from "@/lib/publishing/config"
 import { parseOrderInput } from "../order-input"
 
 export async function POST(req: NextRequest) {
-  if (!PUBLISH_ENABLED) {
+  // 이 경로는 결제를 거치지 않고 제작사에 인쇄를 접수한다. 결제 연동이 끝나기
+  // 전까지는 스튜디오(PUBLISH_ENABLED)가 열려 있어도 별도로 막아야 한다.
+  if (!PUBLISH_ENABLED || !PUBLISH_ORDERS_ENABLED) {
     return NextResponse.json({ error: "주문을 받고 있지 않습니다." }, { status: 503 })
   }
 
