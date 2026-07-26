@@ -6,11 +6,16 @@ import { SideNavigation } from "@/components/side-navigation"
 import { HeroSection } from "@/components/hero-section"
 import { BooksSection } from "@/components/books-section"
 import { BlogSection } from "@/components/blog-section"
+import { SelfPublishingSection } from "@/components/self-publishing-section"
 import { FaqSection } from "@/components/faq-section"
 import { Footer } from "@/components/footer"
 import { EmailModal } from "@/components/email-modal"
 
-export function HomePageClient() {
+/**
+ * publishEnabled는 서버에서 내려받는다. PUBLISH_ENABLED는 NEXT_PUBLIC_이 아니라
+ * 클라이언트에서는 읽히지 않고, 플래그가 꺼지면 랜딩이 404를 광고하게 된다.
+ */
+export function HomePageClient({ publishEnabled }: { publishEnabled: boolean }) {
   const [activeSection, setActiveSection] = useState(0)
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
   const sectionsRef = useRef<(HTMLElement | null)[]>([])
@@ -62,6 +67,7 @@ export function HomePageClient() {
       <main className="ml-14 sm:ml-16 lg:ml-20">
         <HeroSection ref={(el) => { sectionsRef.current[0] = el }} />
         <BooksSection ref={(el) => { sectionsRef.current[1] = el }} />
+        {publishEnabled && <SelfPublishingSection />}
         <BlogSection ref={(el) => { sectionsRef.current[2] = el }} />
         <FaqSection />
         <Footer ref={(el) => { sectionsRef.current[3] = el }} />

@@ -159,7 +159,6 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
   const [summary, setSummary] = useState<Summary | null>(null)
   const [doc, setDoc] = useState<PdfDoc | null>(null)
   const [spread, setSpread] = useState(0)
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
 
   // 표지 — 내지 조판이 끝나 쪽수가 확정돼야 책등 두께를 계산할 수 있다.
@@ -168,15 +167,13 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
   const [coverImage, setCoverImage] = useState<File | null>(null)
   const [coverBusy, setCoverBusy] = useState(false)
   const [coverDoc, setCoverDoc] = useState<PdfDoc | null>(null)
-  const [coverUrl, setCoverUrl] = useState<string | null>(null)
   const [coverInfo, setCoverInfo] = useState<CoverSummary | null>(null)
   const [tab, setTab] = useState<"inner" | "cover">("inner")
 
   const spec = specs.find((s) => s.bookSpecUid === specUid)
 
-  // blob URL은 반드시 회수한다. 조판을 반복하면 금방 쌓인다.
-  useEffect(() => () => { if (pdfUrl) URL.revokeObjectURL(pdfUrl) }, [pdfUrl])
-  useEffect(() => () => { if (coverUrl) URL.revokeObjectURL(coverUrl) }, [coverUrl])
+  // 인쇄용 PDF는 blob URL로 만들지 않는다. 미리보기는 바이트를 pdf.js에 직접
+  // 넘기면 되고, blob: URL을 만들면 주소창에 붙여넣는 것만으로 원본이 새어나간다.
 
   const runCover = useCallback(async () => {
     if (!summary) return
@@ -209,8 +206,6 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
       const pdfjs = await loadPdfjs()
       const loaded = await pdfjs.getDocument({ data: bytes }).promise
 
-      if (coverUrl) URL.revokeObjectURL(coverUrl)
-      setCoverUrl(URL.createObjectURL(blob))
       setCoverDoc(loaded as unknown as PdfDoc)
       setCoverInfo(info)
       setTab("cover")
@@ -219,7 +214,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
     } finally {
       setCoverBusy(false)
     }
-  }, [summary, specUid, theme, title, authorName, backText, coverImage, coverUrl])
+  }, [summary, specUid, theme, title, authorName, backText, coverImage])
 
   const runTypeset = useCallback(async () => {
     if (!file) {
@@ -255,8 +250,6 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
       const pdfjs = await loadPdfjs()
       const loaded = await pdfjs.getDocument({ data: bytes }).promise
 
-      if (pdfUrl) URL.revokeObjectURL(pdfUrl)
-      setPdfUrl(URL.createObjectURL(blob))
       setDoc(loaded as unknown as PdfDoc)
       setSummary(parsedSummary)
       setSpread(0)
@@ -265,7 +258,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
     } finally {
       setBusy(false)
     }
-  }, [file, specUid, textSize, chapterNewPage, title, authorName, pdfUrl])
+  }, [file, specUid, textSize, chapterNewPage, title, authorName])
 
   // 1쪽은 오른쪽 면. 이후 (2,3) (4,5) … 로 실제 책처럼 펼친다.
   const totalSpreads = doc ? Math.floor(doc.numPages / 2) + 1 : 0
@@ -489,23 +482,6 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
                 </p>
                 {coverInfo.notes.map((n, i) => (<p key={i}>· {n}</p>))}
               </div>
-            )}
-          </div>
-        )}
-
-        {(pdfUrl || coverUrl) && (
-          <div className="flex flex-col gap-2 border-t border-white/10 pt-5">
-            {pdfUrl && (
-              <a href={pdfUrl} download={`${title || "원고"}-내지.pdf`}
-                className="text-sm text-accent-orange hover:underline">
-                ↓ 내지 PDF 내려받기
-              </a>
-            )}
-            {coverUrl && (
-              <a href={coverUrl} download={`${title || "원고"}-표지.pdf`}
-                className="text-sm text-accent-orange hover:underline">
-                ↓ 표지 PDF 내려받기
-              </a>
             )}
           </div>
         )}

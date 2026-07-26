@@ -1,4 +1,5 @@
 import { HomePageClient } from "@/app/home-page-client"
+import { PUBLISH_ENABLED } from "@/lib/publishing/config"
 import { BLOG_POSTS } from "@/lib/blog-data"
 import { BOOKS_DATA } from "@/lib/books-data"
 import {
@@ -97,7 +98,7 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogItemListJsonLd) }}
       />
-      <HomePageClient />
+      <HomePageClient publishEnabled={PUBLISH_ENABLED} />
     </>
   )
 }

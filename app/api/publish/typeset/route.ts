@@ -61,6 +61,9 @@ export async function POST(req: NextRequest) {
       chapterStartsNewPage,
       title,
       authorName,
+      // 이 경로는 미리보기 전용이다. 인쇄에 쓰는 무워터마크 PDF는 결제 후
+      // fulfill에서 다시 만든다.
+      watermark: true,
     })
 
     const fit = fitToSpec(parsed.charCount, spec)

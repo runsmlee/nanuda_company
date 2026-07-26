@@ -35,6 +35,14 @@ export interface TypesetOptions {
   chapterStartsNewPage: boolean
   title: string
   authorName: string
+  /**
+   * 미리보기 워터마크를 넣을지.
+   *
+   * 미리보기는 pdf.js로 브라우저에서 그리므로 인쇄용 PDF 바이트가 이미
+   * 사용자 쪽에 가 있다. 내려받기 링크를 없애도 개발자도구로 꺼낼 수 있어,
+   * 결제 전에는 이 표시로 인쇄에 못 쓰게 만든다.
+   */
+  watermark?: boolean
 }
 
 export interface Chapter {
@@ -218,6 +226,8 @@ export async function typeset(
       align: isRight ? "right" : "left",
       lineBreak: false,
     })
+
+    if (opts.watermark) drawWatermark(doc, pageWpt, pageHpt)
   }
 
   doc.end()
@@ -248,6 +258,27 @@ export function joinWrappedLines(lines: string[]): string {
     const stuck = !SENTENCE_END.test(acc) && HANGUL.test(prev) && HANGUL.test(next)
     return acc + (stuck ? "" : " ") + line
   }, "")
+}
+
+/**
+ * 결제 전 미리보기 표시. 본문을 읽는 데는 방해가 되지 않을 만큼 옅게,
+ * 인쇄해서 쓰기에는 곤란할 만큼 크게 대각선으로 반복해 깐다.
+ */
+function drawWatermark(doc: PDFKit.PDFDocument, pageWpt: number, pageHpt: number) {
+  const size = pageWpt * 0.082
+  doc.save()
+  doc.rotate(-38, { origin: [pageWpt / 2, pageHpt / 2] })
+  doc.font("head").fontSize(size).fillColor("#000000").fillOpacity(0.12)
+  // 페이지 한가운데를 가로지르는 한 줄. 가장자리 여러 줄은 잘라내기 쉽고
+  // 인쇄 결함처럼 보인다. 가운데는 잘라낼 수 없다.
+  doc.text("미리보기 · 생각을나누다", 0, pageHpt / 2 - size * 0.7, {
+    width: pageWpt,
+    align: "center",
+    lineBreak: false,
+  })
+  doc.restore()
+  // restore()가 되돌리지 못하는 항목이 있어 본문 기본값을 명시적으로 복구한다.
+  doc.fillOpacity(1).fillColor("#000000")
 }
 
 /**
