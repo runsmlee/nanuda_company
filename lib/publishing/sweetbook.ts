@@ -134,7 +134,7 @@ interface ApiEnvelope<T> {
 
 async function request<T>(
   path: string,
-  init: RequestInit & { idempotencyKey?: string } = {},
+  init: RequestInit & { idempotencyKey?: string; next?: { revalidate: number } } = {},
 ): Promise<T> {
   const key = process.env.SWEETBOOK_API_KEY
   if (!key) {
@@ -145,7 +145,13 @@ async function request<T>(
   headers.set("Authorization", `Bearer ${key}`)
   if (init.idempotencyKey) headers.set("Idempotency-Key", init.idempotencyKey)
 
-  const res = await fetch(`${API_BASE}${path}`, { ...init, headers, cache: "no-store" })
+  // 기본은 no-store — 주문·업로드·결제는 절대 캐시되면 안 된다.
+  // next.revalidate를 명시한 읽기 전용 카탈로그 호출만 예외로 캐시된다.
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...(init.next ? {} : { cache: "no-store" as const }),
+    ...init,
+    headers,
+  })
 
   // 429는 Retry-After(초)를 존중한다. 본문 shape가 6필드 표준을 따르지 않으므로 먼저 분기.
   if (res.status === 429) {
@@ -173,13 +179,19 @@ async function request<T>(
   return body.data
 }
 
+// 판형 카탈로그와 치수 계산은 읽기 전용이고 하루 단위로도 거의 안 바뀐다.
+// 페이지들이 선언한 revalidate=3600과 맞춰, 방문마다 제작사 API를 때리지 않게 한다.
+// 단가(priceBase)가 이 응답에 실려 오므로 제작사 단가 변경은 최대 1시간 늦게 반영된다.
+const CATALOG_REVALIDATE = { next: { revalidate: 3600 } }
+
 export function listBookSpecs(): Promise<BookSpec[]> {
-  return request<BookSpec[]>("/book-specs")
+  return request<BookSpec[]>("/book-specs", CATALOG_REVALIDATE)
 }
 
 export function getCalculatedSize(bookSpecUid: string, pages: number): Promise<CalculatedSize> {
   return request<CalculatedSize>(
     `/book-specs/${encodeURIComponent(bookSpecUid)}/calculated-size?pages=${pages}`,
+    CATALOG_REVALIDATE,
   )
 }
 

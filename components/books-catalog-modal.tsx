@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import * as Dialog from "@radix-ui/react-dialog"
 import { Search, X } from "lucide-react"
@@ -21,11 +22,13 @@ function BookCover({ src, alt }: { src: string; alt: string }) {
   const [loaded, setLoaded] = useState(false)
 
   return (
-    <img
+    <Image
       src={src}
       alt={alt}
+      width={300}
+      height={400}
+      sizes="(max-width: 768px) 45vw, 220px"
       loading="lazy"
-      decoding="async"
       onLoad={() => setLoaded(true)}
       className={`h-full w-full object-cover transition duration-500 ease-out group-hover:brightness-[1.08] ${
         loaded ? "opacity-100" : "opacity-0"

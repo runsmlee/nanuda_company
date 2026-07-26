@@ -15,10 +15,15 @@ import {
 } from '@/lib/site-config'
 import './globals.css'
 
+// 한글 폰트는 Google이 유니코드 범위별로 90여 개 서브셋으로 쪼개 배포한다.
+// preload를 켜두면 그 전부(1.6MB)가 모든 페이지 head에서 선요청되어 LCP 이미지의
+// 순서를 밀어낸다. 제목에만 쓰는 폰트이므로 실제 글자에 필요한 서브셋만
+// 브라우저가 늦게 가져가게 둔다. display:swap이라 본문은 즉시 그려진다.
 const nanumMyeongjo = Nanum_Myeongjo({
   subsets: ['latin'],
   weight: ['400', '700'],
   display: 'swap',
+  preload: false,
   variable: '--font-nanum-myeongjo',
 })
 
