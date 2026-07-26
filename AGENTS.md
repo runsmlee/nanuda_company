@@ -29,6 +29,13 @@ pnpm lint
 - Development server runs on `http://localhost:3000`
 - Use `pnpm dev` to start the development server with hot reloading
 
+## Browser Automation
+
+- Prefer the Codex native Chrome/browser plugin for authenticated websites, account/admin workflows, uploads, payments, passkeys, 2FA, and user-assisted login flows.
+- Use `/browse` when the native Chrome/browser plugin is unavailable, fails on the target site, or when the task needs fast deterministic headless QA, screenshots, responsive checks, console/network inspection, or repeatable public-page verification.
+- For sensitive admin surfaces such as KDP, App Store Connect, DocuSign, banking/tax, or cloud billing, hand off login/2FA to the user in the native browser when possible, then continue automation from the authenticated session.
+- When browser state matters, report which browser surface was used and whether the user-authenticated session was actually attached before claiming the task is complete.
+
 ## Project Architecture
 
 ### Framework & Tech Stack

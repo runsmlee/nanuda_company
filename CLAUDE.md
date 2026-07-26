@@ -29,6 +29,13 @@ pnpm lint
 - Development server runs on `http://localhost:3000`
 - Use `pnpm dev` to start the development server with hot reloading
 
+## Browser Automation
+
+- Prefer the Codex native Chrome/browser plugin for authenticated websites, account/admin workflows, uploads, payments, passkeys, 2FA, and user-assisted login flows.
+- Use `/browse` when the native Chrome/browser plugin is unavailable, fails on the target site, or when the task needs fast deterministic headless QA, screenshots, responsive checks, console/network inspection, or repeatable public-page verification.
+- For sensitive admin surfaces such as KDP, App Store Connect, DocuSign, banking/tax, or cloud billing, hand off login/2FA to the user in the native browser when possible, then continue automation from the authenticated session.
+- When browser state matters, report which browser surface was used and whether the user-authenticated session was actually attached before claiming the task is complete.
+
 ## Project Architecture
 
 ### Framework & Tech Stack
@@ -108,3 +115,25 @@ public/              # Static assets
 - **Metadata**: Configured in `app/layout.tsx` with comprehensive SEO setup
 - **Structured Data**: JSON-LD schema for organization and books
 - **Social**: OpenGraph and Twitter card metadata configured
+
+## Skills policy
+
+Nanuda company site — Next.js 15 App Router + React 19 + Tailwind + shadcn. Content: books + blog MD. Package manager: **pnpm**.
+
+### Prefer
+| Area | Use |
+|------|-----|
+| App | Next/React, shadcn `components/ui` (don't hand-edit generated UI primitives casually) |
+| Content | `content/blog/*.md`, `lib/books-data.ts` — extend data, don't invent CMS |
+| SEO | Existing metadata/JSON-LD in `app/layout.tsx` — extend |
+| Browser | Codex native Chrome for authenticated admin; `/browse` or Playwright for public QA |
+| Styling | Tailwind + existing design tokens |
+
+### Reach for when needed
+- critique / design polish
+- ai-sdk — only if a feature already uses LLM
+- analytics — if adding tracking
+- seo-audit — ranking work
+
+### Verify
+`pnpm dev/build/lint` · visual check of touched routes · no new backend without ask
