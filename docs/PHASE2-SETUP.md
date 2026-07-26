@@ -23,26 +23,56 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 > service role key는 RLS를 우회합니다. 서버 환경변수로만 두고 `NEXT_PUBLIC_` 접두사를 붙이지 마세요.
 
-## 2. 레몬스퀴지
+## 2. 레몬스퀴지 — 부분 완료
 
-1. 스토어 생성 후 Settings → API에서 API 키 발급
-2. 상품 2개 생성 후 각 **variant ID** 확보
-   - 디지털: "인쇄용 PDF" — 조판 결과물
-   - 실물: "실물 책" — 인쇄·배송
-   - 가격은 체크아웃에서 `custom_price`로 덮어쓰므로 아무 값이나 두어도 됩니다
-3. Settings → Webhooks에서 웹훅 등록
-   - URL: `https://www.nanudacompany.com/api/publish/webhook/lemonsqueezy`
-   - 이벤트: `order_created`, `order_refunded`
-   - Signing secret: 임의 문자열 (6~40자)
+### 완료
+
+- [x] API 키 `nanuda-publishing` 생성·검증 (`.env.local`에 저장)
+- [x] 웹훅 서명 시크릿 생성
+- [x] 통화 불일치 과청구 방지 가드 (`LEMONSQUEEZY_STORE_CURRENCY`)
+
+### 대시보드에서 직접 해야 하는 것
+
+레몬스퀴지 API는 **스토어와 상품 생성을 지원하지 않는다** (`POST /stores`, `POST /products` → 405).
+대시보드에서만 가능하며, 인앱 브라우저에서는 대시보드 Vue 앱이 오류를 반복해
+(`Cannot read properties of undefined (reading 'props')`) 국가 선택기가 로딩에서 멈춘다.
+**일반 브라우저에서 진행할 것.**
+
+**1) KRW 스토어 생성** — Settings → Stores → `+`
+
+| 항목 | 값 |
+|---|---|
+| Store name | 생각을나누다 |
+| Store URL | nanudacompany |
+| Country | Korea, South |
+
+생성 후 **Settings → General에서 통화를 KRW로** 설정한다. 이게 핵심이다 —
+`custom_price`는 스토어 통화의 최소 단위로 해석되므로, USD 스토어에 원화 값을
+보내면 13배 넘게 청구된다.
+
+> 기존 WeeklyVentures(#277249)는 USD이고 다른 서비스 상품 10개가 운영 중이라
+> 재사용하지 않는다.
+
+**2) 상품 2개 생성** — Products → New Product
+
+| 상품 | 용도 |
+|---|---|
+| 인쇄용 PDF | 디지털 — 조판 결과물 |
+| 실물 책 | 실물 — 인쇄·배송 |
+
+가격은 아무 값이나 둔다 (체크아웃에서 `custom_price`로 덮어씀).
+생성 후 각 **variant ID**를 확인한다.
+
+**3) 알려주실 값**
 
 ```
-LEMONSQUEEZY_API_KEY=...
-LEMONSQUEEZY_STORE_ID=12345
-LEMONSQUEEZY_WEBHOOK_SECRET=...
-LEMONSQUEEZY_VARIANT_DIGITAL=...
-LEMONSQUEEZY_VARIANT_PHYSICAL=...
-PUBLISHING_DIGITAL_PRICE_KRW=19000
+새 스토어 ID
+variant ID (디지털)
+variant ID (실물)
 ```
+
+이 세 개만 주시면 나머지(웹훅 등록, 테스트 결제, 멱등성 검증)는 API로 처리한다.
+`POST /webhooks`와 `POST /checkouts`는 API로 가능함을 확인했다.
 
 ## 3. 활성화
 
