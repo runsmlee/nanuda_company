@@ -83,12 +83,15 @@ export default async function PublishPage() {
           <Link href="/" className="text-text-gray hover:text-white transition-colors text-sm">
             ← 생각을나누다
           </Link>
-          <Link
-            href="/publish/studio"
-            className="text-sm text-accent-orange hover:text-white transition-colors"
-          >
-            바로 시작하기 →
-          </Link>
+          {/* 준비중일 때 스튜디오는 404다. 링크를 남기면 안내 배너와 어긋난다. */}
+          {PUBLISH_ENABLED && (
+            <Link
+              href="/publish/studio"
+              className="text-sm text-accent-orange hover:text-white transition-colors"
+            >
+              바로 시작하기 →
+            </Link>
+          )}
         </div>
       </nav>
 
@@ -272,15 +275,17 @@ export default async function PublishPage() {
               </div>
             ))}
           </dl>
-          <div className="text-center pt-6">
-            <Link
-              href="/publish/studio"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-accent-orange text-white font-medium hover:bg-accent-orange/85 transition-colors text-lg"
-            >
-              원고로 시작하기
-              <span aria-hidden>→</span>
-            </Link>
-          </div>
+          {PUBLISH_ENABLED && (
+            <div className="text-center pt-6">
+              <Link
+                href="/publish/studio"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-accent-orange text-white font-medium hover:bg-accent-orange/85 transition-colors text-lg"
+              >
+                원고로 시작하기
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
