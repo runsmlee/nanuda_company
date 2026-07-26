@@ -496,8 +496,12 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               온라인 주문 · 결제
             </p>
             <p className="text-xs text-text-gray leading-relaxed">
-              결제 연동을 준비하고 있습니다. 지금은 위 PDF를 내려받아 확인하실 수 있고,
+              결제 연동을 준비하고 있습니다. 지금은 조판 결과를 미리보기로 확인하실 수 있고,
               실제 제작은 문의로 도와드립니다.
+            </p>
+            {/* 워터마크는 반드시 먼저 설명한다. 묻기 전에 답이 있어야 문의가 줄어든다. */}
+            <p className="text-xs text-text-gray/70 leading-relaxed">
+              미리보기에는 워터마크가 들어갑니다. 주문하시면 워터마크 없는 인쇄본으로 제작됩니다.
             </p>
           </div>
         )}
