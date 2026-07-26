@@ -3,6 +3,7 @@ import { BOOKS_DATA } from '@/lib/books-data'
 import { BLOG_POSTS } from '@/lib/blog-data'
 import { AUTHORS } from '@/lib/authors-data'
 import { getAllBookReaderIds, getBookReaderIndex } from '@/lib/book-reader'
+import { PUBLISH_ENABLED } from '@/lib/publishing/config'
 import {
   authorUrl,
   bookChapterUrl,
@@ -34,6 +35,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
+    // 자가출판은 오픈 전까지 색인 대상에서 뺀다.
+    ...(PUBLISH_ENABLED
+      ? [
+          {
+            url: `${SITE_URL}/publish`,
+            lastModified: siteUpdatedAt,
+            changeFrequency: 'monthly' as const,
+            priority: 0.8,
+          },
+        ]
+      : []),
   ]
 
   const bookPages = BOOKS_DATA.map((book) => ({
