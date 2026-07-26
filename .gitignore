@@ -44,7 +44,9 @@ public/book_preview/**/*.pdf
 .vscode/
 .idea/
 # 에이전트 작업 디렉터리. worktrees/ 아래에 node_modules가 통째로 들어간다.
-.claude/
+# 디렉터리(.claude/)가 아니라 내용물(.claude/*)을 제외해야 아래 ! 규칙이 먹는다.
+.claude/*
+!.claude/launch.json
 
 # OS
 Thumbs.db
