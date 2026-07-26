@@ -70,7 +70,8 @@ export default async function StudioPage() {
             원고로 책 만들기
           </h1>
           <p className="text-text-gray leading-relaxed">
-            워드 파일을 올리면 인쇄 가능한 책으로 조판해 드립니다.
+            {/* br이 숨는 모바일에서는 공백이 함께 사라져 문장이 붙는다. */}
+            워드 파일을 올리면 인쇄 가능한 책으로 조판해 드립니다.{" "}
             <br className="hidden sm:block" />
             결과를 눈으로 확인하고 마음에 들 때까지 바꿔보세요.
           </p>

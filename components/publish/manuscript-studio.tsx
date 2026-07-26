@@ -57,7 +57,7 @@ function PageCanvas({ doc, pageNumber, scale }: { doc: PdfDoc | null; pageNumber
 
   useEffect(() => {
     let cancelled = false
-    let task: { cancel: () => void } | null = null
+    let task: { cancel: () => void; promise: Promise<void> } | null = null
     const canvas = ref.current
     if (!doc || !canvas || pageNumber < 1 || pageNumber > doc.numPages) return
 
@@ -73,6 +73,9 @@ function PageCanvas({ doc, pageNumber, scale }: { doc: PdfDoc | null; pageNumber
       canvas.style.height = `${Math.floor(viewport.height)}px`
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       task = page.render({ canvasContext: ctx, viewport })
+      // cancel()은 이 promise를 reject시킨다. 잡지 않으면 쪽을 넘기거나 다시
+      // 조판할 때마다 unhandled rejection이 올라온다.
+      task!.promise.catch(() => {})
     })
 
     return () => {
@@ -83,9 +86,19 @@ function PageCanvas({ doc, pageNumber, scale }: { doc: PdfDoc | null; pageNumber
 
   if (!doc || pageNumber < 1 || pageNumber > doc.numPages) {
     // 펼침면의 빈 자리(표지 안쪽 등)는 자리만 잡아 균형을 유지한다.
-    return <div aria-hidden className="bg-white/5 border border-white/5" style={{ width: 210, height: 297 }} />
+    return (
+      <div
+        aria-hidden
+        className="bg-white/5 border border-white/5 max-w-full"
+        style={{ width: 210, aspectRatio: "210 / 297" }}
+      />
+    )
   }
-  return <canvas ref={ref} className="bg-white shadow-2xl" aria-label={`${pageNumber}쪽`} />
+  // 캔버스는 픽셀 크기가 style로 고정되므로 좁은 화면에서 그대로 두면 넘친다.
+  // 비트맵은 그대로 두고 표시 크기만 줄여 화면에 맞춘다.
+  return (
+    <canvas ref={ref} className="bg-white shadow-2xl max-w-full h-auto" aria-label={`${pageNumber}쪽`} />
+  )
 }
 
 // ── 소품 ─────────────────────────────────────────────────────────────────
@@ -543,7 +556,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
 
             {tab === "cover" && coverDoc ? (
               <div className="space-y-5">
-                <div className="flex justify-center bg-black/30 border border-white/10 p-4 sm:p-8 overflow-x-auto">
+                <div className="flex justify-center bg-black/30 border border-white/10 p-4 sm:p-8">
                   {/* 표지는 펼침면 1장이라 그대로 보여준다. */}
                   <PageCanvas doc={coverDoc} pageNumber={1} scale={0.44} />
                 </div>
@@ -553,7 +566,9 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               </div>
             ) : (
               <>
-            <div className="flex items-start justify-center gap-1 bg-black/30 border border-white/10 p-4 sm:p-8 overflow-x-auto">
+            {/* 좁은 화면에서는 두 쪽을 나란히 두면 각 쪽이 절반으로 줄어 읽을 수 없다.
+                세로로 쌓아 한 쪽씩 화면 폭에 맞춘다. */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-4 sm:gap-1 bg-black/30 border border-white/10 p-4 sm:p-8">
               <PageCanvas doc={doc} pageNumber={leftPage} scale={0.62} />
               <PageCanvas doc={doc} pageNumber={rightPage} scale={0.62} />
             </div>

@@ -122,7 +122,8 @@ export default async function PublishPage() {
             <span className="text-accent-orange">한 권의 책</span>으로
           </h1>
           <p className="text-lg sm:text-xl text-text-gray font-light leading-relaxed max-w-2xl mx-auto mb-12">
-            여행의 기록, 아이의 일기, 오래 쓴 에세이.
+            {/* br이 숨는 모바일에서는 공백이 함께 사라져 문장이 붙는다. */}
+            여행의 기록, 아이의 일기, 오래 쓴 에세이.{" "}
             <br className="hidden sm:block" />
             출판사 생각을나누다가 원고에서 배송까지 책의 마지막 한 걸음을 함께합니다.
           </p>
