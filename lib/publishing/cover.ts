@@ -33,12 +33,43 @@ export interface CoverOptions {
   theme: CoverTheme
   /** 앞표지 배경 이미지. photo 테마에서만 쓴다. */
   image?: Buffer
+  /** 미리보기용 워터마크. 결제 후 인쇄본에는 넣지 않는다. */
+  watermark?: boolean
 }
 
 export interface CoverResult {
   pdf: Buffer
   spineTextIncluded: boolean
   notes: string[]
+}
+
+/**
+ * 결제 전 미리보기 표시. 내지와 같은 이유로 넣는다 — 미리보기 PDF는 이미
+ * 사용자 브라우저에 가 있어, 표시가 없으면 그대로 인쇄에 쓸 수 있다.
+ *
+ * 표지는 뒤표지·책등·앞표지가 한 장이라 가운데 한 줄이면 책등에 얹힌다.
+ * 패널마다 따로 그린다.
+ */
+function drawCoverWatermark(
+  doc: PDFKit.PDFDocument,
+  x: number,
+  width: number,
+  height: number,
+  color: string,
+) {
+  const size = width * 0.085
+  const cx = x + width / 2
+  doc.save()
+  doc.rotate(-38, { origin: [cx, height / 2] })
+  // 색은 테마 전경색을 쓴다. 검정으로 고정하면 charcoal·photo 테마에서 안 보인다.
+  doc.font("head").fontSize(size).fillColor(color).fillOpacity(0.16)
+  doc.text("미리보기 · 생각을나누다", x, height / 2 - size * 0.7, {
+    width,
+    align: "center",
+    lineBreak: false,
+  })
+  doc.restore()
+  doc.fillOpacity(1)
 }
 
 /** 긴 제목이 한 줄을 넘지 않도록 폰트 크기를 줄여가며 맞춘다. */
@@ -180,6 +211,12 @@ export async function renderCover(
   }
   doc.font("body").fontSize(9).fillColor(theme.sub)
   doc.text(opts.publisher, backInnerX, H - safe - mmToPt(6), { width: backInnerW, align: "left" })
+
+  if (opts.watermark) {
+    // 앞·뒤표지에 각각. 책등은 폭이 좁아 넣어도 읽히지 않는다.
+    drawCoverWatermark(doc, bleed, panel, H, theme.fg)
+    drawCoverWatermark(doc, frontX, panel, H, theme.fg)
+  }
 
   doc.end()
   return { pdf: await done, spineTextIncluded, notes }

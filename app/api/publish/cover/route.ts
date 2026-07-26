@@ -64,6 +64,8 @@ export async function POST(req: NextRequest) {
       backText,
       theme,
       image: imageBuffer,
+      // 미리보기 전용 경로다. 인쇄용 무워터마크 표지는 fulfill에서 만든다.
+      watermark: true,
     })
 
     const summary = {
