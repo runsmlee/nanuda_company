@@ -2,15 +2,22 @@
 
 코드는 준비되어 있고 아래 값만 채우면 동작합니다.
 
-## 1. Supabase
+## 1. Supabase — 완료됨
 
-1. 프로젝트 생성 (region은 `ap-northeast-2` 서울 권장)
-2. SQL Editor에서 `supabase/migrations/0001_publishing.sql` 실행
-3. Storage에서 **비공개** 버킷 `publishing-manuscripts` 생성 (Public 체크 해제)
-4. Settings → API에서 아래 두 값 확보
+프로젝트 `nanuda_company` (`edawvnjyupzmtuemxjgr`, ap-northeast-2)에 적용을 마쳤다.
+
+- [x] 테이블 3종 (`publishing_projects` / `publishing_orders` / `publishing_webhook_events`)
+- [x] 유니크 인덱스 — 결제 1건당 주문 1건, 제작사 주문 1건당 1회
+- [x] RLS 전면 차단 (정책 없음 = service role만 통과)
+- [x] 비공개 버킷 `publishing-manuscripts` (50MB 상한)
+- [x] 트리거 함수 `search_path` 고정 (security advisor 경고 해소)
+
+남은 것은 **service role key 한 개**다. MCP로는 노출되지 않으므로 대시보드에서 직접 가져와야 한다.
+
+Settings → API → `service_role` 값을 `.env.local`에 넣는다 (이 파일은 gitignore 대상):
 
 ```
-SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_URL=https://edawvnjyupzmtuemxjgr.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ```
 

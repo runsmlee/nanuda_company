@@ -104,8 +104,14 @@ create table if not exists publishing_webhook_events (
 );
 
 -- ── updated_at 자동 갱신 ─────────────────────────────────────────────────
+-- search_path를 비워 고정한다. 고정하지 않으면 호출자가 스키마를 가로채
+-- 함수 동작을 바꿀 수 있다 (Supabase security advisor 경고 대상).
 create or replace function publishing_touch_updated_at()
-returns trigger language plpgsql as $$
+returns trigger
+language plpgsql
+security invoker
+set search_path = ''
+as $$
 begin
   new.updated_at = now();
   return new;
@@ -122,6 +128,16 @@ create trigger publishing_orders_touch before update on publishing_orders
 -- ── RLS ──────────────────────────────────────────────────────────────────
 -- 모든 접근은 서버(service role)를 거친다. 익명 클라이언트는 아무것도 못 본다.
 -- 원고는 미공개 저작물이고 주문에는 배송지가 들어 있다.
+--
+-- 정책을 하나도 만들지 않는 것이 의도다. RLS가 켜져 있고 정책이 없으면 anon·
+-- authenticated 역할은 전부 거부되고 service role만 통과한다. Supabase advisor가
+-- 이를 INFO로 알리지만 여기서는 설계대로다.
 alter table publishing_projects enable row level security;
 alter table publishing_orders enable row level security;
 alter table publishing_webhook_events enable row level security;
+
+-- ── 스토리지 ─────────────────────────────────────────────────────────────
+-- 원고·표지 이미지를 담을 비공개 버킷. 공개로 두면 미발표 원고가 노출된다.
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('publishing-manuscripts', 'publishing-manuscripts', false, 52428800)
+on conflict (id) do update set public = false, file_size_limit = 52428800;
