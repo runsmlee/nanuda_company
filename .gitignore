@@ -43,6 +43,8 @@ public/book_preview/**/*.pdf
 # IDE
 .vscode/
 .idea/
+# 에이전트 작업 디렉터리. worktrees/ 아래에 node_modules가 통째로 들어간다.
+.claude/
 
 # OS
 Thumbs.db
