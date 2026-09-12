@@ -8,6 +8,7 @@
 // 금지하며, 레몬스퀴지는 Stripe 인수 후 유지보수 모드다. 전환은 '언제'의 문제다.
 
 import { createHmac, timingSafeEqual } from "node:crypto"
+import { impliedChargeMinor, nextSendKrw, sendKrwForCeiling } from "./webhook-guard"
 
 /** 결제 항목의 성격. 결제사 이전 시 이 값으로 라우팅한다. */
 export type LineKind = "digital" | "physical"
@@ -70,9 +71,9 @@ export class LemonSqueezyProvider implements PaymentProvider {
     private storeId: string,
     private webhookSecret: string,
     /**
-     * 스토어 통화. `custom_price`는 **스토어 통화의 최소 단위**로 해석된다.
-     * 원화는 소수가 없어 26800 → 26,800원이지만, 스토어가 USD면 26800 → $268.00으로
-     * 13배 넘게 청구된다. 통화가 KRW가 아니면 결제를 만들지 않는다.
+     * 스토어 통화. 레몬스퀴지 `custom_price`는 문서상 항상 cents다.
+     * 원화 스토어에서도 26,800원을 26800으로 보내면 ₩268로 읽힌다. KRW는 원 × 100.
+     * 스토어가 USD면 원화 금액을 넣을 수 없으므로 결제를 만들지 않는다.
      */
     private storeCurrency: string,
   ) {}
@@ -94,7 +95,35 @@ export class LemonSqueezyProvider implements PaymentProvider {
       )
     }
     const line = input.lines[0]
+    const listedKrw = Math.round(line.priceKrw)
+    let sendKrw = listedKrw
 
+    // 표시가는 천장. 환전 때문에 미리보기 총액이 더 나오면 넣는 금액을 낮춘다.
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const body = await this.postCheckout(input, line, sendKrw)
+      const preview = body?.data?.attributes?.preview
+      const previewCharge = impliedChargeMinor(preview ?? {})
+      if (!Number.isFinite(previewCharge) || previewCharge <= 0) {
+        throw new PaymentError(502, "결제 미리보기 금액을 확인하지 못했습니다.")
+      }
+      const next = nextSendKrw(listedKrw, sendKrw, previewCharge)
+      if (next === null) {
+        return {
+          url: body.data.attributes.url as string,
+          providerCheckoutId: String(body.data.id),
+        }
+      }
+      const rate = Number(preview?.currency_rate)
+      const fitted = rate > 0 ? sendKrwForCeiling(listedKrw, rate) : next
+      sendKrw = fitted < sendKrw ? fitted : sendKrw - 10
+      if (sendKrw < 1) {
+        throw new PaymentError(502, "표시 금액 이하로 결제 페이지를 만들지 못했습니다.")
+      }
+    }
+    throw new PaymentError(502, "표시 금액 이하로 결제 페이지를 만들지 못했습니다.")
+  }
+
+  private async postCheckout(input: CheckoutInput, line: CheckoutLine, sendKrw: number) {
     const res = await fetch(`${LS_API}/checkouts`, {
       method: "POST",
       headers: {
@@ -106,8 +135,9 @@ export class LemonSqueezyProvider implements PaymentProvider {
         data: {
           type: "checkouts",
           attributes: {
-            // 가격은 최소 화폐 단위(원화는 소수가 없어 그대로).
-            custom_price: Math.round(line.priceKrw),
+            // 레몬스퀴지는 KRW여도 cents. 26,800원 → 2680000.
+            custom_price: sendKrw * 100,
+            preview: true,
             product_options: {
               name: line.name,
               redirect_url: input.successUrl,
@@ -131,10 +161,7 @@ export class LemonSqueezyProvider implements PaymentProvider {
       const detail = body?.errors?.[0]?.detail ?? "결제 페이지를 만들지 못했습니다."
       throw new PaymentError(res.status, detail)
     }
-    return {
-      url: body.data.attributes.url as string,
-      providerCheckoutId: String(body.data.id),
-    }
+    return body
   }
 
   /**

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation"
 import { CustomCursor } from "@/components/custom-cursor"
 import { ManuscriptStudio } from "@/components/publish/manuscript-studio"
 import type { WizardSpec } from "@/components/publish/publish-wizard"
-import { PUBLISH_ENABLED } from "@/lib/publishing/config"
+import { PUBLISH_ENABLED, PUBLISH_ORDERS_ENABLED } from "@/lib/publishing/config"
 import { listBookSpecs } from "@/lib/publishing/sweetbook"
 
 export const metadata: Metadata = {
@@ -52,9 +52,13 @@ export default async function StudioPage() {
           <Link href="/publish" className="text-text-gray hover:text-white transition-colors text-sm">
             ← 자가출판 소개
           </Link>
-          <Link href="/publish/start" className="text-sm text-text-gray hover:text-white transition-colors">
-            인쇄용 PDF가 이미 있어요 →
-          </Link>
+          {PUBLISH_ORDERS_ENABLED ? (
+            <Link href="/publish/start" className="text-sm text-text-gray hover:text-white transition-colors">
+              인쇄용 PDF가 이미 있어요 →
+            </Link>
+          ) : (
+            <span className="text-sm text-text-gray/60">인쇄용 PDF 직접 주문은 준비 중</span>
+          )}
         </div>
       </nav>
 

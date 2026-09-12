@@ -59,6 +59,15 @@ export default async function PublishStartPage() {
           <p className="text-text-gray leading-relaxed">
             네 단계로 끝납니다. 어느 단계에서든 뒤로 돌아가 수정할 수 있습니다.
           </p>
+          {!PUBLISH_ORDERS_ENABLED && (
+            <p className="mt-4 text-sm text-yellow-200 border border-yellow-400/40 bg-yellow-400/10 px-4 py-3 leading-relaxed text-left">
+              인쇄용 PDF 직접 주문은 아직 열리지 않았습니다. 원고가 있으면{" "}
+              <Link href="/publish/studio" className="text-white underline underline-offset-2">
+                스튜디오
+              </Link>
+              에서 조판한 뒤 결제해 주세요.
+            </p>
+          )}
         </header>
         <PublishWizard specs={specs} ordersEnabled={PUBLISH_ORDERS_ENABLED} />
       </main>

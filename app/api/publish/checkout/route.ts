@@ -31,7 +31,8 @@ export async function POST(req: NextRequest) {
   }
 
   const file = form.get("manuscript")
-  const kind = String(form.get("kind") ?? "digital") as LineKind
+  const coverImage = form.get("coverImage")
+  const kind: LineKind = "physical"
   const email = String(form.get("email") ?? "").trim()
   const title = String(form.get("title") ?? "").trim() || "제목 없음"
   const authorName = String(form.get("authorName") ?? "").trim() || "저자 미상"
@@ -48,11 +49,8 @@ export async function POST(req: NextRequest) {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return NextResponse.json({ error: "연락받을 이메일을 확인해주세요." }, { status: 400 })
   }
-  if (kind !== "digital" && kind !== "physical") {
-    return NextResponse.json({ error: "주문 종류가 올바르지 않습니다." }, { status: 400 })
-  }
 
-  // 실물 주문은 배송지를 서버에서 다시 검증한다.
+  // 판매 대상은 실물 책 제작이다. PDF는 조판 과정에서만 쓰인다.
   const shipping = {
     recipient_name: String(form.get("recipientName") ?? "").trim(),
     recipient_phone: String(form.get("recipientPhone") ?? "").trim(),
@@ -61,16 +59,14 @@ export async function POST(req: NextRequest) {
     address2: String(form.get("address2") ?? "").trim() || null,
     shipping_memo: String(form.get("shippingMemo") ?? "").trim() || null,
   }
-  if (kind === "physical") {
-    if (!shipping.recipient_name) return NextResponse.json({ error: "받는 분 성함을 입력해주세요." }, { status: 400 })
-    if (!/^[0-9+\-\s]{9,20}$/.test(shipping.recipient_phone)) {
-      return NextResponse.json({ error: "연락처를 확인해주세요." }, { status: 400 })
-    }
-    if (!/^\d{5}$/.test(shipping.postal_code)) {
-      return NextResponse.json({ error: "우편번호 5자리를 입력해주세요." }, { status: 400 })
-    }
-    if (!shipping.address1) return NextResponse.json({ error: "주소를 입력해주세요." }, { status: 400 })
+  if (!shipping.recipient_name) return NextResponse.json({ error: "받는 분 성함을 입력해주세요." }, { status: 400 })
+  if (!/^[0-9+\-\s]{9,20}$/.test(shipping.recipient_phone)) {
+    return NextResponse.json({ error: "연락처를 확인해주세요." }, { status: 400 })
   }
+  if (!/^\d{5}$/.test(shipping.postal_code)) {
+    return NextResponse.json({ error: "우편번호 5자리를 입력해주세요." }, { status: 400 })
+  }
+  if (!shipping.address1) return NextResponse.json({ error: "주소를 입력해주세요." }, { status: 400 })
 
   try {
     const specs = await listBookSpecs()
@@ -103,22 +99,24 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const price =
-      kind === "physical"
-        ? estimateProductPrice(
-            {
-              pageMin: spec.pageMin,
-              pageIncrement: spec.pageIncrement,
-              priceBase: spec.priceBase ?? spec.sandboxPriceBase ?? 0,
-              pricePerIncrement: spec.pricePerIncrement ?? spec.sandboxPricePerIncrement ?? 0,
-            },
-            inner.pageCount,
-            quantity,
-          )
-        : Number(process.env.PUBLISHING_DIGITAL_PRICE_KRW ?? 19000)
+    const price = estimateProductPrice(
+      {
+        pageMin: spec.pageMin,
+        pageIncrement: spec.pageIncrement,
+        priceBase: spec.priceBase ?? spec.sandboxPriceBase ?? 0,
+        pricePerIncrement: spec.pricePerIncrement ?? spec.sandboxPricePerIncrement ?? 0,
+      },
+      inner.pageCount,
+      quantity,
+    )
 
     const projectId = crypto.randomUUID()
     const manuscriptPath = await putManuscript(projectId, file.name, buffer)
+    let coverImagePath: string | null = null
+    if (coverImage instanceof File && coverImage.size > 0) {
+      const coverBuf = Buffer.from(await coverImage.arrayBuffer())
+      coverImagePath = await putManuscript(projectId, coverImage.name || "cover.jpg", coverBuf)
+    }
 
     const { error: pErr } = await db().from("publishing_projects").insert({
       id: projectId,
@@ -132,6 +130,7 @@ export async function POST(req: NextRequest) {
       text_size: textSize,
       chapter_new_page: chapterNewPage,
       cover_theme: coverTheme,
+      cover_image_path: coverImagePath,
       back_text: backText || null,
       page_count: inner.pageCount,
       char_count: parsed.charCount,
@@ -143,18 +142,15 @@ export async function POST(req: NextRequest) {
       .insert({
         project_id: projectId,
         kind,
-        quantity: kind === "physical" ? quantity : 1,
+        quantity,
         price_krw: price,
-        ...(kind === "physical" ? shipping : {}),
+        ...shipping,
       })
       .select("id")
       .single()
     if (oErr || !order) throw new Error(`주문 생성 실패: ${oErr?.message}`)
 
-    const variantId =
-      kind === "physical"
-        ? process.env.LEMONSQUEEZY_VARIANT_PHYSICAL
-        : process.env.LEMONSQUEEZY_VARIANT_DIGITAL
+    const variantId = process.env.LEMONSQUEEZY_VARIANT_ID ?? process.env.LEMONSQUEEZY_VARIANT_PHYSICAL
     if (!variantId) {
       return NextResponse.json({ error: "결제 상품이 설정되지 않았습니다." }, { status: 503 })
     }
@@ -164,14 +160,14 @@ export async function POST(req: NextRequest) {
         {
           kind,
           variantId,
-          name: kind === "physical" ? `${title} — 실물 책 ${quantity}권` : `${title} — 인쇄용 PDF`,
+          name: `${title} — 책 제작 ${quantity}권`,
           priceKrw: price,
           quantity: 1,
         },
       ],
       reference: order.id,
       email,
-      successUrl: `${SITE_URL}/publish/orders/done?ref=${order.id}`,
+      successUrl: `${req.headers.get("origin") ?? SITE_URL}/publish/orders/done?ref=${order.id}`,
     })
 
     return NextResponse.json({

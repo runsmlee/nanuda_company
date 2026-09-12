@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Metadata } from "next"
 import { CustomCursor } from "@/components/custom-cursor"
-import { PUBLISH_ENABLED } from "@/lib/publishing/config"
+import { PUBLISH_ENABLED, PUBLISH_ORDERS_ENABLED } from "@/lib/publishing/config"
 import { estimateProductPrice } from "@/lib/publishing/pricing"
 import { listBookSpecs, type BookSpec } from "@/lib/publishing/sweetbook"
 import { absoluteUrl, SITE_NAME } from "@/lib/site-config"
@@ -42,10 +42,15 @@ const PROCESS = [
   {
     step: "03",
     title: "표지 만들기",
-    body: "제목과 저자명을 넣으면 표지가 만들어집니다. 책등 두께는 쪽수에서 자동으로 계산됩니다.",
+    body: "표지는 선택입니다. 건너뛰면 기본 표지로 인쇄합니다. 책등 두께는 쪽수에서 자동으로 계산됩니다.",
   },
   {
     step: "04",
+    title: "결제",
+    body: "미리본 그대로 결제합니다. 카드에 청구되는 금액은 화면에 보이는 가격을 넘지 않습니다.",
+  },
+  {
+    step: "05",
     title: "제작·배송",
     body: "제작 5~7 영업일 후 발송됩니다. 주문번호로 언제든 진행 상황을 확인할 수 있습니다.",
   },
@@ -136,12 +141,18 @@ export default async function PublishPage() {
                 원고로 책 만들기
                 <span aria-hidden>→</span>
               </Link>
-              <Link
-                href="/publish/start"
-                className="inline-flex items-center gap-2 px-6 py-4 border border-white/20 text-text-gray hover:text-white hover:border-white/50 transition-colors"
-              >
-                인쇄용 PDF가 이미 있어요
-              </Link>
+              {PUBLISH_ORDERS_ENABLED ? (
+                <Link
+                  href="/publish/start"
+                  className="inline-flex items-center gap-2 px-6 py-4 border border-white/20 text-text-gray hover:text-white hover:border-white/50 transition-colors"
+                >
+                  인쇄용 PDF가 이미 있어요
+                </Link>
+              ) : (
+                <p className="text-sm text-text-gray">
+                  인쇄용 PDF를 직접 올리시는 주문은 곧 열립니다.
+                </p>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -166,9 +177,9 @@ export default async function PublishPage() {
       <section className="px-6 sm:px-8 lg:px-16 py-20 border-t border-white/10">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-playfair text-3xl sm:text-4xl font-light mb-14 text-center">
-            네 단계면 충분합니다
+            다섯 단계면 충분합니다
           </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8">
             {PROCESS.map((p) => (
               <div key={p.step} className="space-y-3">
                 <p className="text-accent-orange font-playfair text-2xl">{p.step}</p>
@@ -262,9 +273,8 @@ export default async function PublishPage() {
               지원하며, 표와 본문 이미지는 다음 단계에서 지원할 예정입니다.
             </p>
             <p className="text-sm">
-              이미 인쇄용 PDF를 직접 만드셨다면{" "}
-              <span className="text-white">인쇄용 PDF가 이미 있어요</span> 쪽으로 바로 주문하실 수
-              있습니다. 판형·쪽수에 맞는 표지 도면도 내려받을 수 있습니다.
+              이미 인쇄용 PDF를 직접 만드셨다면, 그 파일로 바로 주문하는 창구는 곧 엽니다. 지금은
+              원고를 올려 조판한 뒤 결제하는 경로를 이용해 주세요.
             </p>
           </div>
 

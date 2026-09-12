@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import { estimateProductPrice } from "@/lib/publishing/pricing"
 import type { WizardSpec } from "./publish-wizard"
 
 interface SizeOption {
@@ -150,9 +151,42 @@ function Spinner() {
   return (
     <span
       aria-hidden
-      className="inline-block h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin"
+      className="inline-block h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin motion-reduce:animate-none"
     />
   )
+}
+
+const TYPESET_PHASES = ["원고를 읽는 중", "쪽을 나누는 중", "미리보기를 그리는 중"] as const
+const PAY_PHASES = ["조판을 다시 확인하는 중", "결제 페이지를 여는 중"] as const
+
+function typesetKey(
+  file: File | null,
+  specUid: string,
+  textSize: string,
+  chapterNewPage: boolean,
+  title: string,
+  authorName: string,
+) {
+  return [
+    file ? `${file.name}:${file.size}:${file.lastModified}` : "",
+    specUid,
+    textSize,
+    chapterNewPage ? "1" : "0",
+    title.trim(),
+    authorName.trim(),
+  ].join("|")
+}
+
+function payError(
+  email: string,
+  shipping: { recipientName: string; recipientPhone: string; postalCode: string; address1: string },
+) {
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) return "연락받을 이메일을 확인해주세요."
+  if (!shipping.recipientName.trim()) return "받는 분 성함을 입력해주세요."
+  if (!/^[0-9+\-\s]{9,20}$/.test(shipping.recipientPhone.trim())) return "연락처를 확인해주세요."
+  if (!/^\d{5}$/.test(shipping.postalCode.trim())) return "우편번호 5자리를 입력해주세요."
+  if (!shipping.address1.trim()) return "주소를 입력해주세요."
+  return null
 }
 
 // ── 본체 ─────────────────────────────────────────────────────────────────
@@ -183,7 +217,75 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
   const [coverInfo, setCoverInfo] = useState<CoverSummary | null>(null)
   const [tab, setTab] = useState<"inner" | "cover">("inner")
 
+  const [typesetStamp, setTypesetStamp] = useState<string | null>(null)
+  const [typesetPhase, setTypesetPhase] = useState(0)
+  const [wantOrder, setWantOrder] = useState(false)
+  const [payPhase, setPayPhase] = useState(0)
+
+  const [email, setEmail] = useState("")
+  const [quantity, setQuantity] = useState(1)
+  const [payBusy, setPayBusy] = useState(false)
+  const [shipping, setShipping] = useState({
+    recipientName: "",
+    recipientPhone: "",
+    postalCode: "",
+    address1: "",
+    address2: "",
+    memo: "",
+  })
+
   const spec = specs.find((s) => s.bookSpecUid === specUid)
+  const displayPrice =
+    spec && summary
+      ? estimateProductPrice(
+          {
+            pageMin: spec.pageMin,
+            pageIncrement: spec.pageIncrement,
+            priceBase: spec.priceBase,
+            pricePerIncrement: spec.pricePerIncrement,
+          },
+          summary.pageCount,
+          quantity,
+        )
+      : summary?.priceTotal
+
+  const currentKey = typesetKey(file, specUid, textSize, chapterNewPage, title, authorName)
+  const dirty = Boolean(doc && typesetStamp && typesetStamp !== currentKey)
+
+  const chooseFile = useCallback((next: File | null) => {
+    setFile(next)
+    setDoc(null)
+    setSummary(null)
+    setCoverDoc(null)
+    setCoverInfo(null)
+    setTypesetStamp(null)
+    setWantOrder(false)
+    setTab("inner")
+    setSpread(0)
+    setError(null)
+  }, [])
+
+  useEffect(() => {
+    if (!busy) {
+      setTypesetPhase(0)
+      return
+    }
+    const id = window.setInterval(() => {
+      setTypesetPhase((p) => (p + 1) % TYPESET_PHASES.length)
+    }, 2200)
+    return () => window.clearInterval(id)
+  }, [busy])
+
+  useEffect(() => {
+    if (!payBusy) {
+      setPayPhase(0)
+      return
+    }
+    const id = window.setInterval(() => {
+      setPayPhase((p) => (p + 1) % PAY_PHASES.length)
+    }, 2400)
+    return () => window.clearInterval(id)
+  }, [payBusy])
 
   // 인쇄용 PDF는 blob URL로 만들지 않는다. 미리보기는 바이트를 pdf.js에 직접
   // 넘기면 되고, blob: URL을 만들면 주소창에 붙여넣는 것만으로 원본이 새어나간다.
@@ -266,12 +368,67 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
       setDoc(loaded as unknown as PdfDoc)
       setSummary(parsedSummary)
       setSpread(0)
+      setTypesetStamp(typesetKey(file, specUid, textSize, chapterNewPage, title, authorName))
+      setWantOrder(false)
+      setCoverDoc(null)
+      setCoverInfo(null)
+      setTab("inner")
     } catch {
       setError("조판 중 문제가 생겼습니다. 다시 시도해주세요.")
     } finally {
       setBusy(false)
     }
   }, [file, specUid, textSize, chapterNewPage, title, authorName])
+
+  const startCheckout = useCallback(async () => {
+    if (!file || !summary) {
+      setError("먼저 조판해서 미리보기를 확인해주세요.")
+      return
+    }
+    if (dirty) {
+      setError("옵션이 바뀌었습니다. 다시 조판한 뒤 결제해주세요.")
+      return
+    }
+    const fieldError = payError(email, shipping)
+    if (fieldError) {
+      setError(fieldError)
+      return
+    }
+    setPayBusy(true)
+    setError(null)
+    const form = new FormData()
+    form.set("manuscript", file)
+    form.set("email", email)
+    form.set("title", title)
+    form.set("authorName", authorName)
+    form.set("bookSpecUid", specUid)
+    form.set("textSize", textSize)
+    form.set("chapterStartsNewPage", String(chapterNewPage))
+    form.set("coverTheme", theme)
+    form.set("backText", backText)
+    form.set("quantity", String(quantity))
+    form.set("recipientName", shipping.recipientName)
+    form.set("recipientPhone", shipping.recipientPhone)
+    form.set("postalCode", shipping.postalCode)
+    form.set("address1", shipping.address1)
+    form.set("address2", shipping.address2)
+    form.set("shippingMemo", shipping.memo)
+    if (coverImage) form.set("coverImage", coverImage)
+
+    try {
+      const res = await fetch("/api/publish/checkout", { method: "POST", body: form })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.checkoutUrl) {
+        setError(data.error ?? "결제 페이지를 만들지 못했습니다.")
+        return
+      }
+      window.location.href = data.checkoutUrl
+    } catch {
+      setError("결제 준비 중 문제가 생겼습니다. 다시 시도해주세요.")
+    } finally {
+      setPayBusy(false)
+    }
+  }, [file, summary, dirty, email, title, authorName, specUid, textSize, chapterNewPage, theme, backText, quantity, shipping, coverImage])
 
   // 1쪽은 오른쪽 면. 이후 (2,3) (4,5) … 로 실제 책처럼 펼친다.
   const totalSpreads = doc ? Math.floor(doc.numPages / 2) + 1 : 0
@@ -292,7 +449,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               e.preventDefault()
               setDragOver(false)
               const f = e.dataTransfer.files?.[0]
-              if (f) setFile(f)
+              if (f) chooseFile(f)
             }}
             className={`flex flex-col items-center justify-center gap-2 border border-dashed px-5 py-7 text-center cursor-pointer transition-colors ${
               dragOver
@@ -319,7 +476,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               type="file"
               accept=".docx,.md,.txt"
               className="sr-only"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => chooseFile(e.target.files?.[0] ?? null)}
             />
           </label>
           <p className="text-xs text-text-gray leading-relaxed">
@@ -385,7 +542,15 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
           disabled={busy || !file}
           className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-accent-orange text-white font-medium hover:bg-accent-orange/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {busy ? (<><Spinner /> 조판 중…</>) : doc ? "다시 조판하기" : "조판해서 미리보기 →"}
+          {busy ? (
+            <>
+              <Spinner /> {TYPESET_PHASES[typesetPhase]}…
+            </>
+          ) : doc ? (
+            dirty ? "바뀐 설정으로 다시 조판하기" : "다시 조판하기"
+          ) : (
+            "조판해서 미리보기 →"
+          )}
         </button>
 
         {error && (
@@ -394,8 +559,16 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
           </div>
         )}
 
+        {dirty && (
+          <div role="status" className="border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
+            <p className="text-sm text-yellow-200 leading-relaxed">
+              제목·판형·본문 크기가 미리보기와 다릅니다. 다시 조판해야 이 설정으로 인쇄됩니다.
+            </p>
+          </div>
+        )}
+
         {summary && (
-          <div className="border border-white/15 divide-y divide-white/10 text-sm">
+          <div className="border border-white/15 divide-y divide-white/10 text-sm animate-studio-in motion-reduce:animate-none">
             <div className="px-4 py-3 flex justify-between">
               <span className="text-text-gray">원고</span>
               <span className="text-white">
@@ -408,12 +581,19 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
             </div>
             <div className="px-4 py-3 flex justify-between items-baseline bg-white/5">
               <span className="text-white">예상 금액</span>
-              <span className="text-accent-orange font-medium text-base">{krw(summary.priceTotal)}</span>
+              <span className="text-accent-orange font-medium text-base">{krw(displayPrice ?? summary.priceTotal)}</span>
             </div>
           </div>
         )}
 
-        {summary?.advice && (
+        {summary && summary.paddedPages > 0 && (
+          <p className="text-sm text-yellow-200 border border-yellow-400/40 bg-yellow-400/10 px-4 py-3 leading-relaxed">
+            이 판형의 최소 쪽수에 맞추려고 빈 페이지가 {summary.paddedPages}장 들어갑니다.
+            본문을 더하거나 더 작은 판형·본문 크기를 고르면 빈 쪽이 줄어듭니다.
+          </p>
+        )}
+
+        {summary?.advice && summary.paddedPages === 0 && (
           <p className="text-sm text-yellow-200 border border-yellow-400/40 bg-yellow-400/10 px-4 py-3 leading-relaxed">
             {summary.advice}
           </p>
@@ -434,6 +614,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               <h2 className="text-white font-medium">표지</h2>
               <p className="text-xs text-text-gray mt-1 leading-relaxed">
                 {summary.pageCount}쪽 기준으로 책등 두께를 계산해 그립니다.
+                건너뛰어도 됩니다. 만들지 않으면 결제 때 아이보리 기본 표지로 인쇄합니다.
               </p>
             </div>
 
@@ -499,30 +680,185 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
           </div>
         )}
 
-        {/* 결제 연동 전이라 주문 버튼이 없다. 없는 이유를 여기서 밝힌다. */}
-        {summary && (
-          <div className="border border-white/15 bg-white/[0.03] px-4 py-4 space-y-2">
-            <p className="text-sm text-white flex items-center gap-2">
-              <span className="text-xs border border-accent-orange/50 text-accent-orange px-2 py-0.5">
-                준비중
-              </span>
-              온라인 주문 · 결제
-            </p>
-            <p className="text-xs text-text-gray leading-relaxed">
-              결제 연동을 준비하고 있습니다. 지금은 조판 결과를 미리보기로 확인하실 수 있고,
-              실제 제작은 문의로 도와드립니다.
-            </p>
-            {/* 워터마크는 반드시 먼저 설명한다. 묻기 전에 답이 있어야 문의가 줄어든다. */}
-            <p className="text-xs text-text-gray/70 leading-relaxed">
-              미리보기에는 워터마크가 들어갑니다. 주문하시면 워터마크 없는 인쇄본으로 제작됩니다.
-            </p>
+        {summary && !wantOrder && (
+          <div className="border border-white/15 bg-white/[0.03] px-4 py-5 space-y-4">
+            <div>
+              <p className="text-sm text-white">이 책으로 제작할까요?</p>
+              <p className="text-xs text-text-gray leading-relaxed mt-1">
+                미리보기가 마음에 들면 배송지를 적고 결제합니다. 워터마크는 인쇄본에 들어가지 않습니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setWantOrder(true)}
+              disabled={dirty || !summary.withinSpec}
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-accent-orange text-white font-medium hover:bg-accent-orange/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              이 책으로 제작하기
+            </button>
+            {dirty && (
+              <p className="text-xs text-yellow-200">다시 조판한 뒤에 제작을 시작할 수 있습니다.</p>
+            )}
+            {!summary.withinSpec && (
+              <p className="text-xs text-yellow-200">이 판형으로는 제작할 수 없습니다. 본문 크기나 판형을 바꿔주세요.</p>
+            )}
+          </div>
+        )}
+
+        {summary && wantOrder && (
+          <div className="border border-white/15 bg-white/[0.03] px-4 py-5 space-y-4 animate-studio-in motion-reduce:animate-none">
+            <div>
+              <p className="text-sm text-white">책으로 만들기</p>
+              <p className="text-xs text-text-gray leading-relaxed mt-1">
+                결제하시면 조판한 내용 그대로 인쇄·제본해 보내드립니다. 카드에 청구되는 금액은
+                아래 표시 가격을 넘지 않습니다.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="s-email" className="block text-sm font-medium text-white">이메일</label>
+              <input
+                id="s-email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="영수증을 받을 주소"
+                className={inputCls}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="s-qty" className="block text-sm font-medium text-white">수량</label>
+              <input
+                id="s-qty"
+                type="number"
+                min={1}
+                max={100}
+                value={quantity}
+                onChange={(e) => setQuantity(Math.max(1, Math.min(100, Number(e.target.value) || 1)))}
+                className={inputCls}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <label htmlFor="s-recipient" className="block text-sm font-medium text-white">받는 분</label>
+                <input
+                  id="s-recipient"
+                  type="text"
+                  autoComplete="name"
+                  value={shipping.recipientName}
+                  onChange={(e) => setShipping({ ...shipping, recipientName: e.target.value })}
+                  className={inputCls}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="s-phone" className="block text-sm font-medium text-white">연락처</label>
+                <input
+                  id="s-phone"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="010-0000-0000"
+                  value={shipping.recipientPhone}
+                  onChange={(e) => setShipping({ ...shipping, recipientPhone: e.target.value })}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="s-postal" className="block text-sm font-medium text-white">우편번호</label>
+              <input
+                id="s-postal"
+                type="text"
+                inputMode="numeric"
+                autoComplete="postal-code"
+                maxLength={5}
+                placeholder="12345"
+                value={shipping.postalCode}
+                onChange={(e) => setShipping({ ...shipping, postalCode: e.target.value.replace(/\D/g, "") })}
+                className={inputCls}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="s-addr1" className="block text-sm font-medium text-white">주소</label>
+              <input
+                id="s-addr1"
+                type="text"
+                autoComplete="address-line1"
+                value={shipping.address1}
+                onChange={(e) => setShipping({ ...shipping, address1: e.target.value })}
+                className={inputCls}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="s-addr2" className="block text-sm font-medium text-white">
+                상세 주소 <span className="text-text-gray font-normal">(선택)</span>
+              </label>
+              <input
+                id="s-addr2"
+                type="text"
+                autoComplete="address-line2"
+                value={shipping.address2}
+                onChange={(e) => setShipping({ ...shipping, address2: e.target.value })}
+                className={inputCls}
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="s-memo" className="block text-sm font-medium text-white">
+                배송 메모 <span className="text-text-gray font-normal">(선택)</span>
+              </label>
+              <input
+                id="s-memo"
+                type="text"
+                value={shipping.memo}
+                onChange={(e) => setShipping({ ...shipping, memo: e.target.value })}
+                placeholder="부재 시 경비실에 맡겨주세요"
+                className={inputCls}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={startCheckout}
+              disabled={payBusy || dirty || !summary.withinSpec}
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-accent-orange text-white font-medium hover:bg-accent-orange/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {payBusy ? (
+                <>
+                  <Spinner /> {PAY_PHASES[payPhase]}…
+                </>
+              ) : (
+                `${krw(displayPrice ?? summary.priceTotal)} 결제하고 제작하기`
+              )}
+            </button>
+            {payBusy && (
+              <p className="text-xs text-text-gray leading-relaxed">
+                결제 전에 서버에서 조판을 한 번 더 확인합니다. 원고가 길면 1분 가까이 걸릴 수 있습니다.
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => setWantOrder(false)}
+              disabled={payBusy}
+              className="w-full text-xs text-text-gray hover:text-white transition-colors disabled:opacity-40"
+            >
+              미리보기로 돌아가기
+            </button>
           </div>
         )}
       </div>
 
       {/* 미리보기 */}
-      <div className="min-h-[28rem]">
-        {!doc ? (
+      <div className="min-h-[28rem] sticky top-6">
+        {busy ? (
+          <div
+            className="h-full min-h-[28rem] border border-dashed border-accent-orange/40 bg-accent-orange/5 flex flex-col items-center justify-center gap-4 text-center px-6 animate-studio-in motion-reduce:animate-none"
+            aria-live="polite"
+          >
+            <Spinner />
+            <p className="text-white">{TYPESET_PHASES[typesetPhase]}</p>
+            <p className="text-xs text-text-gray leading-relaxed max-w-sm">
+              실제 인쇄될 쪽을 만들고 있습니다. 원고가 길면 1분 가까이 걸릴 수 있습니다.
+            </p>
+          </div>
+        ) : !doc ? (
           <div className="h-full min-h-[28rem] border border-dashed border-white/15 flex flex-col items-center justify-center gap-3 text-center px-6">
             <p className="text-text-gray">
               원고를 올리고 조판하면 <span className="text-white">실제 인쇄될 모습</span>을 여기서
@@ -533,7 +869,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
             </p>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-5 animate-studio-in motion-reduce:animate-none">
             {coverDoc && (
               <div role="tablist" aria-label="미리보기 대상" className="flex gap-2">
                 {([["inner", "내지"], ["cover", "표지"]] as const).map(([key, label]) => (
@@ -568,7 +904,10 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               <>
             {/* 좁은 화면에서는 두 쪽을 나란히 두면 각 쪽이 절반으로 줄어 읽을 수 없다.
                 세로로 쌓아 한 쪽씩 화면 폭에 맞춘다. */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-4 sm:gap-1 bg-black/30 border border-white/10 p-4 sm:p-8">
+            <div
+              key={spread}
+              className="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-4 sm:gap-1 bg-black/30 border border-white/10 p-4 sm:p-8 animate-studio-in motion-reduce:animate-none"
+            >
               <PageCanvas doc={doc} pageNumber={leftPage} scale={0.62} />
               <PageCanvas doc={doc} pageNumber={rightPage} scale={0.62} />
             </div>

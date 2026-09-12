@@ -31,7 +31,7 @@ const asFile = (buf: Buffer, name: string) =>
 
 /**
  * 결제된 주문을 제작사에 넣는다.
- * 디지털 주문은 인쇄가 없으므로 상태만 옮긴다.
+ * 판매 대상은 실물 책이다. digital은 예전 행을 막기 위한 안전장치일 뿐이다.
  */
 export async function fulfillOrder(order: Order, project: Project): Promise<FulfillResult> {
   if (order.kind === "digital") {
@@ -126,6 +126,7 @@ export async function fulfillOrder(order: Order, project: Project): Promise<Fulf
     .from("publishing_orders")
     .update({
       status: "submitted",
+      failure_reason: null,
       print_order_uid: printOrder.orderUid,
       print_status: printOrder.orderStatus,
       submitted_at: new Date().toISOString(),
@@ -145,4 +146,5 @@ export async function markOrderFailed(orderId: string, reason: string) {
     .from("publishing_orders")
     .update({ status: "failed", failure_reason: reason.slice(0, 500) })
     .eq("id", orderId)
+    .in("status", ["pending", "paid", "failed"])
 }

@@ -49,6 +49,7 @@ export interface Order {
   payment_provider: string | null
   payment_order_id: string | null
   print_order_uid: string | null
+  print_status: string | null
   recipient_name: string | null
   recipient_phone: string | null
   postal_code: string | null

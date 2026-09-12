@@ -47,32 +47,40 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 | Country | Korea, South |
 
 생성 후 **Settings → General에서 통화를 KRW로** 설정한다. 이게 핵심이다 —
-`custom_price`는 스토어 통화의 최소 단위로 해석되므로, USD 스토어에 원화 값을
-보내면 13배 넘게 청구된다.
+`custom_price`는 레몬스퀴지 문서상 항상 cents다. 원화 스토어에서도
+26,800원을 26800으로 보내면 ₩268로 청구되므로 **원 × 100**을 보낸다.
+USD 스토어에 원화 값을 넣으면 안 된다.
 
 > 기존 WeeklyVentures(#277249)는 USD이고 다른 서비스 상품 10개가 운영 중이라
 > 재사용하지 않는다.
 
-**2) 상품 2개 생성** — Products → New Product
+**2) 상품 1개** — 받는 돈은 책 제작이지 PDF가 아니다. PDF는 조판 파이프라인이다.
 
-| 상품 | 용도 |
+| 항목 | 값 |
 |---|---|
-| 인쇄용 PDF | 디지털 — 조판 결과물 |
-| 실물 책 | 실물 — 인쇄·배송 |
+| 상품명 | 나만을 위한 책 제작 서비스 |
+| Store | Nanuda `#439240` · KRW |
+| Variant | `#2115295` (Default) |
+| Product | `#1354509` |
 
-가격은 아무 값이나 둔다 (체크아웃에서 `custom_price`로 덮어씀).
-생성 후 각 **variant ID**를 확인한다.
+가격은 체크아웃 `custom_price`가 덮어쓴다. 라이브 결제는 스토어 KYC가 끝나야 열린다.
 
-**3) 알려주실 값**
+`.env.local` / Preview에 넣을 값:
 
 ```
-새 스토어 ID
-variant ID (디지털)
-variant ID (실물)
+LEMONSQUEEZY_STORE_ID=439240
+LEMONSQUEEZY_STORE_CURRENCY=KRW
+LEMONSQUEEZY_VARIANT_ID=2115295
 ```
 
-이 세 개만 주시면 나머지(웹훅 등록, 테스트 결제, 멱등성 검증)는 API로 처리한다.
-`POST /webhooks`와 `POST /checkouts`는 API로 가능함을 확인했다.
+웹훅은 **스토어 439240에 직접 등록**해야 한다. 문서에 URL만 적어 두면 LS가 보내지 않는다.
+
+| | URL | 이벤트 |
+|---|---|---|
+| 결제 | `https://www.nanudacompany.com/api/publish/webhook/lemonsqueezy` | `order_created`, `order_refunded` |
+| 제작사 | `https://www.nanudacompany.com/api/publish/webhook/sweetbook` | 주문·제작·배송 전체 |
+
+Vercel Production에는 `LEMONSQUEEZY_*`와 `SUPABASE_*`가 있어야 한다. 라우트만 있고 키가 없으면 웹훅이 503이다.
 
 ## 3. 활성화
 

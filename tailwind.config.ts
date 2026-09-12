@@ -100,11 +100,16 @@ const config: Config = {
           "50%": { transform: "translateY(-20px)" },
           "100%": { transform: "translateY(0px)" },
         },
+        "studio-in": {
+          from: { opacity: "0", transform: "translateY(8px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         float: "float 3s ease-in-out infinite",
+        "studio-in": "studio-in 0.45s ease-out both",
       },
     },
   },
