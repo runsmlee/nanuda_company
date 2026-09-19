@@ -1,0 +1,30 @@
+name: Supabase daily check
+
+on:
+  schedule:
+    # 09:17 Asia/Seoul. Scheduled runs may be delayed by GitHub.
+    - cron: '17 0 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  query:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Read at most one project ID
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          : "${SUPABASE_URL:?Missing SUPABASE_URL}"
+          : "${SUPABASE_SERVICE_ROLE_KEY:?Missing SUPABASE_SERVICE_ROLE_KEY}"
+          curl --fail --silent --show-error \
+            --connect-timeout 10 --max-time 30 \
+            --output /dev/null \
+            --header "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            "${SUPABASE_URL}/rest/v1/publishing_projects?select=id&limit=1"
+          echo "Database read succeeded."
