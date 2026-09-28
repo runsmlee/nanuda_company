@@ -2,8 +2,8 @@ name: Supabase daily check
 
 on:
   schedule:
-    # 09:17 Asia/Seoul. Scheduled runs may be delayed by GitHub.
-    - cron: '17 0 * * *'
+    # 03:17, 09:17, 15:17, 21:17 Asia/Seoul. Scheduled runs may be delayed by GitHub.
+    - cron: '17 */6 * * *'
   workflow_dispatch:
 
 permissions: {}
