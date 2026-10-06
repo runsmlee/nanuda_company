@@ -95,11 +95,12 @@ export class LemonSqueezyProvider implements PaymentProvider {
       return (await res.json())?.data
     }
     const [store, variant] = await Promise.all([read(`/stores/${encodeURIComponent(this.storeId)}`), read(`/variants/${encodeURIComponent(variantId)}`)])
-    if (store?.attributes?.currency !== "KRW" || this.storeCurrency !== "KRW"
-      || variant?.attributes?.test_mode !== paymentTestMode()
-      || (!paymentTestMode() && variant?.attributes?.status !== "published")) {
-      throw new PaymentError(503, "결제 스토어 통화·상품·운영 환경 확인이 필요합니다.")
-    }
+    if (store?.attributes?.currency !== "KRW" || this.storeCurrency !== "KRW")
+      throw new PaymentError(503, "결제 스토어와 서버 통화를 KRW로 맞춰야 합니다.")
+    if (variant?.attributes?.test_mode !== paymentTestMode())
+      throw new PaymentError(503, "결제 상품과 서버의 테스트/라이브 모드가 다릅니다.")
+    if (!paymentTestMode() && variant?.attributes?.status !== "published")
+      throw new PaymentError(503, "운영 결제 상품이 published 상태가 아닙니다.")
   }
 
   /**

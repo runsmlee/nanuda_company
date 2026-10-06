@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/publishing/db"
 import { runPaymentWork, reconcileSubmittedOrder } from "@/lib/publishing/payment-work"
 import { assertPaymentEnvironment, getPaymentProvider, paymentTestMode, PaymentError } from "@/lib/publishing/payment"
-import { listBookSpecs } from "@/lib/publishing/sweetbook"
+import { listBookSpecs, SweetBookError } from "@/lib/publishing/sweetbook"
 
 export const runtime = "nodejs"
 export const maxDuration = 120
@@ -19,11 +19,14 @@ export async function POST(req: NextRequest) {
     const checks: Record<string, { ok: boolean; detail?: string }> = {}
     try { await getPaymentProvider().checkConfiguration(); checks.payment = { ok: true } }
     catch (e) { checks.payment = { ok: false, detail: e instanceof PaymentError ? e.detail : "Payment API unavailable" } }
-    try {
-      assertPaymentEnvironment(paymentTestMode())
-      if (!(await listBookSpecs()).length) throw new Error("Empty catalog")
-      checks.supplier = { ok: true }
-    } catch { checks.supplier = { ok: false, detail: "Supplier credentials or payment/print environment mismatch" } }
+    try { assertPaymentEnvironment(paymentTestMode()) }
+    catch { checks.supplier = { ok: false, detail: "Supplier API endpoint does not match the payment environment" } }
+    if (!checks.supplier) {
+      try {
+        if (!(await listBookSpecs()).length) throw new Error("Empty catalog")
+        checks.supplier = { ok: true }
+      } catch (e) { checks.supplier = { ok: false, detail: e instanceof SweetBookError ? `Supplier API lookup failed (${e.status})` : "Supplier API or catalog unavailable" } }
+    }
     try {
       const { error } = await db().from("publishing_orders").select("id,expected_store_id").limit(1)
       checks.database = { ok: !error }
