@@ -6,6 +6,7 @@ import { ManuscriptStudio } from "@/components/publish/manuscript-studio"
 import type { WizardSpec } from "@/components/publish/publish-wizard"
 import { PUBLISH_ENABLED, PUBLISH_ORDERS_ENABLED } from "@/lib/publishing/config"
 import { listBookSpecs } from "@/lib/publishing/sweetbook"
+import { hasBookPricing } from "@/lib/publishing/pricing"
 
 export const metadata: Metadata = {
   title: "원고로 책 만들기 | 생각을나누다",
@@ -20,7 +21,7 @@ export default async function StudioPage() {
   let specs: WizardSpec[] = []
   try {
     const raw = await listBookSpecs()
-    specs = raw.map((s) => ({
+    specs = raw.filter(hasBookPricing).map((s) => ({
       bookSpecUid: s.bookSpecUid,
       name: s.name,
       innerTrimWidthMm: s.innerTrimWidthMm,

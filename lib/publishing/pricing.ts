@@ -18,6 +18,15 @@ const MARGIN_TIERS: { minQty: number; rate: number }[] = [
   { minQty: 1, rate: 0.40 },
 ]
 
+/** Public/unauthenticated catalogs may omit prices; never interpret those as free printing. */
+export function hasBookPricing(spec: { priceBase?: number | null; pricePerIncrement?: number | null; sandboxPriceBase?: number | null; sandboxPricePerIncrement?: number | null; pageIncrement: number }) {
+  const base = spec.priceBase ?? spec.sandboxPriceBase
+  const increment = spec.pricePerIncrement ?? spec.sandboxPricePerIncrement
+  return typeof base === "number" && Number.isFinite(base) && base > 0
+    && typeof increment === "number" && Number.isFinite(increment) && increment >= 0
+    && Number.isFinite(spec.pageIncrement) && spec.pageIncrement > 0
+}
+
 export function marginRate(quantity: number): number {
   const tier = MARGIN_TIERS.find((t) => quantity >= t.minQty)
   return tier ? tier.rate : 0.30
@@ -39,6 +48,7 @@ export function unitCostExclVat(
   spec: { pageMin: number; pageIncrement: number; priceBase: number; pricePerIncrement: number },
   pages: number,
 ): number {
+  if (!hasBookPricing(spec)) throw new Error("Supplier prices unavailable")
   const extra = Math.max(0, pages - spec.pageMin)
   const increments = spec.pageIncrement > 0 ? extra / spec.pageIncrement : 0
   return spec.priceBase + increments * spec.pricePerIncrement

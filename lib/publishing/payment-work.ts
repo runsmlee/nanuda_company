@@ -2,7 +2,7 @@ import { db, currentWork, type Order, type Project } from "./db"
 import { fulfillOrder, submitPrintRequest } from "./fulfill"
 import { createHash } from "node:crypto"
 import { assertPaymentEnvironment, getPaymentProvider, PaymentError } from "./payment"
-import { cancelOrder, getOrder, SweetBookError } from "./sweetbook"
+import { cancelOrder, getOrder, assertSupplierEnvironment, SweetBookError } from "./sweetbook"
 
 async function cancelRefundedOrder(order: Order) {
   if (!order.print_order_uid && order.print_request) {
@@ -59,6 +59,7 @@ export async function runPaymentWork(orderId?: string): Promise<boolean> {
   const token = order.fulfillment_token!
   try {
     assertPaymentEnvironment(order.payment_test_mode === true)
+    await assertSupplierEnvironment(order.payment_test_mode === true)
     // Reconcile the provider's current state before any printing, including a missing refund webhook.
     await syncPayment(order)
     order = await currentWork(order)
@@ -80,7 +81,7 @@ export async function runPaymentWork(orderId?: string): Promise<boolean> {
     const message = e instanceof Error ? e.message : "Fulfillment failed"
     // Keep full refunds terminal. Temporary failures get five bounded retries; permanent errors need an operator.
     const permanent = (e instanceof PaymentError && [400,401,403,404,409,503].includes(e.status))
-      || (e instanceof SweetBookError && [400,401,403,404,402,422].includes(e.status))
+      || (e instanceof SweetBookError && [400,401,403,404,402,409,422].includes(e.status))
       || order.fulfillment_attempts >= 5
     const next = new Date(Date.now() + Math.min(60 * 60, 60 * 2 ** order.fulfillment_attempts) * 1000).toISOString()
     const { error: failureError } = await db().rpc("publishing_fail_work", {

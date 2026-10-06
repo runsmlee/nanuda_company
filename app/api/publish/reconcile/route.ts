@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/publishing/db"
 import { runPaymentWork, reconcileSubmittedOrder } from "@/lib/publishing/payment-work"
 import { assertPaymentEnvironment, getPaymentProvider, paymentTestMode, PaymentError } from "@/lib/publishing/payment"
-import { listBookSpecs, SweetBookError } from "@/lib/publishing/sweetbook"
+import { listBookSpecs, assertSupplierEnvironment, SweetBookError } from "@/lib/publishing/sweetbook"
+import { hasBookPricing } from "@/lib/publishing/pricing"
 
 export const runtime = "nodejs"
 export const maxDuration = 120
@@ -23,7 +24,9 @@ export async function POST(req: NextRequest) {
     catch { checks.supplier = { ok: false, detail: "Supplier API endpoint does not match the payment environment" } }
     if (!checks.supplier) {
       try {
-        if (!(await listBookSpecs()).length) throw new Error("Empty catalog")
+        await assertSupplierEnvironment(paymentTestMode())
+        const specs = await listBookSpecs()
+        if (!specs.length || specs.some(s => !hasBookPricing(s))) throw new Error("Supplier prices unavailable")
         checks.supplier = { ok: true }
       } catch (e) { checks.supplier = { ok: false, detail: e instanceof SweetBookError ? `Supplier API lookup failed (${e.status})` : "Supplier API or catalog unavailable" } }
     }

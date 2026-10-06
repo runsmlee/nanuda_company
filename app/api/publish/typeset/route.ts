@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { PUBLISH_ENABLED } from "@/lib/publishing/config"
 import { parseManuscriptFile } from "@/lib/publishing/manuscript"
-import { estimateProductPrice } from "@/lib/publishing/pricing"
+import { estimateProductPrice, hasBookPricing } from "@/lib/publishing/pricing"
 import { listBookSpecs, SweetBookError } from "@/lib/publishing/sweetbook"
 import { fitToSpec, TEXT_SIZES, typeset, type TextSize } from "@/lib/publishing/typeset"
 
@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
     if (!spec) {
       return NextResponse.json({ error: "판형 정보를 불러오지 못했습니다." }, { status: 502 })
     }
+    if (!hasBookPricing(spec)) return NextResponse.json({ error: "제작 단가를 확인 중입니다. 잠시 후 다시 시도해주세요." }, { status: 503 })
 
     const buffer = Buffer.from(await file.arrayBuffer())
     const parsed = await parseManuscriptFile(file.name, buffer)
