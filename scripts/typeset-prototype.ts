@@ -8,7 +8,7 @@
 import fs from "node:fs"
 import path from "node:path"
 import { parseManuscriptFile, type ParsedManuscript } from "../lib/publishing/manuscript"
-import { fitToSpec, typeset, TEXT_SIZES, type Chapter, type TextSize } from "../lib/publishing/typeset"
+import { fitToSpec, parseManuscript, typeset, TEXT_SIZES, type TextSize } from "../lib/publishing/typeset"
 
 const ROOT = process.cwd()
 const OUT = path.join(ROOT, ".typeset-out")
@@ -49,19 +49,24 @@ function fallbackManuscript(): ParsedManuscript {
     .filter((d) => Array.isArray(d.blocks))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 
+  // 하드랩은 공백으로 잇지 않는다. 파서가 어절 규칙으로 붙이고 띄운다.
+  const raw = docs
+    .map((d) => {
+      const body = (d.blocks as unknown[])
+        .map((b) => (Array.isArray(b) ? (b as string[]).join("\n") : String(b)))
+        .join("\n\n")
+      return `# ${d.title || ""}\n\n${body}`
+    })
+    .join("\n\n")
+  const chapters = parseManuscript(raw)
   let charCount = 0
   let paragraphCount = 0
-  const chapters: Chapter[] = docs.map((d) => {
-    const paragraphs = (d.blocks as unknown[])
-      .map((b) => (Array.isArray(b) ? b.join(" ") : String(b)))
-      .map((s) => s.replace(/\s+/g, " ").trim())
-      .filter(Boolean)
-    paragraphs.forEach((p) => {
+  for (const c of chapters) {
+    for (const p of c.paragraphs) {
       charCount += p.length
       paragraphCount += 1
-    })
-    return { title: d.title || "", paragraphs }
-  })
+    }
+  }
   return { chapters, charCount, paragraphCount, notes: ["레포 본문을 원고 대신 사용"] }
 }
 

@@ -173,23 +173,35 @@ export async function renderCover(
   doc.text(opts.publisher, frontInnerX, H - safe - mmToPt(6), { width: frontInnerW, align: "center" })
 
   // ── 책등 ──
+  // 두께만이 아니라 책등 길이(머리·꼬리 안전영역)에도 맞춰야 긴 제목이 재단선 밖으로 나가지 않는다.
   let spineTextIncluded = false
   if (g.spineWidthMm >= MIN_SPINE_TEXT_MM) {
-    const spineLabel = `${opts.title}   ${opts.authorName}`
-    const spineFont = Math.min(9, mmToPt(g.spineWidthMm) * 0.42)
-    const cx = spineX + spine / 2
-    const cy = H / 2
-    doc.save()
-    // 국내 단행본은 책등 글자를 위에서 아래로 읽는다. 시계 방향(+90)이 그 방향이다.
-    doc.rotate(90, { origin: [cx, cy] })
-    doc.font("body").fontSize(spineFont).fillColor(usePhoto ? "#ffffff" : theme.fg)
-    doc.text(spineLabel, cx - H / 2 + safe, cy - spineFont * 0.7, {
-      width: H - safe * 2,
-      align: "center",
-      lineBreak: false,
-    })
-    doc.restore()
-    spineTextIncluded = true
+    const spineLabel = `${opts.title}   ${opts.authorName}`.trim()
+    const along = H - safe * 2
+    let spineFont = Math.min(9, mmToPt(g.spineWidthMm) * 0.42)
+    const minSpine = 6
+    doc.font("body")
+    while (spineFont > minSpine && doc.fontSize(spineFont).widthOfString(spineLabel) > along) {
+      spineFont -= 0.5
+    }
+    doc.fontSize(spineFont)
+    if (spineLabel && doc.widthOfString(spineLabel) <= along) {
+      const cx = spineX + spine / 2
+      const cy = H / 2
+      doc.save()
+      // 국내 단행본은 책등 글자를 위에서 아래로 읽는다. 시계 방향(+90)이 그 방향이다.
+      doc.rotate(90, { origin: [cx, cy] })
+      doc.font("body").fontSize(spineFont).fillColor(usePhoto ? "#ffffff" : theme.fg)
+      doc.text(spineLabel, cx - H / 2 + safe, cy - spineFont * 0.7, {
+        width: along,
+        align: "center",
+        lineBreak: false,
+      })
+      doc.restore()
+      spineTextIncluded = true
+    } else {
+      notes.push("책등 제목이 길어 넣지 않았습니다.")
+    }
   } else {
     notes.push(
       `책등이 ${g.spineWidthMm}mm로 얇아 제목을 넣지 않았습니다. 쪽수가 늘면 책등에도 제목이 들어갑니다.`,
@@ -201,13 +213,26 @@ export async function renderCover(
   const backInnerW = panel - mmToPt(SAFE_MARGIN_MM * 2)
 
   if (opts.backText?.trim()) {
-    doc.font("body").fontSize(10).fillColor(theme.sub)
-    // 앞표지 제목과 시선 높이를 맞춘다.
-    doc.text(opts.backText.trim(), backInnerX, H * 0.32, {
-      width: backInnerW,
-      align: "left",
-      lineGap: 4.5,
-    })
+    const text = opts.backText.trim()
+    const top = H * 0.32
+    // 출판사 기준선(아래에서 safe+6mm)보다 위에서 끝낸다.
+    const limit = H - safe - mmToPt(14)
+    const maxH = Math.max(mmToPt(8), limit - top)
+    let fontSize = 10
+    doc.font("body").fillColor(theme.sub)
+    const box = { width: backInnerW, lineGap: 4.5 }
+    while (fontSize > 8) {
+      doc.fontSize(fontSize)
+      if (doc.heightOfString(text, box) <= maxH) break
+      fontSize -= 0.5
+    }
+    doc.fontSize(fontSize)
+    if (doc.heightOfString(text, box) > maxH) {
+      doc.text(text, backInnerX, top, { ...box, height: maxH, ellipsis: true })
+      notes.push("뒤표지 소개가 길어 일부만 넣었습니다.")
+    } else {
+      doc.text(text, backInnerX, top, box)
+    }
   }
   doc.font("body").fontSize(9).fillColor(theme.sub)
   doc.text(opts.publisher, backInnerX, H - safe - mmToPt(6), { width: backInnerW, align: "left" })
