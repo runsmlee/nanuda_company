@@ -42,12 +42,18 @@ export interface PaymentEvent {
   currency: string
   testMode: boolean
   rawEventName: string
+  storeId: string
+  variantId: string
+  refundedMinor: number
+  fullyRefunded?: boolean
 }
 
 export interface PaymentProvider {
   readonly name: string
-  createCheckout(input: CheckoutInput): Promise<{ url: string; providerCheckoutId: string }>
+  createCheckout(input: CheckoutInput): Promise<{ url: string; providerCheckoutId: string; expiresAt: string }>
   verifyWebhook(rawBody: string, signature: string | null): boolean
+  getOrderEvent(providerOrderId: string, reference: string): Promise<PaymentEvent>
+  checkConfiguration(): Promise<void>
   parseEvent(rawBody: string, eventName: string | null): PaymentEvent
 }
 
@@ -78,6 +84,24 @@ export class LemonSqueezyProvider implements PaymentProvider {
     private storeCurrency: string,
   ) {}
 
+  /** Read-only deployment check: use server credentials without creating a checkout. */
+  async checkConfiguration() {
+    const variantId = process.env.LEMONSQUEEZY_VARIANT_ID
+    if (!variantId) throw new PaymentError(503, "결제 상품 설정이 없습니다.")
+    const read = async (path: string) => {
+      const res = await fetch(`${LS_API}${path}`, { cache: "no-store", signal: AbortSignal.timeout(15000),
+        headers: { Accept: "application/vnd.api+json", Authorization: `Bearer ${this.apiKey}` } })
+      if (!res.ok) throw new PaymentError(503, `결제 설정 조회 실패 (${res.status})`)
+      return (await res.json())?.data
+    }
+    const [store, variant] = await Promise.all([read(`/stores/${encodeURIComponent(this.storeId)}`), read(`/variants/${encodeURIComponent(variantId)}`)])
+    if (store?.attributes?.currency !== "KRW" || this.storeCurrency !== "KRW"
+      || variant?.attributes?.test_mode !== paymentTestMode()
+      || (!paymentTestMode() && variant?.attributes?.status !== "published")) {
+      throw new PaymentError(503, "결제 스토어 통화·상품·운영 환경 확인이 필요합니다.")
+    }
+  }
+
   /**
    * 레몬스퀴지 체크아웃은 variant 하나만 받는다. 여러 줄이 필요하면
    * 결제를 나누거나 묶음 variant를 만들어야 한다 — 지금은 첫 줄만 쓰고,
@@ -95,12 +119,13 @@ export class LemonSqueezyProvider implements PaymentProvider {
       )
     }
     const line = input.lines[0]
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
     const listedKrw = Math.round(line.priceKrw)
     let sendKrw = listedKrw
 
     // 표시가는 천장. 환전 때문에 미리보기 총액이 더 나오면 넣는 금액을 낮춘다.
     for (let attempt = 0; attempt < 5; attempt++) {
-      const body = await this.postCheckout(input, line, sendKrw)
+      const body = await this.postCheckout(input, line, sendKrw, expiresAt)
       const preview = body?.data?.attributes?.preview
       const previewCharge = impliedChargeMinor(preview ?? {})
       if (!Number.isFinite(previewCharge) || previewCharge <= 0) {
@@ -108,9 +133,11 @@ export class LemonSqueezyProvider implements PaymentProvider {
       }
       const next = nextSendKrw(listedKrw, sendKrw, previewCharge)
       if (next === null) {
+        if (body.data.attributes.test_mode !== paymentTestMode() || !body.data.id) throw new PaymentError(502, "결제 환경을 확인하지 못했습니다.")
         return {
-          url: body.data.attributes.url as string,
+          url: safeCheckoutUrl(body.data.attributes.url),
           providerCheckoutId: String(body.data.id),
+          expiresAt,
         }
       }
       const rate = Number(preview?.currency_rate)
@@ -123,9 +150,10 @@ export class LemonSqueezyProvider implements PaymentProvider {
     throw new PaymentError(502, "표시 금액 이하로 결제 페이지를 만들지 못했습니다.")
   }
 
-  private async postCheckout(input: CheckoutInput, line: CheckoutLine, sendKrw: number) {
+  private async postCheckout(input: CheckoutInput, line: CheckoutLine, sendKrw: number, expiresAt: string) {
     const res = await fetch(`${LS_API}/checkouts`, {
       method: "POST",
+      signal: AbortSignal.timeout(15000),
       headers: {
         Accept: "application/vnd.api+json",
         "Content-Type": "application/vnd.api+json",
@@ -138,12 +166,20 @@ export class LemonSqueezyProvider implements PaymentProvider {
             // 레몬스퀴지는 KRW여도 cents. 26,800원 → 2680000.
             custom_price: sendKrw * 100,
             preview: true,
+            test_mode: paymentTestMode(),
+            expires_at: expiresAt,
+            checkout_options: { discount: false },
             product_options: {
               name: line.name,
               redirect_url: input.successUrl,
+              enabled_variants: [Number(line.variantId)],
+              receipt_link_url: input.successUrl,
+              receipt_button_text: "주문 진행 확인",
             },
             checkout_data: {
               email: input.email,
+              billing_address: { country: "KR" },
+              variant_quantities: [{ variant_id: Number(line.variantId), quantity: 1 }],
               // 웹훅 meta.custom_data로 그대로 돌아온다.
               custom: { reference: input.reference, kind: line.kind },
             },
@@ -162,6 +198,21 @@ export class LemonSqueezyProvider implements PaymentProvider {
       throw new PaymentError(res.status, detail)
     }
     return body
+  }
+
+  async getOrderEvent(providerOrderId: string, reference: string): Promise<PaymentEvent> {
+    const res = await fetch(`${LS_API}/orders/${encodeURIComponent(providerOrderId)}`, {
+      headers: { Accept: "application/vnd.api+json", Authorization: `Bearer ${this.apiKey}` },
+      cache: "no-store", signal: AbortSignal.timeout(15000),
+    })
+    if (!res.ok) throw new PaymentError(res.status, "결제 내역 조회 실패")
+    const body = await res.json()
+    const attrs = body?.data?.attributes
+    if (!attrs || String(body.data.id) !== providerOrderId) throw new PaymentError(502, "결제 내역 확인 실패")
+    const eventName = Number(attrs.refunded_amount) > 0 || attrs.refunded === true ? "order_refunded" : "order_created"
+    const event = this.parseEvent(JSON.stringify({ ...body, meta: { event_name: eventName, custom_data: { reference } } }), eventName)
+    if (event.type === "other") throw new PaymentError(409, "결제 상태 확인이 필요합니다.")
+    return event
   }
 
   /**
@@ -184,11 +235,16 @@ export class LemonSqueezyProvider implements PaymentProvider {
     const body = JSON.parse(rawBody)
     const attrs = body?.data?.attributes ?? {}
     const custom = body?.meta?.custom_data ?? {}
-    const name = eventName ?? body?.meta?.event_name ?? ""
+    const name = body?.meta?.event_name ?? ""
+    if (typeof name !== "string" || (eventName && eventName !== name)) throw new Error("event name mismatch")
 
+    const mode = attrs.test_mode ?? attrs.first_order_item?.test_mode
+    if (["order_created", "order_refunded"].includes(name) && (typeof mode !== "boolean"
+      || (attrs.test_mode !== undefined && attrs.first_order_item?.test_mode !== undefined
+        && attrs.test_mode !== attrs.first_order_item.test_mode))) throw new Error("Invalid payment mode")
     let type: PaymentEvent["type"] = "other"
     if (name === "order_created" && attrs.status === "paid") type = "paid"
-    else if (name === "order_refunded" || attrs.refunded === true) type = "refunded"
+    else if (name === "order_refunded" || (name === "order_created" && attrs.refunded === true)) type = "refunded"
 
     return {
       type,
@@ -196,9 +252,13 @@ export class LemonSqueezyProvider implements PaymentProvider {
       reference: custom.reference ? String(custom.reference) : null,
       email: attrs.user_email ? String(attrs.user_email) : null,
       totalMinor: Number(attrs.total ?? 0),
-      currency: String(attrs.currency ?? "KRW"),
-      testMode: Boolean(attrs.first_order_item?.test_mode ?? attrs.test_mode ?? false),
+      currency: String(attrs.currency ?? ""),
+      testMode: mode === true,
       rawEventName: name,
+      storeId: String(attrs.store_id ?? ""),
+      variantId: String(attrs.first_order_item?.variant_id ?? ""),
+      refundedMinor: Number(attrs.refunded_amount ?? 0),
+      fullyRefunded: attrs.refunded === true,
     }
   }
 }
@@ -215,4 +275,29 @@ export function getPaymentProvider(): PaymentProvider {
     throw new PaymentError(500, "결제 설정이 완료되지 않았습니다.")
   }
   return new LemonSqueezyProvider(apiKey, storeId, secret, currency)
+}
+
+/** Production defaults to live; test payments may only reach the supplier sandbox. */
+export function paymentTestMode(): boolean {
+  return process.env.LEMONSQUEEZY_TEST_MODE === "true"
+}
+
+export function assertPaymentEnvironment(testMode: boolean) {
+  const base = new URL(process.env.SWEETBOOK_API_BASE ?? "https://api-sandbox.sweetbook.com/v1")
+  const sandbox = base.hostname === "api-sandbox.sweetbook.com"
+  const live = base.hostname === "api.sweetbook.com"
+  if (base.protocol !== "https:" || base.username || base.password || base.search
+    || !["/v1", "/v1/"].includes(base.pathname)
+    || (testMode && !sandbox) || (!testMode && !live)) {
+    throw new PaymentError(503, "결제와 제작 환경을 확인 중입니다. 잠시 후 다시 시도해주세요.")
+  }
+}
+
+export function safeCheckoutUrl(value: unknown): string {
+  if (typeof value !== "string") throw new PaymentError(502, "결제 주소를 확인하지 못했습니다.")
+  const url = new URL(value)
+  if (url.protocol !== "https:" || !url.hostname.endsWith(".lemonsqueezy.com") || url.username || url.password) {
+    throw new PaymentError(502, "결제 주소를 확인하지 못했습니다.")
+  }
+  return url.toString()
 }

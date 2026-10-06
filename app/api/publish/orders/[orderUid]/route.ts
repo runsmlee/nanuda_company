@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
+import { authorizedOrder } from "@/lib/publishing/db"
 import { getOrder, SweetBookError } from "@/lib/publishing/sweetbook"
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ orderUid: string }> },
 ) {
   const { orderUid } = await params
@@ -11,6 +12,8 @@ export async function GET(
   }
 
   try {
+    const owned = await authorizedOrder(orderUid, req.nextUrl.searchParams.get("token") ?? undefined, true)
+    if (!owned) return NextResponse.json({ error: "주문을 찾을 수 없습니다." }, { status: 404 })
     const o = await getOrder(orderUid)
     return NextResponse.json({
       order: {
@@ -28,7 +31,7 @@ export async function GET(
           itemStatusDisplay: i.itemStatusDisplay,
         })),
       },
-    })
+    }, { headers: { "Cache-Control": "private, no-store" } })
   } catch (e) {
     if (e instanceof SweetBookError && e.status === 404) {
       return NextResponse.json({ error: "주문을 찾을 수 없습니다." }, { status: 404 })

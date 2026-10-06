@@ -1,0 +1,28 @@
+name: Publishing payment reconciliation
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+concurrency:
+  group: publishing-payment-reconciliation
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Recover one queued order and report monetary exceptions
+        env:
+          PUBLISH_WORKER_SECRET: ${{ secrets.PUBLISH_WORKER_SECRET }}
+        run: |
+          set -euo pipefail
+          : "${PUBLISH_WORKER_SECRET:?Missing PUBLISH_WORKER_SECRET}"
+          curl --fail --silent --show-error \
+            --connect-timeout 10 --max-time 130 \
+            --header "Authorization: Bearer ${PUBLISH_WORKER_SECRET}" \
+            --request POST \
+            "https://www.nanudacompany.com/api/publish/reconcile"

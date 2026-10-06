@@ -56,3 +56,11 @@ export function estimateProductPrice(
   const cost = costWithVat(unitCostExclVat(spec, pages) * quantity)
   return sellingPrice(cost, quantity)
 }
+
+/** SweetBook domestic shipping: 3,000 KRW excl. VAT per order. Pass through once, without product margin. */
+export const DOMESTIC_SHIPPING_KRW = 3300
+export function estimateDeliveredPrice(
+  spec: Parameters<typeof estimateProductPrice>[0], pages: number, quantity: number,
+): number {
+  return estimateProductPrice(spec, pages, quantity) + DOMESTIC_SHIPPING_KRW
+}

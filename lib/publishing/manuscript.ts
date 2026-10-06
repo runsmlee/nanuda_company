@@ -7,6 +7,7 @@
 // <br>은 그 문단의 강제 줄바꿈으로 남긴다.
 
 import mammoth from "mammoth"
+import { inflateRawSync } from "node:zlib"
 import {
   chapterize,
   imageAltText,
@@ -539,11 +540,46 @@ export function decodeText(buf: Buffer): string {
   }
 }
 
-/** 확장자로 파서를 고른다. 지원하지 않는 형식은 이유와 함께 던진다. */
+/** Bound expanded DOCX content before mammoth allocates/decompresses it. ZIP64/multi-disk archives are unsupported. */
+export function validateDocxArchive(buffer: Buffer) {
+  const end = buffer.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]))
+  if (end < Math.max(0, buffer.length - 65557) || end + 22 > buffer.length) throw new Error("DOCX 파일 형식을 확인해주세요.")
+  const count = buffer.readUInt16LE(end + 10)
+  let offset = buffer.readUInt32LE(end + 16)
+  const centralEnd = offset + buffer.readUInt32LE(end + 12)
+  if (buffer.readUInt16LE(end + 4) !== 0 || buffer.readUInt16LE(end + 6) !== 0
+    || count === 65535 || count > 1024 || centralEnd > end) throw new Error("DOCX 파일이 너무 크거나 지원하지 않는 형식입니다.")
+  let expanded = 0
+  for (let i = 0; i < count; i++) {
+    if (offset + 46 > centralEnd || buffer.readUInt32LE(offset) !== 0x02014b50) throw new Error("DOCX 파일 형식을 확인해주세요.")
+    expanded += buffer.readUInt32LE(offset + 24)
+    if (expanded > 25 * 1024 * 1024 || buffer.readUInt16LE(offset + 8) & 1) throw new Error("DOCX 압축 해제 크기는 25MB 이하로 올려주세요.")
+    const local = buffer.readUInt32LE(offset + 42)
+    if (local + 30 > buffer.length || buffer.readUInt32LE(local) !== 0x04034b50) throw new Error("DOCX 파일 형식을 확인해주세요.")
+    const start = local + 30 + buffer.readUInt16LE(local + 26) + buffer.readUInt16LE(local + 28)
+    const finish = start + buffer.readUInt32LE(offset + 20)
+    if (finish > buffer.length) throw new Error("DOCX 파일 형식을 확인해주세요.")
+    const method = buffer.readUInt16LE(offset + 10)
+    const expected = buffer.readUInt32LE(offset + 24)
+    const data = buffer.subarray(start, finish)
+    const decoded = method === 8 ? inflateRawSync(data, { maxOutputLength: Math.max(1, expected + 1) }) : data
+    if (![0, 8].includes(method) || decoded.length !== expected) throw new Error("DOCX 압축 정보를 확인해주세요.")
+    offset += 46 + buffer.readUInt16LE(offset + 28) + buffer.readUInt16LE(offset + 30) + buffer.readUInt16LE(offset + 32)
+    if (offset > centralEnd) throw new Error("DOCX 파일 형식을 확인해주세요.")
+  }
+  if (offset !== centralEnd) throw new Error("DOCX 파일 형식을 확인해주세요.")
+}
+
+/** Shared bound for preview and paid fulfillment; existing large manuscripts remain renderable up to 10MB. */
 export async function parseManuscriptFile(fileName: string, buffer: Buffer): Promise<ParsedManuscript> {
+  if (buffer.length > 10 * 1024 * 1024) throw new Error("원고는 10MB 이내로 올려주세요.")
   const ext = fileName.toLowerCase().slice(fileName.lastIndexOf("."))
-  if (ext === ".docx") return parseDocx(buffer)
-  if (ext === ".md" || ext === ".txt") return parseTextManuscript(decodeText(buffer))
+  if (ext === ".docx" || ext === ".md" || ext === ".txt") {
+    if (ext === ".docx") validateDocxArchive(buffer)
+    const parsed = ext === ".docx" ? await parseDocx(buffer) : parseTextManuscript(decodeText(buffer))
+    if (parsed.charCount > 1_000_000) throw new Error("원고는 100만 자 이내로 나눠 올려주세요.")
+    return parsed
+  }
   if (ext === ".hwp" || ext === ".hwpx") {
     throw new Error("한글(.hwp) 파일은 아직 지원하지 않습니다. 한글에서 '다른 이름으로 저장 → .docx'로 저장해 올려주세요.")
   }

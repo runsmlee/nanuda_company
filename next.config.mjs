@@ -7,6 +7,8 @@ const nextConfig = {
     '/api/publish/cover': ['./assets/fonts/**'],
     '/api/publish/checkout': ['./assets/fonts/**'],
     '/api/publish/webhook/lemonsqueezy': ['./assets/fonts/**'],
+    '/api/publish/webhook/sweetbook': ['./assets/fonts/**'],
+    '/api/publish/reconcile': ['./assets/fonts/**'],
   },
   images: {
     unoptimized: false,  // 이미지 최적화 활성화

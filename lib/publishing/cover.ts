@@ -34,6 +34,7 @@ export interface CoverOptions {
   /** 앞표지 배경 이미지. photo 테마에서만 쓴다. */
   image?: Buffer
   /** 미리보기용 워터마크. 결제 후 인쇄본에는 넣지 않는다. */
+  strictImage?: boolean
   watermark?: boolean
 }
 
@@ -143,9 +144,11 @@ export async function renderCover(
       doc.rect(frontX, H * 0.52, panel + bleed, H * 0.48).fillOpacity(0.55).fill("#000000")
       doc.fillOpacity(1)
     } catch {
+      if (opts.strictImage) throw new Error("표지 이미지를 읽지 못했습니다. JPG·PNG 파일을 확인해주세요.")
       notes.push("표지 이미지를 읽지 못해 배경색으로 대체했습니다.")
     }
   } else if (opts.theme === "photo") {
+    if (opts.strictImage) throw new Error("사진 표지에 사용할 이미지가 필요합니다.")
     notes.push("사진 테마를 골랐지만 이미지가 없어 배경색으로 그렸습니다.")
   }
 

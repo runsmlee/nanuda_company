@@ -2,13 +2,14 @@ import Link from "next/link"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { CustomCursor } from "@/components/custom-cursor"
-import { PUBLISH_ENABLED } from "@/lib/publishing/config"
+import { authorizedOrder } from "@/lib/publishing/db"
 import { getOrder, SweetBookError, type Order } from "@/lib/publishing/sweetbook"
 import { RefreshButton } from "./refresh-button"
 
 export const metadata: Metadata = {
   title: "주문 진행 상황 | 생각을나누다",
   robots: { index: false, follow: false },
+  referrer: "no-referrer",
 }
 
 export const dynamic = "force-dynamic"
@@ -37,12 +38,13 @@ const krw = (n: number) => `${Math.round(n).toLocaleString("ko-KR")}원`
 
 interface PageProps {
   params: Promise<{ orderUid: string }>
+  searchParams: Promise<{ token?: string }>
 }
 
-export default async function OrderStatusPage({ params }: PageProps) {
-  if (!PUBLISH_ENABLED) notFound()
-
+export default async function OrderStatusPage({ params, searchParams }: PageProps) {
   const { orderUid } = await params
+  const { token } = await searchParams
+  if (!await authorizedOrder(orderUid, token, true)) notFound()
 
   let order: Order
   try {

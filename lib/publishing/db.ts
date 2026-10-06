@@ -56,6 +56,20 @@ export interface Order {
   address1: string | null
   address2: string | null
   shipping_memo: string | null
+  charged_total_minor: number | null
+  refunded_total_minor: number
+  payment_test_mode: boolean | null
+  review_required: boolean
+  cancellation_status: string | null
+  fulfillment_attempts: number
+  fulfillment_token: string | null
+  next_retry_at: string | null
+  checkout_url: string | null
+  checkout_expires_at: string | null
+  request_hash: string | null
+  book_uid: string | null
+  print_requested_at: string | null
+  print_request: import("./sweetbook").OrderRequest | null
 }
 
 /**
@@ -81,4 +95,25 @@ export async function getManuscript(path: string): Promise<Buffer> {
   const { data, error } = await db().storage.from(MANUSCRIPT_BUCKET).download(path)
   if (error || !data) throw new Error(`원고를 불러오지 못했습니다: ${error?.message ?? "not found"}`)
   return Buffer.from(await data.arrayBuffer())
+}
+
+/** Tokens stay in the private project table; no supplier lookup runs before ownership is checked. */
+export async function authorizedOrder(value: string, token: string | undefined, byPrintUid = false): Promise<Order | null> {
+  if (!token || !/^[A-Za-z0-9_-]{32}$/.test(token)) return null
+  const { data: order, error } = await db().from("publishing_orders").select("*")
+    .eq(byPrintUid ? "print_order_uid" : "id", value).maybeSingle<Order>()
+  if (error) throw new Error("주문 조회 실패")
+  if (!order) return null
+  const { data: project, error: projectError } = await db().from("publishing_projects")
+    .select("id").eq("id", order.project_id).eq("access_token", token).maybeSingle()
+  if (projectError) throw new Error("주문 조회 실패")
+  return project ? order : null
+}
+
+export async function currentWork(order: Order): Promise<Order> {
+  const { data, error } = await db().from("publishing_orders").select("*")
+    .eq("id", order.id).eq("fulfillment_token", order.fulfillment_token!)
+    .gt("fulfillment_until", new Date().toISOString()).single<Order>()
+  if (error || !data) throw new Error("Fulfillment lease lost")
+  return data
 }
