@@ -74,6 +74,7 @@ before(async () => {
       } } })
     }
     if (url.hostname === "api-sandbox.sweetbook.com") {
+      if (url.pathname === "/v1/credits") return Response.json({success:true,data:{env:"test",currency:"KRW"}})
       if (url.pathname === "/v1/book-specs") return Response.json({ success: true, data: [{
         bookSpecUid: "A5", innerTrimWidthMm: 148, innerTrimHeightMm: 210, bleedMm: 3,
         pageMin: 32, pageMax: 1000, pageIncrement: 2, priceBase: 18000, pricePerIncrement: 100,
@@ -401,4 +402,59 @@ test("supplier environment guard rejects credential transmission over HTTP", () 
     process.env.SWEETBOOK_API_BASE = "http://api.sweetbook.com/v1"
     assert.throws(() => payment.assertPaymentEnvironment(false))
   } finally { process.env.SWEETBOOK_API_BASE = saved }
+})
+
+test("missing or zero catalog prices cannot produce a shipping-only checkout", async () => {
+  const savedFetch = globalThis.fetch
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = new URL(typeof input === "string" || input instanceof URL ? String(input) : input.url)
+    if (url.pathname === "/v1/book-specs") return Response.json({success:true,data:[{bookSpecUid:"A5",pageIncrement:2,priceBase:null,pricePerIncrement:null}]})
+    return savedFetch(input, init)
+  }) as typeof fetch
+  try {
+    const form = checkoutForm()
+    const response = await checkout.POST(new NextRequest("https://example.com/api/publish/checkout", {method:"POST",body:form}))
+    assert.equal(response.status, 503)
+    const preview = await import("../../app/api/publish/typeset/route")
+    assert.equal((await preview.POST(new NextRequest("https://example.com/api/publish/typeset", {method:"POST",body:checkoutForm()}))).status,503)
+    assert.equal(checkoutCalls, 0); assert.equal(printCalls, 0)
+    assert.equal(rows("select * from publishing_orders").length, 1)
+    const pricing = await import("../../lib/publishing/pricing")
+    for (const base of [0, -1, Number.NaN]) assert.throws(() => pricing.estimateDeliveredPrice({priceBase:base,pricePerIncrement:100,pageMin:32,pageIncrement:2},32,1))
+  } finally { globalThis.fetch = savedFetch }
+})
+
+test("a paid order cannot print with supplier credentials from the other environment", async () => {
+  const savedFetch = globalThis.fetch
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = new URL(typeof input === "string" || input instanceof URL ? String(input) : input.url)
+    if (url.pathname === "/v1/credits") return Response.json({success:true,data:{env:"live",currency:"KRW"}})
+    return savedFetch(input,init)
+  }) as typeof fetch
+  try {
+    assert.equal((await record()).error,null)
+    assert.equal(await work.runPaymentWork(id),false)
+    assert.equal(order().review_required,true)
+    assert.equal(printCalls,0); assert.equal(cancelCalls,0)
+  } finally {globalThis.fetch=savedFetch}
+})
+
+test("public catalog access never proves supplier authentication or print environment", async () => {
+  const supplier = await import("../../lib/publishing/sweetbook")
+  const savedFetch = globalThis.fetch
+  let env = "live", authenticated = true
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = new URL(typeof input === "string" || input instanceof URL ? String(input) : input.url)
+    if (url.pathname === "/v1/credits") return authenticated
+      ? Response.json({success:true,data:{env,currency:"KRW",balance:12345}})
+      : Response.json({success:false,message:"Unauthorized"},{status:401})
+    return savedFetch(input,init)
+  }) as typeof fetch
+  try {
+    await assert.rejects(supplier.assertSupplierEnvironment(true), /environment mismatch/)
+    env = "test"; authenticated = false
+    await assert.rejects(supplier.assertSupplierEnvironment(true), /Unauthorized/)
+    assert.equal((await supplier.listBookSpecs()).length, 1)
+    assert.equal(printCalls,0); assert.equal(checkoutCalls,0)
+  } finally {globalThis.fetch=savedFetch}
 })

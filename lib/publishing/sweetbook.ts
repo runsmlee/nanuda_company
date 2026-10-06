@@ -189,6 +189,13 @@ export function listBookSpecs(): Promise<BookSpec[]> {
   return request<BookSpec[]>("/book-specs", CATALOG_REVALIDATE)
 }
 
+/** Catalogs are public. Credits are authenticated and identify the API key's actual environment. */
+export async function assertSupplierEnvironment(testMode: boolean): Promise<void> {
+  const credits = await request<{ env: string; currency: string }>("/credits")
+  if (credits.env !== (testMode ? "test" : "live") || credits.currency !== "KRW")
+    throw new SweetBookError(409, "ERR_ENVIRONMENT", ["제작사 운영 환경을 확인 중입니다."], "Supplier API key environment mismatch")
+}
+
 export function getCalculatedSize(bookSpecUid: string, pages: number): Promise<CalculatedSize> {
   return request<CalculatedSize>(
     `/book-specs/${encodeURIComponent(bookSpecUid)}/calculated-size?pages=${pages}`,

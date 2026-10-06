@@ -4,9 +4,9 @@ import { PUBLISH_ENABLED } from "@/lib/publishing/config"
 import { db, putManuscript, type Order, type Project } from "@/lib/publishing/db"
 import { parseManuscriptFile } from "@/lib/publishing/manuscript"
 import { getPaymentProvider, PaymentError, assertPaymentEnvironment, paymentTestMode, type LineKind } from "@/lib/publishing/payment"
-import { estimateDeliveredPrice } from "@/lib/publishing/pricing"
+import { estimateDeliveredPrice, hasBookPricing } from "@/lib/publishing/pricing"
 import { renderCover } from "@/lib/publishing/cover"
-import { listBookSpecs, getCalculatedSize } from "@/lib/publishing/sweetbook"
+import { listBookSpecs, getCalculatedSize, assertSupplierEnvironment } from "@/lib/publishing/sweetbook"
 import { typeset, type TextSize } from "@/lib/publishing/typeset"
 import { SITE_URL } from "@/lib/site-config"
 
@@ -103,9 +103,11 @@ export async function POST(req: NextRequest) {
     if (!variantId || !/^\d+$/.test(variantId)) throw new PaymentError(503, "결제 상품이 설정되지 않았습니다.")
     const testMode = paymentTestMode()
     assertPaymentEnvironment(testMode)
+    await assertSupplierEnvironment(testMode)
     const specs = await listBookSpecs()
     const spec = specs.find((s) => s.bookSpecUid === specUid)
     if (!spec) return NextResponse.json({ error: "선택한 판형을 확인해주세요." }, { status: 400 })
+    if (!hasBookPricing(spec)) return NextResponse.json({ error: "제작 단가를 확인 중입니다. 잠시 후 다시 시도해주세요." }, { status: 503 })
 
     const buffer = Buffer.from(await file.arrayBuffer())
     const parsed = await parseManuscriptFile(file.name, buffer)

@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Metadata } from "next"
 import { CustomCursor } from "@/components/custom-cursor"
 import { PUBLISH_ENABLED, PUBLISH_ORDERS_ENABLED } from "@/lib/publishing/config"
-import { estimateProductPrice } from "@/lib/publishing/pricing"
+import { estimateProductPrice, hasBookPricing } from "@/lib/publishing/pricing"
 import { listBookSpecs, type BookSpec } from "@/lib/publishing/sweetbook"
 import { absoluteUrl, SITE_NAME } from "@/lib/site-config"
 
@@ -222,7 +222,7 @@ export default async function PublishPage() {
                       <br />
                       {s.pageMin}~{s.pageMax}페이지
                     </p>
-                    <p className="text-white">
+                    {hasBookPricing(s) ? <p className="text-white">
                       <span className="text-xl font-medium">
                         {estimateProductPrice(
                           {
@@ -237,7 +237,7 @@ export default async function PublishPage() {
                         원
                       </span>
                       <span className="text-sm text-text-gray"> 부터</span>
-                    </p>
+                    </p> : <p className="text-white">가격 확인 중</p>}
                     {s.paper?.inner?.paper && (
                       <p className="text-xs text-text-gray">내지 {s.paper.inner.paper}</p>
                     )}
