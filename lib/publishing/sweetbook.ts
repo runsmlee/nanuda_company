@@ -151,6 +151,7 @@ async function request<T>(
     ...(init.next ? {} : { cache: "no-store" as const }),
     ...init,
     headers,
+    signal: init.signal ?? AbortSignal.timeout(20000),
   })
 
   // 429는 Retry-After(초)를 존중한다. 본문 shape가 6필드 표준을 따르지 않으므로 먼저 분기.
@@ -255,4 +256,16 @@ export function createOrder(order: OrderRequest, idempotencyKey: string): Promis
 
 export function getOrder(orderUid: string): Promise<Order> {
   return request<Order>(`/orders/${encodeURIComponent(orderUid)}`)
+}
+
+export function cancelOrder(orderUid: string, reason: string): Promise<unknown> {
+  return request(`/orders/${encodeURIComponent(orderUid)}/cancel`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ cancelReason: reason.slice(0, 500) }),
+    idempotencyKey: `cancel-${orderUid}`,
+  })
+}
+
+export function getBook(bookUid: string): Promise<{ bookStatus: number }> {
+  return request(`/books/${encodeURIComponent(bookUid)}`)
 }

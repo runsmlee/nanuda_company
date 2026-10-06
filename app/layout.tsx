@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Nanum_Myeongjo } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
+import { PublishingSafeAnalytics } from '@/components/publishing-safe-analytics'
 import { BOOKS_DATA } from '@/lib/books-data'
 import {
   absoluteUrl,
@@ -222,7 +222,7 @@ export default function RootLayout({
       <body className={nanumMyeongjo.variable}>
         {children}
         {/* 쿠키 없이 집계한다 — 방문자 식별자를 저장하지 않으므로 동의 배너가 필요 없다. */}
-        <Analytics />
+        <PublishingSafeAnalytics />
       </body>
     </html>
   )

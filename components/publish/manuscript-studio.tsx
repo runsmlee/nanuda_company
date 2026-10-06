@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { estimateProductPrice } from "@/lib/publishing/pricing"
+import { estimateDeliveredPrice } from "@/lib/publishing/pricing"
 import type { WizardSpec } from "./publish-wizard"
 
 interface SizeOption {
@@ -181,11 +181,11 @@ function payError(
   email: string,
   shipping: { recipientName: string; recipientPhone: string; postalCode: string; address1: string },
 ) {
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) return "연락받을 이메일을 확인해주세요."
-  if (!shipping.recipientName.trim()) return "받는 분 성함을 입력해주세요."
-  if (!/^[0-9+\-\s]{9,20}$/.test(shipping.recipientPhone.trim())) return "연락처를 확인해주세요."
-  if (!/^\d{5}$/.test(shipping.postalCode.trim())) return "우편번호 5자리를 입력해주세요."
-  if (!shipping.address1.trim()) return "주소를 입력해주세요."
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) return { message: "연락받을 이메일을 확인해주세요.", id: "s-email" }
+  if (!shipping.recipientName.trim()) return { message: "받는 분 성함을 입력해주세요.", id: "s-recipient" }
+  if (!/^[0-9+\-\s]{9,20}$/.test(shipping.recipientPhone.trim())) return { message: "연락처를 확인해주세요.", id: "s-phone" }
+  if (!/^\d{5}$/.test(shipping.postalCode.trim())) return { message: "우편번호 5자리를 입력해주세요.", id: "s-postal" }
+  if (!shipping.address1.trim()) return { message: "주소를 입력해주세요.", id: "s-addr1" }
   return null
 }
 
@@ -203,6 +203,19 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
 
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [errorField, setErrorField] = useState<string | null>(null)
+  const [orderUrl, setOrderUrl] = useState<string | null>(null)
+  const [confirmedCheckout, setConfirmedCheckout] = useState<{ url: string; price: number; fingerprint: string } | null>(null)
+  const errorRef = useRef<HTMLDivElement>(null)
+  const checkoutRunning = useRef(false)
+  const currentCheckoutFingerprint = useRef("")
+  useEffect(() => {
+    setOrderUrl(sessionStorage.getItem("publishing-last-order"))
+  }, [])
+  useEffect(() => {
+    if (error) (errorField ? document.getElementById(errorField) : errorRef.current)?.focus()
+    else setErrorField(null)
+  }, [error, errorField])
   const [summary, setSummary] = useState<Summary | null>(null)
   const [doc, setDoc] = useState<PdfDoc | null>(null)
   const [spread, setSpread] = useState(0)
@@ -237,7 +250,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
   const spec = specs.find((s) => s.bookSpecUid === specUid)
   const displayPrice =
     spec && summary
-      ? estimateProductPrice(
+      ? estimateDeliveredPrice(
           {
             pageMin: spec.pageMin,
             pageIncrement: spec.pageIncrement,
@@ -250,6 +263,10 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
       : summary?.priceTotal
 
   const currentKey = typesetKey(file, specUid, textSize, chapterNewPage, title, authorName)
+  const checkoutFingerprint = JSON.stringify([currentKey, file?.lastModified, file?.size, theme, backText,
+    coverImage?.name, coverImage?.size, coverImage?.lastModified, email, quantity, shipping])
+  currentCheckoutFingerprint.current = checkoutFingerprint
+  const applicableConfirmation = confirmedCheckout?.fingerprint === checkoutFingerprint ? confirmedCheckout : null
   const dirty = Boolean(doc && typesetStamp && typesetStamp !== currentKey)
 
   const chooseFile = useCallback((next: File | null) => {
@@ -381,6 +398,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
   }, [file, specUid, textSize, chapterNewPage, title, authorName])
 
   const startCheckout = useCallback(async () => {
+    if (checkoutRunning.current) return
     if (!file || !summary) {
       setError("먼저 조판해서 미리보기를 확인해주세요.")
       return
@@ -391,9 +409,13 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
     }
     const fieldError = payError(email, shipping)
     if (fieldError) {
-      setError(fieldError)
+      setErrorField(fieldError.id)
+      setError(fieldError.message)
+      document.getElementById(fieldError.id)?.focus()
       return
     }
+    setErrorField(null)
+    checkoutRunning.current = true
     setPayBusy(true)
     setError(null)
     const form = new FormData()
@@ -416,19 +438,43 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
     if (coverImage) form.set("coverImage", coverImage)
 
     try {
+      const fingerprint = checkoutFingerprint
+      if (confirmedCheckout?.fingerprint === fingerprint) {
+        window.location.href = confirmedCheckout.url
+        return
+      }
+      const previous = JSON.parse(sessionStorage.getItem("publishing-attempt") ?? "null")
+      const attempt = previous?.fingerprint === fingerprint ? previous : { fingerprint, id: crypto.randomUUID() }
+      sessionStorage.setItem("publishing-attempt", JSON.stringify(attempt))
+      form.set("attemptId", attempt.id)
       const res = await fetch("/api/publish/checkout", { method: "POST", body: form })
       const data = await res.json().catch(() => ({}))
+      if (typeof data.orderUrl === "string") {
+        setOrderUrl(data.orderUrl)
+        sessionStorage.setItem("publishing-last-order", data.orderUrl)
+      }
+      if (data.restart) sessionStorage.removeItem("publishing-attempt")
       if (!res.ok || !data.checkoutUrl) {
         setError(data.error ?? "결제 페이지를 만들지 못했습니다.")
+        return
+      }
+      if (currentCheckoutFingerprint.current !== fingerprint) {
+        setError("주문 준비 중 입력이 변경되었습니다. 현재 내용을 확인하고 다시 시도해주세요.")
+        return
+      }
+      if (data.priceKrw !== (displayPrice ?? summary.priceTotal)) {
+        setConfirmedCheckout({ url: data.checkoutUrl, price: data.priceKrw, fingerprint })
+        setError(`확정 금액은 ${krw(data.priceKrw)}입니다. 금액을 확인한 뒤 아래 버튼을 다시 눌러주세요.`)
         return
       }
       window.location.href = data.checkoutUrl
     } catch {
       setError("결제 준비 중 문제가 생겼습니다. 다시 시도해주세요.")
     } finally {
+      checkoutRunning.current = false
       setPayBusy(false)
     }
-  }, [file, summary, dirty, email, title, authorName, specUid, textSize, chapterNewPage, theme, backText, quantity, shipping, coverImage])
+  }, [file, summary, dirty, email, title, authorName, specUid, textSize, chapterNewPage, theme, backText, quantity, shipping, coverImage, checkoutFingerprint, confirmedCheckout, displayPrice])
 
   // 1쪽은 오른쪽 면. 이후 (2,3) (4,5) … 로 실제 책처럼 펼친다.
   const totalSpreads = doc ? Math.floor(doc.numPages / 2) + 1 : 0
@@ -439,6 +485,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
     <div className="grid lg:grid-cols-[22rem_1fr] gap-8 items-start">
       {/* 조작 패널 */}
       <div className="space-y-6">
+        {orderUrl && <a href={orderUrl} className="block text-sm text-accent-orange underline">이전에 준비한 주문 확인</a>}
         <div className="space-y-2">
           <span className="block text-sm font-medium text-white">원고 파일</span>
           <label
@@ -468,7 +515,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               <>
                 <span className="text-2xl text-accent-orange" aria-hidden>↑</span>
                 <span className="text-sm text-white">원고를 끌어다 놓거나 클릭</span>
-                <span className="text-xs text-text-gray">.docx · .md · .txt</span>
+                <span className="text-xs text-text-gray">.docx · .md · .txt · 최대 3MB</span>
               </>
             )}
             <input
@@ -488,13 +535,15 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
             <label htmlFor="s-title" className="block text-sm font-medium text-white">책 제목</label>
-            <input id="s-title" type="text" maxLength={200} value={title}
+            <input id="s-title"
+                  maxLength={100} type="text" value={title}
               placeholder="길에서 만나다"
               onChange={(e) => setTitle(e.target.value)} className={inputCls} />
           </div>
           <div className="space-y-2">
             <label htmlFor="s-author" className="block text-sm font-medium text-white">저자명</label>
-            <input id="s-author" type="text" maxLength={100} value={authorName}
+            <input id="s-author"
+                  maxLength={100} type="text" value={authorName}
               placeholder="이상민"
               onChange={(e) => setAuthorName(e.target.value)} className={inputCls} />
           </div>
@@ -540,7 +589,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
           type="button"
           onClick={runTypeset}
           disabled={busy || !file}
-          className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-accent-orange text-white font-medium hover:bg-accent-orange/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-accent-orange text-[#1a1a1a] font-medium hover:bg-accent-orange/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {busy ? (
             <>
@@ -553,8 +602,8 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
           )}
         </button>
 
-        {error && (
-          <div role="alert" className="border border-red-400/40 bg-red-400/10 px-4 py-3">
+        {error && !wantOrder && (
+          <div ref={errorRef} tabIndex={-1} role="alert" className="border border-red-400/40 bg-red-400/10 px-4 py-3">
             <p className="text-sm text-red-300 leading-relaxed">{error}</p>
           </div>
         )}
@@ -692,7 +741,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               type="button"
               onClick={() => setWantOrder(true)}
               disabled={dirty || !summary.withinSpec}
-              className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-accent-orange text-white font-medium hover:bg-accent-orange/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-accent-orange text-[#1a1a1a] font-medium hover:bg-accent-orange/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               이 책으로 제작하기
             </button>
@@ -710,14 +759,17 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
             <div>
               <p className="text-sm text-white">책으로 만들기</p>
               <p className="text-xs text-text-gray leading-relaxed mt-1">
-                결제하시면 조판한 내용 그대로 인쇄·제본해 보내드립니다. 카드에 청구되는 금액은
-                아래 표시 가격을 넘지 않습니다.
+                조판한 내용 그대로 인쇄·제본해 보내드립니다. 국내 배송비가 포함된 예상 금액이며,
+                결제 화면에서 최종 청구 금액을 확인해주세요.
               </p>
             </div>
             <div className="space-y-2">
               <label htmlFor="s-email" className="block text-sm font-medium text-white">이메일</label>
               <input
                 id="s-email"
+                  maxLength={254}
+                  aria-invalid={errorField === "s-email"}
+                  aria-describedby={errorField === "s-email" ? "s-email-error" : undefined}
                 type="email"
                 autoComplete="email"
                 value={email}
@@ -725,6 +777,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
                 placeholder="영수증을 받을 주소"
                 className={inputCls}
               />
+              {error && errorField === "s-email" && <p id="s-email-error" role="alert" className="text-sm text-red-300">{error}</p>}
             </div>
             <div className="space-y-2">
               <label htmlFor="s-qty" className="block text-sm font-medium text-white">수량</label>
@@ -734,7 +787,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
                 min={1}
                 max={100}
                 value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Math.min(100, Number(e.target.value) || 1)))}
+                onChange={(e) => setQuantity(Math.max(1, Math.min(100, Math.trunc(Number(e.target.value)) || 1)))}
                 className={inputCls}
               />
             </div>
@@ -743,17 +796,24 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
                 <label htmlFor="s-recipient" className="block text-sm font-medium text-white">받는 분</label>
                 <input
                   id="s-recipient"
+                  maxLength={100}
+                  aria-invalid={errorField === "s-recipient"}
+                  aria-describedby={errorField === "s-recipient" ? "s-recipient-error" : undefined}
                   type="text"
                   autoComplete="name"
                   value={shipping.recipientName}
                   onChange={(e) => setShipping({ ...shipping, recipientName: e.target.value })}
                   className={inputCls}
                 />
+              {error && errorField === "s-recipient" && <p id="s-recipient-error" role="alert" className="text-sm text-red-300">{error}</p>}
               </div>
               <div className="space-y-2">
                 <label htmlFor="s-phone" className="block text-sm font-medium text-white">연락처</label>
                 <input
                   id="s-phone"
+                  maxLength={20}
+                  aria-invalid={errorField === "s-phone"}
+                  aria-describedby={errorField === "s-phone" ? "s-phone-error" : undefined}
                   type="tel"
                   autoComplete="tel"
                   placeholder="010-0000-0000"
@@ -761,12 +821,15 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
                   onChange={(e) => setShipping({ ...shipping, recipientPhone: e.target.value })}
                   className={inputCls}
                 />
+              {error && errorField === "s-phone" && <p id="s-phone-error" role="alert" className="text-sm text-red-300">{error}</p>}
               </div>
             </div>
             <div className="space-y-2">
               <label htmlFor="s-postal" className="block text-sm font-medium text-white">우편번호</label>
               <input
                 id="s-postal"
+                  aria-invalid={errorField === "s-postal"}
+                  aria-describedby={errorField === "s-postal" ? "s-postal-error" : undefined}
                 type="text"
                 inputMode="numeric"
                 autoComplete="postal-code"
@@ -776,17 +839,22 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
                 onChange={(e) => setShipping({ ...shipping, postalCode: e.target.value.replace(/\D/g, "") })}
                 className={inputCls}
               />
+              {error && errorField === "s-postal" && <p id="s-postal-error" role="alert" className="text-sm text-red-300">{error}</p>}
             </div>
             <div className="space-y-2">
               <label htmlFor="s-addr1" className="block text-sm font-medium text-white">주소</label>
               <input
                 id="s-addr1"
+                  maxLength={200}
+                  aria-invalid={errorField === "s-addr1"}
+                  aria-describedby={errorField === "s-addr1" ? "s-addr1-error" : undefined}
                 type="text"
                 autoComplete="address-line1"
                 value={shipping.address1}
                 onChange={(e) => setShipping({ ...shipping, address1: e.target.value })}
                 className={inputCls}
               />
+              {error && errorField === "s-addr1" && <p id="s-addr1-error" role="alert" className="text-sm text-red-300">{error}</p>}
             </div>
             <div className="space-y-2">
               <label htmlFor="s-addr2" className="block text-sm font-medium text-white">
@@ -794,6 +862,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               </label>
               <input
                 id="s-addr2"
+                  maxLength={200}
                 type="text"
                 autoComplete="address-line2"
                 value={shipping.address2}
@@ -807,6 +876,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               </label>
               <input
                 id="s-memo"
+                  maxLength={200}
                 type="text"
                 value={shipping.memo}
                 onChange={(e) => setShipping({ ...shipping, memo: e.target.value })}
@@ -814,18 +884,27 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
                 className={inputCls}
               />
             </div>
+            <p className="text-xs text-text-gray leading-relaxed">
+              원고는 3MB, 표지는 1MB 이내로 올려주세요. 국내 배송비 3,300원이 포함된 예상 금액입니다. 결제 화면에서 최종 청구 금액을 확인해주세요.
+              제작 확정 이후에는 인쇄 취소가 어려울 수 있습니다.
+            </p>
+            {error && !errorField && (
+              <div ref={errorRef} tabIndex={-1} id="checkout-error" role="alert" className="border border-red-400/40 bg-red-400/10 px-4 py-3">
+                <p className="text-sm text-red-300 leading-relaxed">{error}</p>
+              </div>
+            )}
             <button
               type="button"
               onClick={startCheckout}
               disabled={payBusy || dirty || !summary.withinSpec}
-              className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-accent-orange text-white font-medium hover:bg-accent-orange/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-accent-orange text-[#1a1a1a] font-medium hover:bg-accent-orange/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {payBusy ? (
                 <>
                   <Spinner /> {PAY_PHASES[payPhase]}…
                 </>
               ) : (
-                `${krw(displayPrice ?? summary.priceTotal)} 결제하고 제작하기`
+                `${krw(applicableConfirmation?.price ?? displayPrice ?? summary.priceTotal)} 결제하고 제작하기`
               )}
             </button>
             {payBusy && (

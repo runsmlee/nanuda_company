@@ -7,15 +7,19 @@
 // 끊겨 재전송되어도 책과 주문이 두 번 만들어지지 않는다.
 
 import { renderCover } from "./cover"
-import { db, getManuscript, type Order, type Project } from "./db"
+import { db, currentWork, getManuscript, type Order, type Project } from "./db"
 import { parseManuscriptFile } from "./manuscript"
 import {
   createBook,
+  getBook,
+  estimateOrder,
   createOrder as createPrintOrder,
   finalizeBook,
   getCalculatedSize,
   listBookSpecs,
   uploadPdf,
+  SweetBookError,
+  type OrderRequest,
 } from "./sweetbook"
 import { typeset } from "./typeset"
 
@@ -34,13 +38,9 @@ const asFile = (buf: Buffer, name: string) =>
  * 판매 대상은 실물 책이다. digital은 예전 행을 막기 위한 안전장치일 뿐이다.
  */
 export async function fulfillOrder(order: Order, project: Project): Promise<FulfillResult> {
-  if (order.kind === "digital") {
-    await db()
-      .from("publishing_orders")
-      .update({ status: "submitted", submitted_at: new Date().toISOString() })
-      .eq("id", order.id)
-    return { printOrderUid: null, status: "submitted", note: "디지털 주문 — 인쇄 없음" }
-  }
+  if (order.kind !== "physical") throw new Error("Unsupported fulfillment kind")
+
+  if (order.print_request) return submitPrintRequest(order, order.print_request)
 
   const specs = await listBookSpecs()
   const spec = specs.find((s) => s.bookSpecUid === project.book_spec_uid)
@@ -76,11 +76,7 @@ export async function fulfillOrder(order: Order, project: Project): Promise<Fulf
   const size = await getCalculatedSize(spec.bookSpecUid, inner.pageCount)
   let coverImage: Buffer | undefined
   if (project.cover_image_path) {
-    try {
-      coverImage = await getManuscript(project.cover_image_path)
-    } catch {
-      // 표지 이미지가 없으면 배경색으로 그린다. 인쇄를 막을 이유는 아니다.
-    }
+    coverImage = await getManuscript(project.cover_image_path)
   }
   const cover = await renderCover(size, spec.bleedMm, {
     title: project.title,
@@ -89,25 +85,29 @@ export async function fulfillOrder(order: Order, project: Project): Promise<Fulf
     backText: project.back_text ?? undefined,
     theme: project.cover_theme,
     image: coverImage,
+    strictImage: true,
   })
 
   // 3) 제작사에 제출. 멱등키는 우리 주문 UUID.
-  const { bookUid } = await createBook(
-    {
-      title: `${project.title} — ${project.author_name}`,
-      bookSpecUid: spec.bookSpecUid,
-      pageCount: inner.pageCount,
-      externalRef: order.id,
-    },
-    `book-${order.id}`,
-  )
+  let bookUid = order.book_uid
+  if (!bookUid) {
+    const created = await createBook({
+      title: `${project.title} — ${project.author_name}`, bookSpecUid: spec.bookSpecUid,
+      pageCount: inner.pageCount, externalRef: order.id,
+    }, `book-${order.id}`)
+    bookUid = created.bookUid
+    const { error } = await db().from("publishing_orders").update({ book_uid: bookUid })
+      .eq("id", order.id).eq("fulfillment_token", order.fulfillment_token!).select("id").single()
+    if (error) throw new Error("Book identity recording failed")
+  }
+  const book = await getBook(bookUid)
+  if (book.bookStatus !== 2) {
+    await uploadPdf(bookUid, "cover", asFile(cover.pdf, "cover.pdf"))
+    await uploadPdf(bookUid, "contents", asFile(inner.pdf, "contents.pdf"))
+    await finalizeBook(bookUid, `final-${order.id}`)
+  }
 
-  await uploadPdf(bookUid, "cover", asFile(cover.pdf, "cover.pdf"))
-  await uploadPdf(bookUid, "contents", asFile(inner.pdf, "contents.pdf"))
-  await finalizeBook(bookUid, `final-${order.id}`)
-
-  const printOrder = await createPrintOrder(
-    {
+  const request = {
       items: [{ bookUid, quantity: order.quantity }],
       shipping: {
         recipientName: order.recipient_name ?? "",
@@ -118,33 +118,38 @@ export async function fulfillOrder(order: Order, project: Project): Promise<Fulf
         memo: order.shipping_memo ?? undefined,
       },
       externalRef: order.id,
-    },
-    `order-${order.id}`,
-  )
-
-  await db()
-    .from("publishing_orders")
-    .update({
-      status: "submitted",
-      failure_reason: null,
-      print_order_uid: printOrder.orderUid,
-      print_status: printOrder.orderStatus,
-      submitted_at: new Date().toISOString(),
-    })
-    .eq("id", order.id)
-
-  return {
-    printOrderUid: printOrder.orderUid,
-    status: "submitted",
-    note: `${inner.pageCount}쪽 · ${order.quantity}권 제작 접수`,
+    }
+  const estimate = await estimateOrder(request)
+  if (!Number.isFinite(estimate.paidCreditAmount) || estimate.paidCreditAmount > order.price_krw) {
+    throw new SweetBookError(422, "ERR_QUOTE_CHANGED", [], "Supplier quote requires review")
   }
+  const { data: prepared, error: prepareError } = await db().from("publishing_orders")
+    .update({ print_request: request, print_requested_at: new Date().toISOString() }).eq("id", order.id).eq("fulfillment_token", order.fulfillment_token!)
+    .in("status", ["paid", "failed"]).eq("review_required", false)
+    .gt("fulfillment_until", new Date().toISOString()).select("*").maybeSingle<Order>()
+  if (prepareError) throw new Error("Print intent recording failed")
+  if (!prepared) {
+    const current = await currentWork(order)
+    return { printOrderUid: null, status: current.status, note: "Payment hold: no print order created" }
+  }
+  return submitPrintRequest(prepared, request)
 }
 
-/** 실패를 기록해 운영자가 개입할 수 있게 한다. 결제는 이미 끝났으므로 조용히 삼키면 안 된다. */
-export async function markOrderFailed(orderId: string, reason: string) {
-  await db()
-    .from("publishing_orders")
-    .update({ status: "failed", failure_reason: reason.slice(0, 500) })
-    .eq("id", orderId)
-    .in("status", ["pending", "paid", "failed"])
+/** Persisted intent + supplier idempotency recover even a lost createOrder/DB response during refund. */
+export async function submitPrintRequest(order: Order, request: OrderRequest): Promise<FulfillResult> {
+  const current = await currentWork(order)
+  if (current.status === "cancelled" || (current.review_required && current.status !== "refunded")) {
+    return { printOrderUid: null, status: current.status, note: "Payment hold: no print order created" }
+  }
+  // SweetBook idempotency records expire after 24h. An ambiguous old request requires operator reconciliation.
+  if (!current.print_requested_at || Date.now() - Date.parse(current.print_requested_at) > 23 * 60 * 60 * 1000) {
+    throw new SweetBookError(422, "ERR_OLD_INTENT", [], "Print request is outside the idempotency recovery window")
+  }
+  const printOrder = await createPrintOrder(request, `order-${order.id}`)
+  const { data, error } = await db().rpc("publishing_attach_print", {
+    p_order_id: order.id, p_token: order.fulfillment_token,
+    p_print_uid: printOrder.orderUid, p_status: printOrder.orderStatus,
+  })
+  if (error || !data?.length) throw new Error("Print order recording failed")
+  return { printOrderUid: printOrder.orderUid, status: data[0].status, note: "제작 접수 확인" }
 }

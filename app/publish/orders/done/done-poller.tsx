@@ -1,19 +1,22 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 /** pending/paid 동안 서버 상태를 다시 읽어 접수 번호가 뜨면 멈춰다. */
 export function DonePoller({ active }: { active: boolean }) {
   const router = useRouter()
+  const [delayed, setDelayed] = useState(false)
 
   useEffect(() => {
     if (!active) return
-    const id = window.setInterval(() => router.refresh(), 3000)
-    return () => window.clearInterval(id)
+    const id = window.setInterval(() => router.refresh(), 5000)
+    const timeout = window.setTimeout(() => { window.clearInterval(id); setDelayed(true) }, 120000)
+    return () => { window.clearInterval(id); window.clearTimeout(timeout) }
   }, [active, router])
 
   if (!active) return null
+  if (delayed) return <p role="status" className="text-sm text-text-gray">확인이 지연되고 있습니다. 중복 결제를 하지 말고 ‘다시 확인’ 또는 주문 문의를 이용해주세요.</p>
   return (
     <p className="text-sm text-text-gray flex items-center justify-center gap-2" aria-live="polite">
       <span
