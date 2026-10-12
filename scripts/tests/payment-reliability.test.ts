@@ -157,6 +157,84 @@ test("verified payment and receipt ledger commit atomically", async () => {
   assert.equal(order().charged_total_minor, 2_000_000)
   assert.equal(rows("select * from publishing_webhook_events").length, 1)
 })
+for (const status of ["paid", "failed", "refunded", "submitted"]) {
+  test(`archived QA ${status} orders never enter fulfillment or supplier reconciliation`, async () => {
+    await record()
+    sql(`update publishing_orders set status=${quote(status)}, archived_at=now(), review_required=false,
+      cancellation_status='pending', print_order_uid=${status === "submitted" ? "'print-fixture'" : "null"} where id=${quote(id)}`)
+    assert.equal(await work.runPaymentWork(id), false)
+    assert.equal(await work.reconcileSubmittedOrder(), false)
+    assert.equal(order().fulfillment_attempts, 0)
+    assert.equal(printCalls, 0)
+    assert.equal(cancelCalls, 0)
+  })
+}
+test("late test payment/refund callbacks cannot change archived QA money or holds", async () => {
+  await record()
+  sql(`update publishing_orders set archived_at=now(), review_required=false where id=${quote(id)}`)
+  const before = order()
+  assert.equal((await record()).error, null)
+  assert.equal((await record({type:"refunded",refundedMinor:2_000_000,fullyRefunded:true})).error, null)
+  assert.deepEqual(order(), before)
+})
+test("live payments cannot be silently accepted by archived QA records", async () => {
+  sql(`update publishing_orders set archived_at=now() where id=${quote(id)}`)
+  assert.ok((await record({testMode:false})).error)
+  assert.equal(order().charged_total_minor, null)
+})
+test("archived QA supplier callbacks preserve history without recreating an exception", async () => {
+  sql(`update publishing_orders set status='submitted', print_order_uid='print-fixture', print_status='PDF_READY',
+    archived_at=now(), review_required=false where id=${quote(id)}`)
+  const before = order()
+  assert.equal((await db.db().rpc("publishing_record_print_event", {p_event_id:"late-test-cancel",p_event_name:"order.cancelled",p_print_uid:"print-fixture",p_status:"CANCELLED"})).data, true)
+  assert.deepEqual(order(), before)
+})
+test("archived QA orders cannot use public tracking even with the former ownership token", async () => {
+  sql(`update publishing_orders set print_order_uid='print-fixture', archived_at=now() where id=${quote(id)}`)
+  assert.equal(await db.authorizedOrder(id, token), null)
+  const response = await api.GET(new NextRequest(`http://test/api/publish/orders/print-fixture?token=${token}`), {params:Promise.resolve({orderUid:"print-fixture"})})
+  assert.equal(response.status, 404)
+})
+test("live order records cannot be archived as verified QA", async () => {
+  assert.throws(() => sql(`update publishing_orders set payment_test_mode=false, archived_at=now() where id=${quote(id)}`))
+  assert.equal(order().archived_at, null)
+})
+test("active fulfillment leases prevent archiving an in-flight order", async () => {
+  await record()
+  const claimed = await db.db().rpc("publishing_claim_work", {p_order_id:id})
+  assert.ok(claimed.data[0].fulfillment_token)
+  assert.throws(() => sql(`update publishing_orders set archived_at=now() where id=${quote(id)}`))
+  assert.equal(order().archived_at, null)
+})
+test("archived QA print webhooks require a valid signature and never call a supplier", async () => {
+  sql(`update publishing_orders set print_order_uid='print-fixture', archived_at=now() where id=${quote(id)}`)
+  const savedFetch=globalThis.fetch, savedSecret=process.env.SWEETBOOK_WEBHOOK_SECRET
+  process.env.SWEETBOOK_WEBHOOK_SECRET="archived-test-only"
+  globalThis.fetch=(async(input:RequestInfo|URL,init?:RequestInit)=>{
+    assert.ok(String(input).startsWith(bridge.url), "Archived webhook must not query a supplier")
+    return savedFetch(input,init)
+  }) as typeof fetch
+  try {
+    const route=await import("../../app/api/publish/webhook/sweetbook/route")
+    const raw=JSON.stringify({eventUid:"late-qa",eventType:"order.cancelled",data:{orderUid:"print-fixture"}})
+    const timestamp=String(Math.floor(Date.now()/1000))
+    const request=(signature:string)=>new NextRequest("http://test/webhook",{method:"POST",body:raw,headers:{"X-Webhook-Timestamp":timestamp,"X-Webhook-Signature":signature}})
+    assert.equal((await route.POST(request("bad"))).status,401)
+    const signature=`sha256=${createHmac("sha256","archived-test-only").update(`${timestamp}.${raw}`).digest("hex")}`
+    const response=await route.POST(request(signature))
+    assert.equal(response.status,200); assert.equal((await response.json()).ignored,true)
+  } finally {globalThis.fetch=savedFetch;if(savedSecret===undefined)delete process.env.SWEETBOOK_WEBHOOK_SECRET;else process.env.SWEETBOOK_WEBHOOK_SECRET=savedSecret}
+})
+test("reconciliation excludes archived QA holds but still alerts on active monetary exceptions", async () => {
+  sql(`update publishing_orders set archived_at=now(), review_required=true where id=${quote(id)}`)
+  const route=await import("../../app/api/publish/reconcile/route")
+  const request=()=>new NextRequest("http://test/api/publish/reconcile",{method:"POST",headers:{authorization:`Bearer ${process.env.PUBLISH_WORKER_SECRET}`}})
+  const response=await route.POST(request())
+  assert.equal(response.status,200); assert.equal((await response.json()).reviewRequired,0)
+  seed()
+  sql(`update publishing_orders set review_required=true where id=${quote(id)}`)
+  assert.equal((await route.POST(request())).status,409)
+})
 for (const delta of [-1, 1, 100]) {
   test(`provider-confirmed full refund preserves FX rounding (${delta} minor units)`, async () => {
     assert.equal((await record({ type: "refunded", refundedMinor: 2_000_000 + delta, fullyRefunded: true })).error, null)
@@ -329,6 +407,15 @@ test("checkout retry reuses one local order and hosted checkout; redirect is can
   assert.equal(second.status,200); assert.equal(a.orderId,b.orderId); assert.equal(a.checkoutUrl,b.checkoutUrl); assert.equal(checkoutCalls,1)
   assert.equal(rows(`select * from publishing_orders where id=${quote(attempt)}`).length,1)
   assert.ok(a.orderUrl.includes("token="))
+})
+test("archiving a QA checkout prevents reusing its formerly valid hosted payment link", async () => {
+  const attempt=randomUUID()
+  const request=()=>new NextRequest("https://example.com/api/publish/checkout",{method:"POST",body:checkoutForm(attempt)})
+  assert.equal((await checkout.POST(request())).status,200)
+  sql(`update publishing_orders set archived_at=now() where id=${quote(attempt)}`)
+  const response=await checkout.POST(request())
+  assert.equal(response.status,409); assert.equal((await response.json()).restart,true)
+  assert.equal(checkoutCalls,1)
 })
 test("USD checkout saves the exact preview and reuses its frozen FX quote on retry", async () => {
   const saved=globalThis.fetch, savedCurrency=process.env.LEMONSQUEEZY_STORE_CURRENCY
