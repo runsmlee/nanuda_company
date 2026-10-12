@@ -237,6 +237,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
 
   const [email, setEmail] = useState("")
   const [quantity, setQuantity] = useState(1)
+  const [acknowledged, setAcknowledged] = useState(false)
   const [payBusy, setPayBusy] = useState(false)
   const [shipping, setShipping] = useState({
     recipientName: "",
@@ -407,6 +408,11 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
       setError("옵션이 바뀌었습니다. 다시 조판한 뒤 결제해주세요.")
       return
     }
+    if (!acknowledged) {
+      setError("주문 전 안내를 확인하고 체크해주세요.")
+      document.getElementById("s-acknowledge")?.focus()
+      return
+    }
     const fieldError = payError(email, shipping)
     if (fieldError) {
       setErrorField(fieldError.id)
@@ -436,6 +442,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
     form.set("address2", shipping.address2)
     form.set("shippingMemo", shipping.memo)
     if (coverImage) form.set("coverImage", coverImage)
+    form.set("acknowledgeOrderTerms", "true")
 
     try {
       const fingerprint = checkoutFingerprint
@@ -483,7 +490,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
       checkoutRunning.current = false
       setPayBusy(false)
     }
-  }, [file, summary, dirty, email, title, authorName, specUid, textSize, chapterNewPage, theme, backText, quantity, shipping, coverImage, checkoutFingerprint, confirmedCheckout, displayPrice])
+  }, [file, summary, dirty, email, title, authorName, specUid, textSize, chapterNewPage, theme, backText, quantity, shipping, coverImage, checkoutFingerprint, confirmedCheckout, displayPrice, acknowledged])
 
   // 1쪽은 오른쪽 면. 이후 (2,3) (4,5) … 로 실제 책처럼 펼친다.
   const totalSpreads = doc ? Math.floor(doc.numPages / 2) + 1 : 0
@@ -895,8 +902,37 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
             </div>
             <p className="text-xs text-text-gray leading-relaxed">
               원고는 3MB, 표지는 1MB 이내로 올려주세요. 국내 배송비 3,300원이 포함된 예상 금액입니다. 미국 달러(USD)로 결제하며, 다음 단계에서 확정된 달러 금액을 확인할 수 있습니다. 카드사의 환율·해외 결제 수수료에 따라 원화 청구액이 달라질 수 있습니다.
-              제작 확정 이후에는 인쇄 취소가 어려울 수 있습니다.
             </p>
+            <div className="border border-white/15 px-4 py-4 space-y-3">
+              <p className="text-sm font-medium text-white">주문 전 확인해주세요</p>
+              <ul className="list-disc pl-5 space-y-2 text-xs text-text-gray leading-relaxed">
+                <li>
+                  이 책은 올려주신 원고로 한 권씩 만드는 <span className="text-white">주문제작 상품</span>입니다. 주문 조회 화면이
+                  &lsquo;결제 완료&rsquo;일 때는 전액 환불로 취소할 수 있지만, &lsquo;제작 확정&rsquo; 이후에는 단순 변심이나 원고 수정을
+                  이유로 취소·환불할 수 없습니다(전자상거래법 제17조 제2항 제5호). 인쇄·제본 하자와 배송 중 파손은 다시 만들어
+                  보내드리거나 환불합니다.{" "}
+                  <Link href="/refund" target="_blank" rel="noopener" className="text-white underline underline-offset-2">
+                    취소·환불 정책
+                  </Link>
+                </li>
+                <li>
+                  입력하신 주문 정보는 사이트를 운영하는 Vercel Inc.(미국)를 거쳐 처리되고, 결제를 위해 이메일 주소와 책 제목이
+                  들어간 주문명이 Lemon Squeezy(Link, LLC, 미국)로 전달됩니다. 원고와 배송 정보는 국내 인쇄사(스위트북)에
+                  전달됩니다.{" "}
+                  <Link href="/privacy" target="_blank" rel="noopener" className="text-white underline underline-offset-2">
+                    개인정보처리방침
+                  </Link>
+                </li>
+              </ul>
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input id="s-acknowledge" type="checkbox" checked={acknowledged}
+                  onChange={(e) => setAcknowledged(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-[#ff6b35]" />
+                <span className="text-sm text-text-gray group-hover:text-white transition-colors">
+                  주문제작 상품의 취소·환불 제한과 개인정보 국외 이전 안내를 확인했습니다. <span className="text-accent-orange">(필수)</span>
+                </span>
+              </label>
+            </div>
             {applicableConfirmation?.usdMinor && (
               <div role="status" className="border border-accent-orange/40 bg-accent-orange/10 px-4 py-3 space-y-1">
                 <p className="text-sm text-white">확정 결제 금액 USD ${(applicableConfirmation.usdMinor / 100).toFixed(2)}</p>
@@ -912,7 +948,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
             <button
               type="button"
               onClick={startCheckout}
-              disabled={payBusy || dirty || !summary.withinSpec}
+              disabled={payBusy || dirty || !summary.withinSpec || !acknowledged}
               className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-accent-orange text-[#1a1a1a] font-medium hover:bg-accent-orange/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {payBusy ? (
