@@ -41,7 +41,7 @@ export async function startBridge() {
       if (url.pathname.includes("/rpc/")) {
         const args = Object.entries(body).map(([k,v]) => `${identifier(k)} => ${quote(v)}`).join(",")
         const call = `public.${identifier(name)}(${args})`
-        result = name === "publishing_claim_work" || name === "publishing_attach_print"
+        result = ["publishing_claim_work", "publishing_attach_print", "publishing_claim_file_purge"].includes(name)
           ? rows(`select * from ${call}`) : JSON.parse(sql(`select to_json(${call})`))
       } else {
         const table = `public.${identifier(name)}`

@@ -47,6 +47,7 @@ export async function fulfillOrder(order: Order, project: Project): Promise<Fulf
   if (!spec) throw new Error(`판형을 찾을 수 없습니다: ${project.book_spec_uid}`)
 
   // 1) 원고 → 내지 PDF (미리보기와 동일한 입력·옵션)
+  if (!project.manuscript_path) throw new Error("Manuscript files were purged under the retention policy")
   const manuscript = await getManuscript(project.manuscript_path)
   const parsed = await parseManuscriptFile(project.manuscript_name, manuscript)
   const inner = await typeset(parsed.chapters, {

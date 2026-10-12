@@ -6,6 +6,7 @@ import { assertPaymentEnvironment, getPaymentProvider, paymentTestMode, PaymentE
 import { listBookSpecs, assertSupplierEnvironment, SweetBookError } from "@/lib/publishing/sweetbook"
 import { hasBookPricing } from "@/lib/publishing/pricing"
 import { checkoutMonitor } from "@/lib/publishing/checkout-observation"
+import { purgeExpiredFiles } from "@/lib/publishing/retention"
 
 export const runtime = "nodejs"
 export const maxDuration = 120
@@ -41,7 +42,8 @@ export async function POST(req: NextRequest) {
     }
     try {
       const { error } = await db().from("publishing_orders").select("id,expected_store_id,archived_at").limit(1)
-      checks.database = { ok: !error }
+      const { error: retentionError } = await db().from("publishing_projects").select("id,files_purged_at").limit(1)
+      checks.database = { ok: !error && !retentionError }
     } catch { checks.database = { ok: false } }
     try { await checkoutMonitor(); checks.checkoutMonitoring = { ok: true } }
     catch { checks.checkoutMonitoring = { ok: false } }
@@ -53,12 +55,13 @@ export async function POST(req: NextRequest) {
       .eq("status", "pending").is("archived_at", null).is("payment_order_id", null).lt("checkout_expires_at", new Date().toISOString())
     if (expireError) throw expireError
     const processed = await runPaymentWork() || await reconcileSubmittedOrder()
+    const purgedFiles = await purgeExpiredFiles()
     const { data: exceptions, count, error } = await db().from("publishing_orders").select("id, failure_reason, cancellation_status", { count: "exact" })
       .eq("review_required", true).is("archived_at", null)
     if (error) throw error
     const checkout = await checkoutMonitor()
     // A failed scheduled run is an operational alert; do not hide monetary exceptions behind 200.
-    return NextResponse.json({ processed, reviewRequired: count, exceptions, checkout }, { status: count || checkout.alert ? 409 : 200,
+    return NextResponse.json({ processed, purgedFiles, reviewRequired: count, exceptions, checkout }, { status: count || checkout.alert ? 409 : 200,
       headers: { "Cache-Control": "private, no-store" } })
   } catch {
     return NextResponse.json({ error: "Reconciliation failed" }, { status: 500 })
