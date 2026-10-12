@@ -19,7 +19,29 @@
    같은 인증으로 `POST /api/publish/reconcile?check=1`을 호출하면 주문 생성·환불·DB 수정 없이 배포된 서버의 결제 스토어, 상품, 환경, 제작사 접근, DB 스키마를 확인한다. 제작사는 공개 카탈로그 200만으로 인증을 판정하지 않고, 인증 필수 `GET /credits`에서 키의 test/live 환경과 KRW를 검증한다. 단가가 비어 있거나 0이면 결제를 만들지 않는다. 키·잔액·고객정보는 반환하지 않는다.
 7. 내부 테스트 환경에서 성공, 거절·이탈 후 동일 주문 재시도, 중복 웹훅, 제작 실패 후 복구, 일부·전액 환불과 조회 권한을 확인한다. 실제 운영 키로 주문 생성부터 취소·환불까지 별도 통제된 검증을 마친 뒤 신규 접수를 연다. 코드 테스트를 실결제 검증으로 간주하지 않는다.
 
-새 테이블·작업 큐 서비스·고객 계정 시스템은 추가하지 않았다. 기존 Supabase 주문, PostgreSQL 함수, GitHub Actions와 제작사 멱등키를 사용한다. 복구 대기량이나 순환 대조 시간이 운영 목표를 넘으면 워커 처리량·스케줄을 확장한다.
+기존 Supabase 주문, PostgreSQL 함수, GitHub Actions와 제작사 멱등키를 사용한다. 주문 저장 전 관측은 별도 시도 테이블을 사용한다. 복구 대기량이나 순환 대조 시간이 운영 목표를 넘으면 워커 처리량·스케줄을 확장한다.
+
+## 주문 저장 전 결제 시도 관측
+
+`20261012034625_publishing_checkout_observability.sql`을 먼저 적용한 뒤 서버를 배포한다. `publishing_checkout_attempts`는 주문과 독립적이며 요청 수신 시 생성된다. 형식 검사, 옵션·원고·이메일·배송지 검사, 설정, 제작사, 파싱, 조판, 표지, 프로젝트·주문 저장, 결제사, 견적 저장 단계를 기록한다. `ready`는 결제창 준비 완료이며 결제 성공을 뜻하지 않는다. 결제 여부는 기존 결제 원장으로 확인한다.
+
+각 HTTP 요청은 서버 생성 `id`를 가지며, 같은 주문 재시도는 검증된 `attempt_id`로 연결한다. 응답 헤더 `X-Checkout-Request-Id`로 오류를 대조할 수 있다. 기록 필드는 시각, UUID, 단계, 결과, HTTP 상태, 처리 시간, 배포 환경, test/live·QA 여부로 제한한다. 이메일·IP·브라우저 정보·원고·파일명·배송지·URL·토큰·자유 형식 오류 메시지는 저장하지 않는다. RLS와 권한 회수로 공개 API 접근을 막고 서버 service role만 읽고 쓴다. 이 기록은 서버 로그 보존 기간과 독립적으로 축적하며 현재 자동 삭제하지 않는다.
+
+기존 10분 간격 workflow가 운영 live 기록을 함께 점검한다. 미확인 5xx 실패, 기록 저장 장애, 5분 이상 완료되지 않은 요청, 15분 내 입력 거절 10건 이상은 HTTP 409와 실패한 Actions 실행으로 표시한다. workflow 로그는 응답 요약을 출력한다. GitHub의 Actions 알림 수신 여부는 계정의 알림 설정에 따른다. 단일 입력 오류는 기록하되 경보를 만들지 않는다. preview·test 및 워커 Bearer 인증과 `X-Checkout-Probe: 1`이 모두 유효한 QA 요청은 운영 경보에서 제외한다. 클라이언트가 헤더만 보내서는 QA가 되지 않는다.
+
+인증된 `POST /api/publish/reconcile?monitor=1`은 주문 처리 없이 시도 집계와 확인 대상 최대 20건을 조회한다. `?check=1`은 관측 스키마 접근도 검증한다. 문제가 해결되면 해당 요청의 원인을 확인한 뒤 운영자가 `reviewed_at`을 기록한다. 전체 기록과 실패 결과는 보존한다:
+
+```sql
+select public.publishing_checkout_monitor();
+select id, attempt_id, order_id, created_at, stage, outcome, http_status, duration_ms
+from public.publishing_checkout_attempts
+where created_at >= now() - interval '3 months'
+order by created_at desc;
+-- 실제 확인한 요청 UUID만 지정한다.
+update public.publishing_checkout_attempts set reviewed_at = now() where id = '<확인한 요청 UUID>'::uuid;
+```
+
+기록 장애는 2초에 중단하고 최종 응답 때 한 번 다시 시도한다. 정상 결제를 로그 저장 때문에 실패시키지 않으며, 복구 시 `persistence_failed`를 보존한다. DB 자체가 완전히 중단되면 상세 기록을 남기지 못할 수 있으며 정기 점검 실패로 감지한다. 서버에 도착하지 않은 브라우저 네트워크 오류와 결제사 화면에서의 카드 거절·이탈은 이 서버 관측만으로 확인할 수 없다. 과거 누락 시도를 소급 복원하지 않는다.
 
 ## 운영 확인 대상
 

@@ -5,6 +5,7 @@ import { runPaymentWork, reconcileSubmittedOrder } from "@/lib/publishing/paymen
 import { assertPaymentEnvironment, getPaymentProvider, paymentTestMode, PaymentError } from "@/lib/publishing/payment"
 import { listBookSpecs, assertSupplierEnvironment, SweetBookError } from "@/lib/publishing/sweetbook"
 import { hasBookPricing } from "@/lib/publishing/pricing"
+import { checkoutMonitor } from "@/lib/publishing/checkout-observation"
 
 export const runtime = "nodejs"
 export const maxDuration = 120
@@ -15,6 +16,14 @@ export async function POST(req: NextRequest) {
   const expected = Buffer.from(`Bearer ${secret}`)
   if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+  if (req.nextUrl.searchParams.get("monitor") === "1") {
+    try {
+      const checkout = await checkoutMonitor()
+      return NextResponse.json({ checkout }, { status: checkout.alert ? 409 : 200, headers: { "Cache-Control": "private, no-store" } })
+    } catch {
+      return NextResponse.json({ error: "Checkout monitoring unavailable" }, { status: 503 })
+    }
   }
   if (req.nextUrl.searchParams.get("check") === "1") {
     const checks: Record<string, { ok: boolean; detail?: string }> = {}
@@ -34,6 +43,8 @@ export async function POST(req: NextRequest) {
       const { error } = await db().from("publishing_orders").select("id,expected_store_id,archived_at").limit(1)
       checks.database = { ok: !error }
     } catch { checks.database = { ok: false } }
+    try { await checkoutMonitor(); checks.checkoutMonitoring = { ok: true } }
+    catch { checks.checkoutMonitoring = { ok: false } }
     const ready = Object.values(checks).every(c => c.ok)
     return NextResponse.json({ ready, testMode: paymentTestMode(), checks }, { status: ready ? 200 : 503, headers: { "Cache-Control": "private, no-store" } })
   }
@@ -45,8 +56,10 @@ export async function POST(req: NextRequest) {
     const { data: exceptions, count, error } = await db().from("publishing_orders").select("id, failure_reason, cancellation_status", { count: "exact" })
       .eq("review_required", true).is("archived_at", null)
     if (error) throw error
+    const checkout = await checkoutMonitor()
     // A failed scheduled run is an operational alert; do not hide monetary exceptions behind 200.
-    return NextResponse.json({ processed, reviewRequired: count, exceptions }, { status: count ? 409 : 200 })
+    return NextResponse.json({ processed, reviewRequired: count, exceptions, checkout }, { status: count || checkout.alert ? 409 : 200,
+      headers: { "Cache-Control": "private, no-store" } })
   } catch {
     return NextResponse.json({ error: "Reconciliation failed" }, { status: 500 })
   }
