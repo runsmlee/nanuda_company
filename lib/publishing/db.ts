@@ -45,6 +45,12 @@ export interface Order {
   kind: "digital" | "physical"
   quantity: number
   price_krw: number
+  payment_currency: "KRW" | "USD"
+  expected_total_minor: number | null
+  exchange_rate_krw_per_usd: number | null
+  exchange_rate_date: string | null
+  expected_store_id: string | null
+  expected_variant_id: string | null
   status: "pending" | "paid" | "submitted" | "failed" | "refunded" | "cancelled"
   payment_provider: string | null
   payment_order_id: string | null

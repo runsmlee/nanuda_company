@@ -9,6 +9,7 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto"
 import { impliedChargeMinor, nextSendKrw, sendKrwForCeiling } from "./webhook-guard"
+import { getKrwUsdRate } from "./exchange-rate"
 
 /** 결제 항목의 성격. 결제사 이전 시 이 값으로 라우팅한다. */
 export type LineKind = "digital" | "physical"
@@ -50,11 +51,21 @@ export interface PaymentEvent {
 
 export interface PaymentProvider {
   readonly name: string
-  createCheckout(input: CheckoutInput): Promise<{ url: string; providerCheckoutId: string; expiresAt: string }>
+  createCheckout(input: CheckoutInput): Promise<CheckoutQuote>
   verifyWebhook(rawBody: string, signature: string | null): boolean
   getOrderEvent(providerOrderId: string, reference: string): Promise<PaymentEvent>
   checkConfiguration(): Promise<void>
   parseEvent(rawBody: string, eventName: string | null): PaymentEvent
+}
+
+export interface CheckoutQuote {
+  url: string
+  providerCheckoutId: string
+  expiresAt: string
+  currency: "KRW" | "USD"
+  totalMinor: number
+  exchangeRateKrwPerUsd?: number
+  exchangeRateDate?: string
 }
 
 export class PaymentError extends Error {
@@ -79,7 +90,7 @@ export class LemonSqueezyProvider implements PaymentProvider {
     /**
      * 스토어 통화. 레몬스퀴지 `custom_price`는 문서상 항상 cents다.
      * 원화 스토어에서도 26,800원을 26800으로 보내면 ₩268로 읽힌다. KRW는 원 × 100.
-     * 스토어가 USD면 원화 금액을 넣을 수 없으므로 결제를 만들지 않는다.
+     * USD 스토어는 원화 표시가를 환산한 센트 금액을 보낸다.
      */
     private storeCurrency: string,
   ) {}
@@ -95,12 +106,26 @@ export class LemonSqueezyProvider implements PaymentProvider {
       return (await res.json())?.data
     }
     const [store, variant] = await Promise.all([read(`/stores/${encodeURIComponent(this.storeId)}`), read(`/variants/${encodeURIComponent(variantId)}`)])
-    if (store?.attributes?.currency !== "KRW" || this.storeCurrency !== "KRW")
-      throw new PaymentError(503, "결제 스토어와 서버 통화를 KRW로 맞춰야 합니다.")
+    if (!["KRW", "USD"].includes(this.storeCurrency) || store?.attributes?.currency !== this.storeCurrency)
+      throw new PaymentError(503, "결제 스토어와 서버 통화가 다릅니다.")
+    const product = await read(`/products/${encodeURIComponent(String(variant?.attributes?.product_id))}`)
+    if (String(product?.attributes?.store_id) !== this.storeId)
+      throw new PaymentError(503, "결제 상품이 지정한 스토어에 속하지 않습니다.")
     if (variant?.attributes?.test_mode !== paymentTestMode())
       throw new PaymentError(503, "결제 상품과 서버의 테스트/라이브 모드가 다릅니다.")
-    if (!paymentTestMode() && variant?.attributes?.status !== "published")
-      throw new PaymentError(503, "운영 결제 상품이 published 상태가 아닙니다.")
+    if (!paymentTestMode()) {
+      if (product?.attributes?.status !== "published")
+        throw new PaymentError(503, "운영 결제 상품이 published 상태가 아닙니다.")
+      if (variant?.attributes?.status === "pending") {
+        // Lemon Squeezy's only/default variant is pending even on a published product.
+        const variants = await read(`/products/${encodeURIComponent(String(product.id))}/variants`)
+        if (!Array.isArray(variants) || variants.length !== 1 || String(variants[0].id) !== variantId)
+          throw new PaymentError(503, "운영 결제 옵션을 확인하지 못했습니다.")
+      } else if (variant?.attributes?.status !== "published") {
+        throw new PaymentError(503, "운영 결제 옵션이 published 상태가 아닙니다.")
+      }
+    }
+    if (this.storeCurrency === "USD") await this.readExchangeRate()
   }
 
   /**
@@ -108,25 +133,49 @@ export class LemonSqueezyProvider implements PaymentProvider {
    * 결제를 나누거나 묶음 variant를 만들어야 한다 — 지금은 첫 줄만 쓰고,
    * 여러 줄이 들어오면 명시적으로 막는다.
    */
-  async createCheckout(input: CheckoutInput) {
+  async createCheckout(input: CheckoutInput): Promise<CheckoutQuote> {
     if (input.lines.length !== 1) {
       throw new PaymentError(400, "레몬스퀴지 체크아웃은 항목 하나만 지원합니다.")
     }
     // 통화가 어긋나면 조용히 과청구된다. 만들지 않고 멈추는 편이 낫다.
-    if (this.storeCurrency !== "KRW") {
+    if (!["KRW", "USD"].includes(this.storeCurrency)) {
       throw new PaymentError(
         503,
         `결제 스토어 통화가 ${this.storeCurrency}입니다. 원화 가격을 그대로 보내면 과청구되므로 결제를 만들지 않았습니다.`,
       )
     }
     const line = input.lines[0]
+    if (!Number.isSafeInteger(line.priceKrw) || line.priceKrw <= 0 || line.quantity !== 1)
+      throw new PaymentError(400, "결제 금액과 수량을 확인해주세요.")
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+    if (this.storeCurrency === "USD") {
+      const { krwPerUsd, date } = await this.readExchangeRate()
+      const ceiling = Math.floor(line.priceKrw / krwPerUsd * 100)
+      let sendMinor = ceiling
+      for (let attempt = 0; attempt < 5 && sendMinor > 0; attempt++) {
+        const body = await this.postCheckout(input, line, sendMinor, expiresAt)
+        const attrs = body?.data?.attributes
+        const total = Number(attrs?.preview?.total)
+        if (attrs?.preview?.currency !== "USD" || !Number.isSafeInteger(total) || total <= 0)
+          throw new PaymentError(502, "달러 결제 미리보기 금액을 확인하지 못했습니다.")
+        if (total <= ceiling) {
+          if (total * krwPerUsd / 100 < line.priceKrw - 500)
+            throw new PaymentError(502, "결제 금액 환산을 확인하지 못했습니다.")
+          if (attrs.test_mode !== paymentTestMode() || !body.data.id)
+            throw new PaymentError(502, "결제 환경을 확인하지 못했습니다.")
+          return { url: safeCheckoutUrl(attrs.url), providerCheckoutId: String(body.data.id), expiresAt,
+            currency: "USD", totalMinor: total, exchangeRateKrwPerUsd: krwPerUsd, exchangeRateDate: date }
+        }
+        sendMinor = Math.min(sendMinor - 1, Math.floor(sendMinor * ceiling / total))
+      }
+      throw new PaymentError(502, "표시 금액 이하로 결제 페이지를 만들지 못했습니다.")
+    }
     const listedKrw = Math.round(line.priceKrw)
     let sendKrw = listedKrw
 
     // 표시가는 천장. 환전 때문에 미리보기 총액이 더 나오면 넣는 금액을 낮춘다.
     for (let attempt = 0; attempt < 5; attempt++) {
-      const body = await this.postCheckout(input, line, sendKrw, expiresAt)
+      const body = await this.postCheckout(input, line, sendKrw * 100, expiresAt)
       const preview = body?.data?.attributes?.preview
       const previewCharge = impliedChargeMinor(preview ?? {})
       if (!Number.isFinite(previewCharge) || previewCharge <= 0) {
@@ -139,6 +188,7 @@ export class LemonSqueezyProvider implements PaymentProvider {
           url: safeCheckoutUrl(body.data.attributes.url),
           providerCheckoutId: String(body.data.id),
           expiresAt,
+          currency: "KRW", totalMinor: previewCharge,
         }
       }
       const rate = Number(preview?.currency_rate)
@@ -151,7 +201,13 @@ export class LemonSqueezyProvider implements PaymentProvider {
     throw new PaymentError(502, "표시 금액 이하로 결제 페이지를 만들지 못했습니다.")
   }
 
-  private async postCheckout(input: CheckoutInput, line: CheckoutLine, sendKrw: number, expiresAt: string) {
+  private async readExchangeRate() {
+    try { return await getKrwUsdRate() } catch {
+      throw new PaymentError(503, "달러 환율을 확인 중입니다. 잠시 후 다시 시도해주세요.")
+    }
+  }
+
+  private async postCheckout(input: CheckoutInput, line: CheckoutLine, sendMinor: number, expiresAt: string) {
     const res = await fetch(`${LS_API}/checkouts`, {
       method: "POST",
       signal: AbortSignal.timeout(15000),
@@ -165,7 +221,7 @@ export class LemonSqueezyProvider implements PaymentProvider {
           type: "checkouts",
           attributes: {
             // 레몬스퀴지는 KRW여도 cents. 26,800원 → 2680000.
-            custom_price: sendKrw * 100,
+            custom_price: sendMinor,
             preview: true,
             test_mode: paymentTestMode(),
             expires_at: expiresAt,
@@ -213,6 +269,9 @@ export class LemonSqueezyProvider implements PaymentProvider {
     const eventName = Number(attrs.refunded_amount) > 0 || attrs.refunded === true ? "order_refunded" : "order_created"
     const event = this.parseEvent(JSON.stringify({ ...body, meta: { event_name: eventName, custom_data: { reference } } }), eventName)
     if (event.type === "other") throw new PaymentError(409, "결제 상태 확인이 필요합니다.")
+    if (!event.storeId || !event.variantId || !Number.isSafeInteger(event.totalMinor) || event.totalMinor <= 0
+      || !Number.isSafeInteger(event.refundedMinor) || event.refundedMinor < 0)
+      throw new PaymentError(502, "결제 내역 금액을 확인하지 못했습니다.")
     return event
   }
 

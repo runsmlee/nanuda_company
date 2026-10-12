@@ -36,6 +36,41 @@ async function record(changes: Record<string,unknown> = {}, key = randomUUID()) 
   return db.db().rpc("publishing_record_payment", { p_event_id: key, p_event: event(changes) })
 }
 function order() { return rows(`select * from publishing_orders where id=${quote(id)}`)[0] }
+function usdQuote() {
+  sql(`update publishing_orders set payment_currency='USD', expected_total_minor=1500,
+    exchange_rate_krw_per_usd=1333.333333, exchange_rate_date=current_date where id=${quote(id)}`)
+}
+test("USD payment and refunds use the frozen quote, never the KRW price", async () => {
+  usdQuote()
+  const usd = {currency:"USD",totalMinor:1500}
+  assert.equal((await record(usd)).error,null)
+  assert.equal(order().status,"paid")
+  assert.equal((await record({...usd,type:"refunded",rawEventName:"order_refunded",refundedMinor:500})).error,null)
+  assert.equal(order().review_required,true)
+  assert.equal((await record({...usd,type:"refunded",rawEventName:"order_refunded",refundedMinor:1500,fullyRefunded:true})).error,null)
+  assert.equal(order().status,"refunded")
+  assert.equal(order().refunded_total_minor,1500)
+  assert.equal(order().review_required,false)
+})
+for (const delta of [-1, 1]) {
+  test(`USD payment mismatch of ${delta} cent is recorded and held`, async () => {
+    usdQuote()
+    assert.equal((await record({currency:"USD",totalMinor:1500+delta})).error,null)
+    assert.equal(order().review_required,true)
+    assert.equal(await work.runPaymentWork(id),false)
+    assert.equal(printCalls,0)
+  })
+  test(`USD full refunds cannot use the legacy KRW rounding tolerance (${delta})`, async () => {
+    usdQuote()
+    assert.ok((await record({currency:"USD",totalMinor:1500,type:"refunded",refundedMinor:1500+delta,fullyRefunded:true})).error)
+    assert.equal(order().status,"pending")
+  })
+}
+test("USD orders without a frozen quote reject payment and never print", async () => {
+  sql(`update publishing_orders set payment_currency='USD' where id=${quote(id)}`)
+  assert.ok((await record({currency:"USD",totalMinor:1500})).error)
+  assert.equal(rows("select * from publishing_webhook_events").length,0)
+})
 function seed(withIntent = true) {
   id = randomUUID(); token = randomBytes(24).toString("base64url")
   sql(`insert into publishing_projects(id,author_email,access_token,title,author_name,manuscript_path,manuscript_name,book_spec_uid,text_size,chapter_new_page)
@@ -264,6 +299,22 @@ test("signed malformed JSON and unsigned header event substitution return 400", 
     assert.equal(result.status,400)
   }
 })
+test("shared-store webhooks ignore unrelated products after verifying the signature", async () => {
+  const raw=JSON.stringify({meta:{event_name:"order_created"},data:{id:"999",attributes:{status:"paid",test_mode:true,
+    store_id:439240,first_order_item:{variant_id:42},currency:"USD",total:1000}}})
+  const request=(signature:string)=>new NextRequest("https://example.com/webhook",{method:"POST",body:raw,headers:{"X-Signature":signature}})
+  assert.equal((await webhook.POST(request("bad"))).status,401)
+  const result=await webhook.POST(request(createHmac("sha256","test-only").update(raw).digest("hex")))
+  assert.equal(result.status,200); assert.equal((await result.json()).ignored,true)
+  assert.equal(rows("select * from publishing_webhook_events").length,0)
+})
+test("ECB cross rates reject missing, future and stale data", async () => {
+  const {parseKrwUsdRate}=await import("../../lib/publishing/exchange-rate")
+  const xml="<Cube time='2026-10-09'><Cube currency='USD' rate='1.12'/><Cube currency='KRW' rate='1500'/></Cube>"
+  assert.equal(parseKrwUsdRate(xml,Date.parse("2026-10-12")).krwPerUsd,1500/1.12)
+  for(const [source,now] of [[xml,Date.parse("2026-10-20")],[xml,Date.parse("2026-10-01")],[xml.replace("KRW","JPY"),Date.parse("2026-10-12")]] as const)
+    assert.throws(()=>parseKrwUsdRate(source,now))
+})
 function checkoutForm(attemptId=randomUUID(), quantity="1") {
   const form = new FormData()
   for (const [k,v] of Object.entries({attemptId,email:"checkout@example.com",title:"Audit",authorName:"Audit",bookSpecUid:"A5",textSize:"normal",coverTheme:"ivory",quantity,recipientName:"Audit",recipientPhone:"010-1234-5678",postalCode:"12345",address1:"Audit address"})) form.set(k,v)
@@ -279,6 +330,44 @@ test("checkout retry reuses one local order and hosted checkout; redirect is can
   assert.equal(rows(`select * from publishing_orders where id=${quote(attempt)}`).length,1)
   assert.ok(a.orderUrl.includes("token="))
 })
+test("USD checkout saves the exact preview and reuses its frozen FX quote on retry", async () => {
+  const saved=globalThis.fetch, savedCurrency=process.env.LEMONSQUEEZY_STORE_CURRENCY
+  let rateReads=0
+  process.env.LEMONSQUEEZY_STORE_CURRENCY="USD"
+  globalThis.fetch=(async(input:RequestInfo|URL,init?:RequestInit)=>{
+    const url=String(input)
+    if(url.includes("ecb.europa.eu")) {rateReads++;return new Response(`<Cube time='${new Date().toISOString().slice(0,10)}'><Cube currency='USD' rate='1'/><Cube currency='KRW' rate='1400'/></Cube>`)}
+    if(url.endsWith("/checkouts")) {checkoutCalls++;const sent=JSON.parse(String(init?.body));const cents=sent.data.attributes.custom_price
+      return Response.json({data:{id:"usd-fixture",attributes:{test_mode:true,url:"https://weeklyventures.lemonsqueezy.com/checkout/fixture",preview:{currency:"USD",total:cents}}}})}
+    return saved(input,init)
+  }) as typeof fetch
+  try {
+    const attempt=randomUUID(), request=()=>new NextRequest("https://example.com/checkout",{method:"POST",body:checkoutForm(attempt)})
+    const first=await checkout.POST(request()), a=await first.json()
+    assert.equal(first.status,200,JSON.stringify(a)); assert.equal(a.currency,"USD")
+    assert.equal(a.totalMinor,Math.floor(a.priceKrw/1400*100))
+    const row=rows(`select * from publishing_orders where id=${quote(attempt)}`)[0]
+    assert.equal(row.expected_total_minor,a.totalMinor);assert.equal(row.exchange_rate_krw_per_usd,1400)
+    const second=await checkout.POST(request()),b=await second.json()
+    assert.equal(second.status,200);assert.equal(b.totalMinor,a.totalMinor);assert.equal(rateReads,1);assert.equal(checkoutCalls,1)
+  } finally {globalThis.fetch=saved;process.env.LEMONSQUEEZY_STORE_CURRENCY=savedCurrency}
+})
+test("USD preview tax is fitted below the KRW ceiling and FX outages fail closed", async () => {
+  const saved=globalThis.fetch
+  const provider=new payment.LemonSqueezyProvider("test-only","439240","test-only","USD")
+  const input={reference:id,successUrl:"https://www.nanudacompany.com/done",lines:[{kind:"physical" as const,variantId:"2115295",name:"Audit",priceKrw:20000,quantity:1}]}
+  let available=true
+  globalThis.fetch=(async(input:RequestInfo|URL,init?:RequestInit)=>{
+    if(String(input).includes("ecb.europa.eu")) return available?new Response(`<Cube time='${new Date().toISOString().slice(0,10)}'><Cube currency='USD' rate='1'/><Cube currency='KRW' rate='1400'/></Cube>`):new Response("down",{status:503})
+    const cents=JSON.parse(String(init?.body)).data.attributes.custom_price
+    return Response.json({data:{id:"usd-tax",attributes:{test_mode:true,url:"https://weeklyventures.lemonsqueezy.com/checkout/fixture",preview:{currency:"USD",total:Math.round(cents*1.1)}}}})
+  }) as typeof fetch
+  try {
+    const result=await provider.createCheckout(input)
+    assert.ok(result.totalMinor<=Math.floor(20000/1400*100));assert.ok(result.totalMinor*14>=19500)
+    available=false; await assert.rejects(()=>provider.createCheckout(input),/환율/)
+  } finally {globalThis.fetch=saved}
+})
 test("fractional quantity is rejected before creating a project", async () => {
   const result=await checkout.POST(new NextRequest("https://example.com/checkout",{method:"POST",body:checkoutForm(randomUUID(),"1.5")}))
   assert.equal(result.status,400); assert.equal(checkoutCalls,0)
@@ -293,6 +382,12 @@ test("provider configuration pins checkout mode, variants and hides discounts", 
     assert.equal(sent!.data.attributes.test_mode,true); assert.equal(sent!.data.attributes.checkout_options.discount,false)
     assert.deepEqual(sent!.data.attributes.product_options.enabled_variants,[2115295]); assert.ok(sent!.data.attributes.expires_at)
   } finally {globalThis.fetch=savedFetch}
+})
+test("malformed provider reconciliation amounts cannot reach the payment ledger", async () => {
+  const saved=globalThis.fetch
+  globalThis.fetch=async()=>Response.json({data:{id:"123",attributes:{store_id:439240,first_order_item:{variant_id:2115295},test_mode:true,status:"paid",currency:"USD",total:"invalid",refunded_amount:0}}})
+  try {await assert.rejects(()=>payment.getPaymentProvider().getOrderEvent("123",id),/금액/)} finally {globalThis.fetch=saved}
+  assert.equal(rows("select * from publishing_webhook_events").length,0)
 })
 test("test checkout cannot reach supplier live environment", () => {
   process.env.SWEETBOOK_API_BASE="https://api.sweetbook.com/v1"
@@ -326,7 +421,7 @@ test("concurrent PostgreSQL sessions skip a locked order", async () => {
   await record()
   const execute = promisify(execFile)
   const query = `select count(*) from publishing_claim_work(${quote(id)})`
-  const results = await Promise.all([1,2].map(() => execute("psql",["-h","127.0.0.1","-p","55439","-U","postgres","-d","nanuda_payment_test","-At","-v","ON_ERROR_STOP=1","-c","begin","-c",query,"-c","select pg_sleep(0.1)","-c","commit"])))
+  const results = await Promise.all([1,2].map(() => execute("psql",["-h","127.0.0.1","-p",process.env.NANUDA_PAYMENT_TEST_PORT ?? "55439","-U","postgres","-d","nanuda_payment_test","-At","-v","ON_ERROR_STOP=1","-c","begin","-c",query,"-c","select pg_sleep(0.1)","-c","commit"])))
   assert.equal(results.reduce((n,r) => n + Number(r.stdout.match(/^[01]$/m)?.[0]),0),1,JSON.stringify(results.map(r=>r.stdout)))
 })
 test("DOCX expanded size and misleading ZIP metadata are bounded before parsing", async () => {
@@ -376,10 +471,11 @@ test("authenticated deployment checks validate credentials without payments or D
   let mode = true, currency = "KRW", available = true
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(typeof input === "string" || input instanceof URL ? String(input) : input.url)
-    if (url.hostname === "api.lemonsqueezy.com" && /\/(stores|variants)\//.test(url.pathname)) {
+    if (url.hostname === "api.lemonsqueezy.com" && /\/(stores|variants|products)\//.test(url.pathname)) {
       assert.ok(!init?.method || init.method === "GET")
       if (!available) return Response.json({}, { status: 404 })
-      return Response.json({ data: { attributes: url.pathname.includes("/stores/") ? { currency } : { test_mode: mode, status: "pending" } } })
+      return Response.json({ data: { attributes: url.pathname.includes("/stores/") ? { currency }
+        : url.pathname.includes("/products/") ? {store_id:439240} : { test_mode: mode, status: "pending", product_id:1354509 } } })
     }
     return savedFetch(input, init)
   }) as typeof fetch
@@ -395,6 +491,25 @@ test("authenticated deployment checks validate credentials without payments or D
     assert.equal(rows("select * from publishing_webhook_events").length, 0)
     assert.equal((await route.POST(new NextRequest("https://example.com/api/publish/reconcile?check=1", { method: "POST" }))).status, 401)
   } finally { globalThis.fetch = savedFetch }
+})
+test("live readiness accepts only a published product with its sole pending default variant", async () => {
+  const saved=globalThis.fetch, savedMode=process.env.LEMONSQUEEZY_TEST_MODE
+  process.env.LEMONSQUEEZY_TEST_MODE="false"
+  let published=true, sole=true, owns=true
+  globalThis.fetch=(async(input:RequestInfo|URL)=>{
+    const path=new URL(String(input)).pathname
+    const data=path.includes("/stores/")?{attributes:{currency:"KRW"}}
+      :path==="/v1/variants/2115295"?{attributes:{product_id:1354509,test_mode:false,status:"pending"}}
+      :path.endsWith("/variants")?(sole?[{id:"2115295"}]:[{id:"2115295"},{id:"other"}])
+      :{id:"1354509",attributes:{store_id:owns?439240:277249,status:published?"published":"draft"}}
+    return Response.json({data})
+  }) as typeof fetch
+  try {
+    await payment.getPaymentProvider().checkConfiguration()
+    published=false;await assert.rejects(()=>payment.getPaymentProvider().checkConfiguration(),/published/)
+    published=true;sole=false;await assert.rejects(()=>payment.getPaymentProvider().checkConfiguration(),/옵션/)
+    sole=true;owns=false;await assert.rejects(()=>payment.getPaymentProvider().checkConfiguration(),/스토어/)
+  } finally {globalThis.fetch=saved;process.env.LEMONSQUEEZY_TEST_MODE=savedMode}
 })
 test("supplier environment guard rejects credential transmission over HTTP", () => {
   const saved = process.env.SWEETBOOK_API_BASE

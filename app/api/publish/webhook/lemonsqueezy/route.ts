@@ -21,13 +21,26 @@ export async function POST(req: NextRequest) {
   try {
     event = provider.parseEvent(raw, req.headers.get("X-Event-Name"))
     if (!event.providerOrderId) throw new Error("Missing provider order")
-    if (event.type !== "other" && (!event.reference || !/^[0-9a-f-]{36}$/i.test(event.reference)
-      || !event.storeId || !event.variantId || !Number.isSafeInteger(event.totalMinor)
-      || !Number.isSafeInteger(event.refundedMinor))) throw new Error("Invalid payment")
   } catch {
     return NextResponse.json({ error: "이벤트 형식이 올바르지 않습니다." }, { status: 400 })
   }
   if (event.type === "other") return NextResponse.json({ ok: true, ignored: true })
+  // Store webhooks include other products. Only a known Nanuda order can route a legacy variant here.
+  const foreignProduct = event.storeId !== process.env.LEMONSQUEEZY_STORE_ID || event.variantId !== process.env.LEMONSQUEEZY_VARIANT_ID
+  if (foreignProduct) {
+    if (!event.reference || !/^[0-9a-f-]{36}$/i.test(event.reference))
+      return NextResponse.json({ ok: true, ignored: true })
+    const { data: own, error } = await db().from("publishing_orders").select("id").eq("id", event.reference).maybeSingle()
+    if (error) return NextResponse.json({ error: "주문 조회를 다시 시도해주세요." }, { status: 503 })
+    if (!own) return NextResponse.json({ ok: true, ignored: true })
+  }
+  try {
+    if (!event.reference || !/^[0-9a-f-]{36}$/i.test(event.reference)
+      || !event.storeId || !event.variantId || !Number.isSafeInteger(event.totalMinor)
+      || !Number.isSafeInteger(event.refundedMinor)) throw new Error("Invalid payment")
+  } catch {
+    return NextResponse.json({ error: "이벤트 형식이 올바르지 않습니다." }, { status: 400 })
+  }
   // A digest distinguishes successive partial refunds without persisting a customer payload.
   const eventId = createHash("sha256").update(raw).digest("hex")
   const { error } = await db().rpc("publishing_record_payment", { p_event_id: eventId, p_event: event })

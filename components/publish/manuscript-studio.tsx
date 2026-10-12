@@ -205,7 +205,7 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
   const [error, setError] = useState<string | null>(null)
   const [errorField, setErrorField] = useState<string | null>(null)
   const [orderUrl, setOrderUrl] = useState<string | null>(null)
-  const [confirmedCheckout, setConfirmedCheckout] = useState<{ url: string; price: number; fingerprint: string } | null>(null)
+  const [confirmedCheckout, setConfirmedCheckout] = useState<{ url: string; price: number; fingerprint: string; usdMinor?: number; rateDate?: string } | null>(null)
   const errorRef = useRef<HTMLDivElement>(null)
   const checkoutRunning = useRef(false)
   const currentCheckoutFingerprint = useRef("")
@@ -460,6 +460,15 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
       }
       if (currentCheckoutFingerprint.current !== fingerprint) {
         setError("주문 준비 중 입력이 변경되었습니다. 현재 내용을 확인하고 다시 시도해주세요.")
+        return
+      }
+      if (data.currency === "USD") {
+        if (!Number.isSafeInteger(data.totalMinor) || data.totalMinor <= 0) {
+          setError("달러 청구 금액을 확인하지 못했습니다. 다시 시도해주세요.")
+          return
+        }
+        setConfirmedCheckout({ url: data.checkoutUrl, price: data.priceKrw, fingerprint,
+          usdMinor: data.totalMinor, rateDate: data.exchangeRateDate })
         return
       }
       if (data.priceKrw !== (displayPrice ?? summary.priceTotal)) {
@@ -885,9 +894,16 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
               />
             </div>
             <p className="text-xs text-text-gray leading-relaxed">
-              원고는 3MB, 표지는 1MB 이내로 올려주세요. 국내 배송비 3,300원이 포함된 예상 금액입니다. 결제 화면에서 최종 청구 금액을 확인해주세요.
+              원고는 3MB, 표지는 1MB 이내로 올려주세요. 국내 배송비 3,300원이 포함된 예상 금액입니다. 미국 달러(USD)로 결제하며, 다음 단계에서 확정된 달러 금액을 확인할 수 있습니다. 카드사의 환율·해외 결제 수수료에 따라 원화 청구액이 달라질 수 있습니다.
               제작 확정 이후에는 인쇄 취소가 어려울 수 있습니다.
             </p>
+            {applicableConfirmation?.usdMinor && (
+              <div role="status" className="border border-accent-orange/40 bg-accent-orange/10 px-4 py-3 space-y-1">
+                <p className="text-sm text-white">확정 결제 금액 USD ${(applicableConfirmation.usdMinor / 100).toFixed(2)}</p>
+                <p className="text-xs text-text-gray">제작·배송 기준 금액 {krw(applicableConfirmation.price)} · ECB {applicableConfirmation.rateDate} 기준 환율 적용</p>
+                <p className="text-xs text-text-gray">금액을 확인한 뒤 아래 버튼을 눌러 결제를 진행해주세요.</p>
+              </div>
+            )}
             {error && !errorField && (
               <div ref={errorRef} tabIndex={-1} id="checkout-error" role="alert" className="border border-red-400/40 bg-red-400/10 px-4 py-3">
                 <p className="text-sm text-red-300 leading-relaxed">{error}</p>
@@ -904,7 +920,9 @@ export function ManuscriptStudio({ specs }: { specs: WizardSpec[] }) {
                   <Spinner /> {PAY_PHASES[payPhase]}…
                 </>
               ) : (
-                `${krw(applicableConfirmation?.price ?? displayPrice ?? summary.priceTotal)} 결제하고 제작하기`
+                applicableConfirmation?.usdMinor
+                  ? `USD $${(applicableConfirmation.usdMinor / 100).toFixed(2)} 결제하기`
+                  : `${krw(applicableConfirmation?.price ?? displayPrice ?? summary.priceTotal)} 기준 · 결제 금액 확인`
               )}
             </button>
             {payBusy && (

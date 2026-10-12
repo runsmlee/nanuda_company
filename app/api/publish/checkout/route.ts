@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
     const { error: oErr } = await db().from("publishing_orders").insert({
       id: attemptId, project_id: projectId, request_hash: requestHash, kind, quantity, price_krw: price,
       expected_store_id: process.env.LEMONSQUEEZY_STORE_ID, expected_variant_id: variantId,
-      payment_test_mode: testMode, ...shipping,
+      payment_test_mode: testMode, payment_currency: process.env.LEMONSQUEEZY_STORE_CURRENCY, ...shipping,
     })
     if (oErr && oErr.code !== "23505") throw new Error("주문 생성 실패")
     const { data: order, error: orderError } = await db().from("publishing_orders").select("*")
@@ -205,16 +205,22 @@ export async function POST(req: NextRequest) {
     if (orderError || !order || order.request_hash !== requestHash) throw new Error("주문 조회 실패")
     savedOrderId = order.id
     const orderUrl = `/publish/orders/done?ref=${order.id}&token=${savedToken}`
-    const reply = (checkoutUrl: string) => NextResponse.json({ checkoutUrl, orderId: order.id, orderUrl,
-      pageCount: project.page_count, priceKrw: order.price_krw })
+    const reply = (quoted: Order) => NextResponse.json({ checkoutUrl: quoted.checkout_url, orderId: order.id, orderUrl,
+      pageCount: project.page_count, priceKrw: order.price_krw, currency: quoted.payment_currency,
+      totalMinor: quoted.expected_total_minor, exchangeRateKrwPerUsd: quoted.exchange_rate_krw_per_usd,
+      exchangeRateDate: quoted.exchange_rate_date })
     if (order.status !== "pending") {
       return NextResponse.json({ error: "기존 주문의 결제·제작 상태를 먼저 확인해주세요.", orderUrl, orderId: order.id }, { status: 409 })
     }
     if (order.checkout_url && order.checkout_expires_at && Date.parse(order.checkout_expires_at) > Date.now()) {
-      return reply(order.checkout_url)
+      return reply(order)
     }
     if (order.checkout_expires_at) {
       return NextResponse.json({ error: "결제 링크가 만료되었습니다. 새 주문을 시작해주세요.", orderUrl, restart: true }, { status: 409 })
+    }
+    if (order.expected_store_id !== process.env.LEMONSQUEEZY_STORE_ID || order.expected_variant_id !== variantId
+      || order.payment_test_mode !== testMode || order.payment_currency !== process.env.LEMONSQUEEZY_STORE_CURRENCY) {
+      return NextResponse.json({ error: "결제 설정이 변경되었습니다. 새 주문을 시작해주세요.", orderUrl, restart: true }, { status: 409 })
     }
     const now = new Date().toISOString()
     const leaseToken = crypto.randomUUID()
@@ -231,7 +237,7 @@ export async function POST(req: NextRequest) {
         {
           kind,
           variantId,
-          name: `${title} — 책 제작 ${quantity}권`,
+          name: `${title} · 책 제작 ${quantity}권`,
           priceKrw: order.price_krw,
           quantity: 1,
         },
@@ -241,12 +247,14 @@ export async function POST(req: NextRequest) {
       successUrl: `${SITE_URL}${orderUrl}`,
     })
 
-    const { error: checkoutError } = await db().from("publishing_orders").update({
+    const { data: quoted, error: checkoutError } = await db().from("publishing_orders").update({
       checkout_url: checkout.url, checkout_id: checkout.providerCheckoutId,
       checkout_expires_at: checkout.expiresAt, checkout_lease_until: null, checkout_lease_token: null,
-    }).eq("id", order.id).eq("checkout_lease_token", leaseToken).select("id").single()
-    if (checkoutError) throw new Error("결제 링크 저장 실패")
-    return reply(checkout.url)
+      payment_currency: checkout.currency, expected_total_minor: checkout.totalMinor,
+      exchange_rate_krw_per_usd: checkout.exchangeRateKrwPerUsd ?? null, exchange_rate_date: checkout.exchangeRateDate ?? null,
+    }).eq("id", order.id).eq("checkout_lease_token", leaseToken).select("*").single<Order>()
+    if (checkoutError || !quoted) throw new Error("결제 링크 저장 실패")
+    return reply(quoted)
   } catch (e) {
     if (savedOrderId && checkoutLease) {
       const { error } = await db().from("publishing_orders").update({ checkout_lease_token: null, checkout_lease_until: null }).eq("id", savedOrderId).eq("checkout_lease_token", checkoutLease)

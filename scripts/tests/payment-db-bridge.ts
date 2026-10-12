@@ -8,7 +8,7 @@ const identifier = (value: string) => {
   return `"${value}"`
 }
 export function sql(query: string): string {
-  return execFileSync("psql", ["-h", "127.0.0.1", "-p", "55439", "-U", "postgres", "-d", "nanuda_payment_test", "-At", "-v", "ON_ERROR_STOP=1", "-c", query], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim()
+  return execFileSync("psql", ["-h", "127.0.0.1", "-p", process.env.NANUDA_PAYMENT_TEST_PORT ?? "55439", "-U", "postgres", "-d", "nanuda_payment_test", "-At", "-v", "ON_ERROR_STOP=1", "-c", query], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim()
 }
 export function rows(query: string): Record<string, unknown>[] {
   return JSON.parse(sql(`select coalesce(json_agg(t), '[]'::json) from (${query}) t`))

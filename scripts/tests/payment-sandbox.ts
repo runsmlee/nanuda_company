@@ -2,9 +2,11 @@
 import assert from "node:assert/strict"
 import { randomUUID, randomBytes } from "node:crypto"
 import { startBridge, sql, rows, quote } from "./payment-db-bridge"
+import { readFileSync } from "node:fs"
 
 async function main() {
   const providerId = process.argv[2]
+  const checkoutQuote = process.argv[3] ? JSON.parse(readFileSync(process.argv[3], "utf8")) : null
   assert.match(providerId ?? "", /^\d+$/, "Pass the ID of a fresh QA sandbox purchase")
   assert.equal(sql("select current_database()"), "nanuda_payment_test")
   assert.equal(process.env.SWEETBOOK_API_BASE, "https://api-sandbox.sweetbook.com/v1")
@@ -44,6 +46,14 @@ async function main() {
     }
     const raw = await getRaw()
     assert.equal(raw.attributes.status, "paid")
+    assert.equal(String(raw.attributes.store_id), process.env.LEMONSQUEEZY_STORE_ID)
+    assert.equal(String(raw.attributes.first_order_item.variant_id), process.env.LEMONSQUEEZY_VARIANT_ID)
+    if (raw.attributes.currency === "USD") {
+      assert.ok(checkoutQuote, "USD sandbox verification requires the quote saved before payment")
+      assert.equal(checkoutQuote.currency, "USD")
+      assert.equal(raw.attributes.total, checkoutQuote.totalMinor)
+      assert.ok(checkoutQuote.exchangeRateKrwPerUsd > 0)
+    }
     const specs = await supplier.listBookSpecs()
     const spec = specs.find(s => s.innerTrimWidthMm === 148 && s.innerTrimHeightMm === 210)!
     assert.ok(spec)
@@ -51,8 +61,10 @@ async function main() {
       const id = randomUUID()
       sql(`insert into publishing_projects(id,author_email,access_token,title,author_name,manuscript_path,manuscript_name,book_spec_uid,text_size,chapter_new_page)
         values(${quote(id)},'payment-qa@example.com',${quote(randomBytes(24).toString("base64url"))},'Sandbox QA','Sandbox QA','qa','qa.md',${quote(spec.bookSpecUid)},'normal',true)`)
-      sql(`insert into publishing_orders(id,project_id,kind,quantity,price_krw,expected_store_id,expected_variant_id,payment_test_mode,recipient_name,recipient_phone,postal_code,address1)
-        values(${quote(id)},${quote(id)},'physical',1,25200,${quote(String(raw.attributes.store_id))},${quote(String(raw.attributes.first_order_item.variant_id))},true,'Sandbox QA','010-0000-0000','04524','서울특별시 중구 세종대로 110')`)
+      sql(`insert into publishing_orders(id,project_id,kind,quantity,price_krw,expected_store_id,expected_variant_id,payment_test_mode,recipient_name,recipient_phone,postal_code,address1,
+        payment_currency,expected_total_minor,exchange_rate_krw_per_usd,exchange_rate_date)
+        values(${quote(id)},${quote(id)},'physical',1,${checkoutQuote?.priceKrw ?? 25200},${quote(String(raw.attributes.store_id))},${quote(String(raw.attributes.first_order_item.variant_id))},true,'Sandbox QA','010-0000-0000','04524','서울특별시 중구 세종대로 110',
+        ${quote(raw.attributes.currency)},${checkoutQuote?.totalMinor ?? "null"},${checkoutQuote?.exchangeRateKrwPerUsd ?? "null"},${quote(checkoutQuote?.exchangeRateDate ?? null)})`)
       return id
     }
     const id = seed()
@@ -84,7 +96,7 @@ async function main() {
       })
       assert.equal(r.status, 200, "Sandbox refund failed")
     }
-    await refund(100000)
+    await refund(Math.floor(paid.totalMinor / 3))
     const partial = await record(id, "sandbox-partial")
     assert.ok(partial.refundedMinor > 0 && partial.refundedMinor < partial.totalMinor)
     assert.equal(order().status, "failed")
@@ -93,7 +105,7 @@ async function main() {
     await refund()
     const full = await record(id, "sandbox-full")
     assert.equal(full.fullyRefunded, true)
-    assert.ok(Math.abs(full.refundedMinor - full.totalMinor) <= 100)
+    assert.ok(Math.abs(full.refundedMinor - full.totalMinor) <= (full.currency === "USD" ? 0 : 100))
     await work.runPaymentWork(id)
     assert.equal(order().status, "refunded")
     assert.ok(["cancelled", "needs_review"].includes(String(order().cancellation_status)))
