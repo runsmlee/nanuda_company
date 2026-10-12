@@ -25,6 +25,8 @@ let refundDuringPrint = false
 let partialDuringFailure = false
 let providerRefund = 0
 let uploadCalls = 0
+let removedPaths: string[] = []
+let failStorageRemove = false
 let token = ""
 let id = ""
 const printRequest = { items: [{ bookUid: "book-fixture", quantity: 1 }], shipping: { recipientName: "Audit", recipientPhone: "010-1234-5678", postalCode: "12345", address1: "Audit address" }, externalRef: "fixture" }
@@ -90,6 +92,10 @@ before(async () => {
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(typeof input === "string" || input instanceof URL ? input.toString() : input.url)
     if (url.origin === bridge.url) {
+      if (url.pathname.startsWith("/storage/v1/object/") && init?.method === "DELETE") {
+        if (failStorageRemove) { failStorageRemove = false; return Response.json({ statusCode: "500", error: "Injected storage failure", message: "Injected storage failure" }, { status: 500 }) }
+        removedPaths.push(...JSON.parse(String(init.body)).prefixes)
+      }
       if (failAttach && url.pathname.endsWith("publishing_attach_print")) {
         failAttach = false
         return Response.json({ code: "P0001", message: "Injected DB failure" }, { status: 500 })
@@ -147,6 +153,7 @@ before(async () => {
 after(async () => { globalThis.fetch = realFetch; await bridge?.close() })
 beforeEach(() => {
   sql("truncate publishing_checkout_attempts, publishing_webhook_events, publishing_orders, publishing_projects cascade")
+  removedPaths = []; failStorageRemove = false
   printCalls = cancelCalls = checkoutCalls = uploadCalls = 0; printStatus = "PDF_READY"; failPrint = failAttach = refundDuringPrint = partialDuringFailure = false; providerRefund = 0
   seed()
 })
@@ -783,4 +790,100 @@ test("public catalog access never proves supplier authentication or print enviro
     assert.equal((await supplier.listBookSpecs()).length, 1)
     assert.equal(printCalls,0); assert.equal(checkoutCalls,0)
   } finally {globalThis.fetch=savedFetch}
+})
+
+function project() { return rows(`select * from publishing_projects where id=${quote(id)}`)[0] }
+async function purge() { return (await import("../../lib/publishing/retention")).purgeExpiredFiles() }
+function shipped(column: "shipped_at" | "delivered_at", age: string) {
+  sql(`update publishing_orders set status='submitted', print_order_uid='print-fixture', payment_order_id='123',
+    ${column}=now()-interval ${quote(age)} where id=${quote(id)}`)
+}
+test("retention purges unpaid order files only a day after checkout expiry, storage before paths", async () => {
+  sql(`update publishing_projects set back_text='Private back text', cover_image_path='cover-fixture' where id=${quote(id)}`)
+  sql(`update publishing_orders set status='cancelled', checkout_expires_at=now()-interval '23 hours' where id=${quote(id)}`)
+  assert.equal(await purge(), 0)
+  assert.equal(project().manuscript_path, "fixture")
+  sql(`update publishing_orders set checkout_expires_at=now()-interval '25 hours' where id=${quote(id)}`)
+  const orderBefore = order()
+  assert.equal(await purge(), 1)
+  assert.deepEqual(removedPaths, ["fixture", "cover-fixture"])
+  const p = project()
+  assert.equal(p.manuscript_path, null); assert.equal(p.cover_image_path, null); assert.equal(p.back_text, null)
+  assert.ok(p.files_purged_at)
+  assert.deepEqual(order(), orderBefore)
+  assert.equal(await purge(), 0)
+  assert.equal(removedPaths.length, 2)
+})
+test("retention keeps files any order may still print, reprint or review", async () => {
+  const keep: [string, () => Promise<unknown> | void][] = [
+    ["paid", () => record()],
+    ["late payment on an expired checkout", async () => {
+      sql(`update publishing_orders set status='cancelled', checkout_expires_at=now()-interval '2 days' where id=${quote(id)}`)
+      await record()
+    }],
+    ["refund awaiting print cancellation", async () => { await record(); await record({type:"refunded",rawEventName:"order_refunded",refundedMinor:2_000_000}) }],
+    ["refund whose print could not be cancelled", () => sql(`update publishing_orders set status='refunded', cancellation_status='needs_review', review_required=true where id=${quote(id)}`)],
+    ["shipped two months ago", () => shipped("shipped_at", "2 months")],
+    ["shipped three months ago without delivery", () => shipped("shipped_at", "3 months 10 days")],
+    ["delivered under three months ago", () => shipped("delivered_at", "89 days")],
+    ["delivered long ago but held for review", () => { shipped("delivered_at", "1 year"); sql(`update publishing_orders set review_required=true where id=${quote(id)}`) }],
+    ["fresh order-less project", () => sql(`delete from publishing_orders where id=${quote(id)}`)],
+  ]
+  for (const [name, arrange] of keep) {
+    sql("truncate publishing_webhook_events, publishing_orders, publishing_projects cascade"); seed()
+    await arrange()
+    assert.equal(await purge(), 0, name)
+    assert.equal(project().manuscript_path, "fixture", name)
+    assert.equal(project().files_purged_at, null, name)
+  }
+  assert.deepEqual(removedPaths, [])
+})
+test("retention purges delivered, fully cancelled, stale order-less and archived QA projects", async () => {
+  const release: [string, () => Promise<unknown> | void][] = [
+    ["delivered over three months ago", () => shipped("delivered_at", "3 months 1 day")],
+    ["shipped without delivery past the transit allowance", () => shipped("shipped_at", "3 months 15 days")],
+    ["refund with print cancelled", () => sql(`update publishing_orders set status='refunded', cancellation_status='cancelled' where id=${quote(id)}`)],
+    ["refund before printing", () => sql(`update publishing_orders set status='refunded', cancellation_status='not_started' where id=${quote(id)}`)],
+    ["crashed checkout without an order", () => sql(`delete from publishing_orders where id=${quote(id)}; update publishing_projects set created_at=now()-interval '2 days' where id=${quote(id)}`)],
+    ["archived QA", () => sql(`update publishing_orders set status='paid', archived_at=now() where id=${quote(id)}`)],
+  ]
+  for (const [name, arrange] of release) {
+    sql("truncate publishing_webhook_events, publishing_orders, publishing_projects cascade"); seed()
+    await arrange()
+    const before = rows(`select * from publishing_orders where id=${quote(id)}`)
+    assert.equal(await purge(), 1, name)
+    assert.equal(project().manuscript_path, null, name)
+    assert.deepEqual(rows(`select * from publishing_orders where id=${quote(id)}`), before, name)
+  }
+})
+test("a failed storage delete leaves the project locked and is retried", async () => {
+  sql(`update publishing_orders set status='cancelled', checkout_expires_at=now()-interval '2 days' where id=${quote(id)}`)
+  failStorageRemove = true
+  await assert.rejects(purge(), /File purge failed/)
+  assert.ok(project().files_purged_at)
+  assert.equal(project().manuscript_path, "fixture")
+  assert.equal(await purge(), 1)
+  assert.deepEqual(removedPaths, ["fixture"])
+  assert.equal(project().manuscript_path, null)
+})
+test("supplier shipping and delivery are stamped once for the retention clock", async () => {
+  sql(`update publishing_orders set status='submitted', print_order_uid='print-fixture', print_status='IN_PRODUCTION' where id=${quote(id)}`)
+  const event = (status: string) => db.db().rpc("publishing_record_print_event", {p_event_id:`retention-${status}-${randomUUID()}`,p_event_name:"test",p_print_uid:"print-fixture",p_status:status})
+  await event("IN_PRODUCTION")
+  assert.equal(order().shipped_at, null)
+  await event("SHIPPED")
+  const firstShipped = order().shipped_at
+  assert.ok(firstShipped); assert.equal(order().delivered_at, null)
+  await event("DELIVERED")
+  assert.equal(order().shipped_at, firstShipped)
+  assert.ok(order().delivered_at)
+})
+test("a checkout retry cannot revive a purged project", async () => {
+  const attempt = randomUUID()
+  assert.equal((await checkout.POST(new NextRequest("https://example.com/checkout",{method:"POST",body:checkoutForm(attempt)}))).status,200)
+  sql(`update publishing_projects set files_purged_at=now(), manuscript_path=null, back_text=null where id=${quote(attempt)}`)
+  const retry = await checkout.POST(new NextRequest("https://example.com/checkout",{method:"POST",body:checkoutForm(attempt)}))
+  assert.equal(retry.status,409)
+  assert.equal((await retry.json()).restart,true)
+  assert.equal(checkoutCalls,1)
 })

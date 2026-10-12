@@ -199,8 +199,9 @@ async function prepareCheckout(req: NextRequest, observation: ReturnType<typeof 
     const { data: existing, error: lookupError } = await db().from("publishing_projects")
       .select("*").eq("id", projectId).maybeSingle<Project & { request_hash: string }>()
     if (lookupError) throw new Error("프로젝트 조회 실패")
-    if (existing && existing.request_hash !== requestHash) {
-      return NextResponse.json({ error: "입력이 변경되었습니다. 주문 요청을 새로 시작해주세요.", restart: true }, { status: 409 })
+    if (existing && (existing.request_hash !== requestHash || existing.files_purged_at)) {
+      const error = existing.files_purged_at ? "만료된 주문 요청입니다. 주문 요청을 새로 시작해주세요." : "입력이 변경되었습니다. 주문 요청을 새로 시작해주세요."
+      return NextResponse.json({ error, restart: true }, { status: 409 })
     }
     let project = existing
     if (!project) {

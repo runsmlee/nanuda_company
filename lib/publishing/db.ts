@@ -27,7 +27,8 @@ export interface Project {
   access_token: string
   title: string
   author_name: string
-  manuscript_path: string
+  /** 보존 기한이 지나 파일을 지운 뒤에는 null이다 (files_purged_at). */
+  manuscript_path: string | null
   manuscript_name: string
   book_spec_uid: string
   text_size: "small" | "normal" | "large"
@@ -37,6 +38,7 @@ export interface Project {
   back_text: string | null
   page_count: number | null
   char_count: number | null
+  files_purged_at: string | null
 }
 
 export interface Order {
