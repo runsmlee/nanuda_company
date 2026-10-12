@@ -75,6 +75,10 @@ async function prepareCheckout(req: NextRequest, observation: ReturnType<typeof 
     || String(form.get("backText") ?? "").length > 600) {
     return NextResponse.json({ error: "제작 옵션과 입력 길이를 확인해주세요." }, { status: 400 })
   }
+  // 주문제작 청약철회 제한(전자상거래법 17조 2항 5호)·국외 이전 고지를 본 주문만 받는다.
+  if (form.get("acknowledgeOrderTerms") !== "true") {
+    return NextResponse.json({ error: "주문 전 안내를 확인하고 체크해주세요." }, { status: 400 })
+  }
 
   observation.stage = "manuscript"
   if (!(file instanceof File)) {

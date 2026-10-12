@@ -404,8 +404,18 @@ function checkoutForm(attemptId=randomUUID(), quantity="1") {
   const form = new FormData()
   for (const [k,v] of Object.entries({attemptId,email:"checkout@example.com",title:"Audit",authorName:"Audit",bookSpecUid:"A5",textSize:"normal",coverTheme:"ivory",quantity,recipientName:"Audit",recipientPhone:"010-1234-5678",postalCode:"12345",address1:"Audit address"})) form.set(k,v)
   form.set("manuscript",new File(["# Audit\n\nA synthetic manuscript."],"fixture.md"))
+  form.set("acknowledgeOrderTerms","true")
   return form
 }
+test("checkout refuses orders that skipped the made-to-order and overseas transfer notice", async () => {
+  const attempt=randomUUID(), form=checkoutForm(attempt)
+  form.delete("acknowledgeOrderTerms")
+  const response=await checkout.POST(new NextRequest("https://example.com/checkout",{method:"POST",body:form}))
+  assert.equal(response.status,400)
+  assert.equal(rows(`select id from publishing_projects where id=${quote(attempt)}`).length,0)
+  assert.equal(rows(`select id from publishing_orders where id=${quote(attempt)}`).length,0)
+  assert.equal(checkoutCalls,0)
+})
 test("checkout records malformed requests before an order exists without retaining request contents", async () => {
   const response = await checkout.POST(new NextRequest("https://example.com/checkout?token=private-token", {
     method: "POST", headers: {"content-type":"application/json","x-checkout-probe":"1"},
