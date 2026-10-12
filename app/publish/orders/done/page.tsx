@@ -51,6 +51,8 @@ export default async function CheckoutDonePage({ searchParams }: PageProps) {
   if (!ref || !/^[0-9a-f-]{36}$/i.test(ref)) notFound()
   const order = await authorizedOrder(ref, token)
   if (!order) notFound()
+  const amount = (minor: number) => order.payment_currency === "USD" ? `USD $${(minor / 100).toFixed(2)}` : krw(minor / 100)
+  const total = order.charged_total_minor ?? order.expected_total_minor
 
   const copy = order.review_required && order.status === "pending"
     ? { title: "주문 확인이 필요합니다", body: "결제 내역을 대조하고 있습니다. 추가 결제를 하지 말고 아래 주문번호로 문의해주세요." }
@@ -84,9 +86,10 @@ export default async function CheckoutDonePage({ searchParams }: PageProps) {
 
           <div className="border border-white/15 bg-white/5 px-6 py-5 space-y-2">
             <p className="text-xs uppercase tracking-widest text-text-gray">{order.charged_total_minor == null ? "주문 예상 금액" : "실제 결제 금액"}</p>
-            <p className="text-lg text-accent-orange font-medium">{krw(order.charged_total_minor == null ? order.price_krw : order.charged_total_minor / 100)}</p>
+            <p className="text-lg text-accent-orange font-medium">{total == null ? krw(order.price_krw) : amount(total)}</p>
+            {order.payment_currency === "USD" && <p className="text-xs text-text-gray">제작·배송 기준 금액 {krw(order.price_krw)} · 카드사의 환율·수수료에 따라 원화 청구액이 달라질 수 있습니다.</p>}
             <p className="text-sm text-text-gray">{order.quantity}권</p>
-            {order.refunded_total_minor > 0 && <p className="text-sm text-text-gray">환불 금액 {krw(order.refunded_total_minor / 100)}</p>}
+            {order.refunded_total_minor > 0 && <p className="text-sm text-text-gray">환불 금액 {amount(order.refunded_total_minor)}</p>}
             {order.status === "refunded" && <p className="text-sm text-text-gray">{
               ["cancelled", "not_started"].includes(order.cancellation_status ?? "") ? "인쇄 취소가 확인되었습니다."
               : order.cancellation_status === "needs_review" || order.review_required ? "인쇄가 진행 중이어서 취소 여부를 확인하고 있습니다. 주문번호로 문의해주세요."
