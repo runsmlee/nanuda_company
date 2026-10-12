@@ -2,6 +2,8 @@
 
 import { forwardRef, useState, lazy, Suspense, memo } from "react"
 import Image from "next/image"
+import Link from "next/link"
+import { LEGAL_LINKS } from "@/components/legal-page"
 
 const EmailModal = lazy(() => import('./email-modal').then(module => ({ default: module.EmailModal })))
 
@@ -37,6 +39,8 @@ export const Footer = memo(forwardRef<HTMLElement>((props, ref) => {
                 <p>대표: 이상민, 정예원</p>
                 <p>이메일: simon@nanudacompany.com</p>
                 <p>사업자등록번호: 109-96-78318</p>
+                <p>출판사 신고번호: 제333-2021-000017호</p>
+                <p>주소: 부산광역시 해운대구 해운대해변로 141, 206동 1201호(우동, 대우마리나)</p>
               </div>
             </div>
 
@@ -57,7 +61,14 @@ export const Footer = memo(forwardRef<HTMLElement>((props, ref) => {
             </div>
           </div>
 
-          <div className="border-t border-accent-orange/10 pt-8 text-center text-text-gray">
+          <div className="border-t border-accent-orange/10 pt-8 text-center text-text-gray space-y-4">
+            <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+              {LEGAL_LINKS.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="hover:text-accent-orange transition-colors">{l.label}</Link>
+                </li>
+              ))}
+            </ul>
             <p>© {new Date().getFullYear()} Nanuda Company. All rights reserved.</p>
           </div>
         </div>

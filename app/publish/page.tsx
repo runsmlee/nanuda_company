@@ -5,6 +5,7 @@ import { PUBLISH_ENABLED, PUBLISH_ORDERS_ENABLED } from "@/lib/publishing/config
 import { estimateProductPrice, hasBookPricing } from "@/lib/publishing/pricing"
 import { listBookSpecs, type BookSpec } from "@/lib/publishing/sweetbook"
 import { absoluteUrl, SITE_NAME } from "@/lib/site-config"
+import { LEGAL_LINKS } from "@/components/legal-page"
 
 export const revalidate = 3600
 
@@ -304,6 +305,13 @@ export default async function PublishPage() {
         <p>
           문의 · <span className="text-white">생각을나누다</span> — 나누다컴퍼니 출판 브랜드
         </p>
+        <ul className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2">
+          {LEGAL_LINKS.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} className="hover:text-white transition-colors">{l.label}</Link>
+            </li>
+          ))}
+        </ul>
       </footer>
     </div>
   )
