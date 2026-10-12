@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - name: Recover one queued order and report monetary exceptions
+      - name: Recover one queued order and report checkout or monetary exceptions
         env:
           PUBLISH_WORKER_SECRET: ${{ secrets.PUBLISH_WORKER_SECRET }}
         run: |
           set -euo pipefail
           : "${PUBLISH_WORKER_SECRET:?Missing PUBLISH_WORKER_SECRET}"
-          curl --fail --silent --show-error \
+          curl --fail-with-body --silent --show-error \
             --connect-timeout 10 --max-time 130 \
             --header "Authorization: Bearer ${PUBLISH_WORKER_SECRET}" \
             --request POST \

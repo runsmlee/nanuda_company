@@ -146,7 +146,7 @@ before(async () => {
 })
 after(async () => { globalThis.fetch = realFetch; await bridge?.close() })
 beforeEach(() => {
-  sql("truncate publishing_webhook_events, publishing_orders, publishing_projects cascade")
+  sql("truncate publishing_checkout_attempts, publishing_webhook_events, publishing_orders, publishing_projects cascade")
   printCalls = cancelCalls = checkoutCalls = uploadCalls = 0; printStatus = "PDF_READY"; failPrint = failAttach = refundDuringPrint = partialDuringFailure = false; providerRefund = 0
   seed()
 })
@@ -399,6 +399,130 @@ function checkoutForm(attemptId=randomUUID(), quantity="1") {
   form.set("manuscript",new File(["# Audit\n\nA synthetic manuscript."],"fixture.md"))
   return form
 }
+test("checkout records malformed requests before an order exists without retaining request contents", async () => {
+  const response = await checkout.POST(new NextRequest("https://example.com/checkout?token=private-token", {
+    method: "POST", headers: {"content-type":"application/json","x-checkout-probe":"1"},
+    body: JSON.stringify({email:"private@example.com",manuscript:"Private manuscript",address:"Private address"}),
+  }))
+  assert.equal(response.status,400)
+  const observations = rows("select * from publishing_checkout_attempts")
+  assert.equal(observations.length,1)
+  const a = observations[0]
+  assert.equal(a.id,response.headers.get("X-Checkout-Request-Id"))
+  assert.equal(a.stage,"form"); assert.equal(a.outcome,"rejected")
+  assert.equal(a.attempt_id,null); assert.equal(a.order_id,null); assert.equal(a.is_probe,false)
+  assert.ok(a.finished_at); assert.ok(Number(a.duration_ms)>=0)
+  assert.doesNotMatch(JSON.stringify(a),/private|manuscript.*Private|address.*Private/i)
+  assert.equal(checkoutCalls,0); assert.equal(printCalls,0)
+})
+test("authenticated checkout probes are recorded separately; client headers cannot suppress alerts", async () => {
+  const response = await checkout.POST(new NextRequest("https://example.com/checkout", {
+    method:"POST", headers:{"x-checkout-probe":"1",authorization:`Bearer ${process.env.PUBLISH_WORKER_SECRET}`},
+    body:"invalid form",
+  }))
+  assert.equal(response.status,400)
+  assert.equal(rows("select is_probe from publishing_checkout_attempts")[0].is_probe,true)
+})
+test("configuration failure is durable before project or order persistence", async () => {
+  const secret = process.env.PUBLISH_WORKER_SECRET
+  delete process.env.PUBLISH_WORKER_SECRET
+  const attempt = randomUUID()
+  try {
+    const response=await checkout.POST(new NextRequest("https://example.com/checkout",{method:"POST",body:checkoutForm(attempt)}))
+    assert.equal(response.status,502)
+    const a=rows("select * from publishing_checkout_attempts")[0]
+    assert.equal(a.attempt_id,attempt); assert.equal(a.order_id,null)
+    assert.equal(a.stage,"configuration"); assert.equal(a.outcome,"failed")
+    assert.equal(rows(`select id from publishing_orders where id=${quote(attempt)}`).length,0)
+    assert.equal(rows(`select id from publishing_projects where id=${quote(attempt)}`).length,0)
+    assert.equal(checkoutCalls,0); assert.equal(printCalls,0)
+  } finally {process.env.PUBLISH_WORKER_SECRET=secret}
+})
+test("checkout ready and idempotent retries retain separate request traces linked to one order", async () => {
+  const attempt=randomUUID()
+  for(let i=0;i<2;i++) assert.equal((await checkout.POST(new NextRequest("https://example.com/checkout",{method:"POST",body:checkoutForm(attempt)}))).status,200)
+  const a=rows("select * from publishing_checkout_attempts")
+  assert.equal(a.length,2); assert.notEqual(a[0].id,a[1].id)
+  for(const row of a) {assert.equal(row.attempt_id,attempt); assert.equal(row.order_id,attempt); assert.equal(row.outcome,"ready")}
+  assert.equal(checkoutCalls,1); assert.equal(printCalls,0)
+})
+test("a lost observation write does not fail checkout and is reported after recovery", async () => {
+  const saved=globalThis.fetch
+  let fail=true
+  globalThis.fetch=(async(input:RequestInfo|URL,init?:RequestInit)=>{
+    if(fail && String(input).includes("/publishing_checkout_attempts")){fail=false;return Response.json({message:"private injected failure"},{status:503})}
+    return saved(input,init)
+  }) as typeof fetch
+  try {
+    const response=await checkout.POST(new NextRequest("https://example.com/checkout",{method:"POST",body:checkoutForm()}))
+    assert.equal(response.status,200)
+    const a=rows("select * from publishing_checkout_attempts")[0]
+    assert.equal(a.outcome,"ready"); assert.equal(a.persistence_failed,true)
+    assert.doesNotMatch(JSON.stringify(a),/private injected failure/)
+  } finally {globalThis.fetch=saved}
+})
+test("provider failure is linked to the saved order without retaining provider error contents", async () => {
+  const saved=globalThis.fetch, attempt=randomUUID()
+  globalThis.fetch=(async(input:RequestInfo|URL,init?:RequestInit)=>{
+    if(String(input).includes("api.lemonsqueezy.com/v1/checkouts")) return Response.json({errors:[{detail:"private@example.com private-token"}]},{status:503})
+    return saved(input,init)
+  }) as typeof fetch
+  try {
+    const response=await checkout.POST(new NextRequest("https://example.com/checkout",{method:"POST",body:checkoutForm(attempt)}))
+    assert.equal(response.status,502)
+    const a=rows("select * from publishing_checkout_attempts")[0]
+    assert.equal(a.stage,"payment"); assert.equal(a.outcome,"failed"); assert.equal(a.order_id,attempt)
+    assert.equal(order().fulfillment_attempts,0); assert.equal(printCalls,0)
+    assert.doesNotMatch(JSON.stringify(a),/private@example|private-token/)
+  } finally {globalThis.fetch=saved}
+})
+test("monitoring storage failure is a failed health check, not an empty healthy report", async () => {
+  const saved=globalThis.fetch
+  globalThis.fetch=(async(input:RequestInfo|URL,init?:RequestInit)=>{
+    if(String(input).includes("/rpc/publishing_checkout_monitor")) return Response.json({message:"Injected monitor failure"},{status:503})
+    return saved(input,init)
+  }) as typeof fetch
+  try {
+    const route=await import("../../app/api/publish/reconcile/route")
+    const response=await route.POST(new NextRequest("https://example.com/api/publish/reconcile?monitor=1",{method:"POST",headers:{authorization:`Bearer ${process.env.PUBLISH_WORKER_SECRET}`}}))
+    assert.equal(response.status,503); assert.equal(printCalls,0)
+  } finally {globalThis.fetch=saved}
+})
+test("monitor flags live failures and interrupted requests, excludes QA, and supports explicit review", async () => {
+  const observationId=randomUUID(), stalled=randomUUID()
+  sql(`insert into publishing_checkout_attempts(id,stage,outcome,http_status,finished_at,environment,test_mode)
+    values (${quote(observationId)},'supplier','failed',502,now(),'production',false)`)
+  sql(`insert into publishing_checkout_attempts(id,stage,created_at,environment,test_mode)
+    values (${quote(stalled)},'typeset',now()-interval '6 minutes','production',false)`)
+  for(const [environment,test,probe] of [["preview",false,false],["production",true,false],["production",false,true]]) {
+    sql(`insert into publishing_checkout_attempts(id,stage,outcome,http_status,finished_at,environment,test_mode,is_probe)
+      values (${quote(randomUUID())},'payment','failed',502,now(),${quote(environment)},${test},${probe})`)
+  }
+  const route=await import("../../app/api/publish/reconcile/route")
+  const request=()=>new NextRequest("https://example.com/api/publish/reconcile?monitor=1",{method:"POST",headers:{authorization:`Bearer ${process.env.PUBLISH_WORKER_SECRET}`}})
+  const response=await route.POST(request()), data=await response.json()
+  assert.equal(response.status,409); assert.equal(data.checkout.unreviewedFailures,1); assert.equal(data.checkout.stalled,1)
+  assert.equal(data.checkout.exceptions.length,2); assert.equal(printCalls,0); assert.equal(checkoutCalls,0)
+  assert.equal((await route.POST(new NextRequest("https://example.com/api/publish/reconcile?monitor=1",{method:"POST"}))).status,401)
+  sql(`update publishing_checkout_attempts set reviewed_at=now() where id in (${quote(observationId)},${quote(stalled)})`)
+  assert.equal((await route.POST(request())).status,200)
+  assert.equal((await route.POST(new NextRequest("https://example.com/api/publish/reconcile",{method:"POST",headers:{authorization:`Bearer ${process.env.PUBLISH_WORKER_SECRET}`}}))).status,200)
+})
+test("repeated input rejections trigger monitoring without treating one typo as a server incident", async () => {
+  const {checkoutMonitor}=await import("../../lib/publishing/checkout-observation")
+  for(let i=0;i<10;i++) {
+    sql(`insert into publishing_checkout_attempts(id,stage,outcome,http_status,finished_at,environment,test_mode)
+      values (${quote(randomUUID())},'email','rejected',400,now(),'production',false)`)
+    assert.equal((await checkoutMonitor()).alert,i===9)
+  }
+})
+test("checkout observations and monitor RPC are inaccessible to public database roles", () => {
+  for(const role of ["anon","authenticated"]) {
+    for(const permission of ["select","insert","update","delete"]) assert.equal(sql(`select has_table_privilege('${role}','public.publishing_checkout_attempts','${permission}')`),"f")
+    assert.equal(sql(`select has_function_privilege('${role}','public.publishing_checkout_monitor()','execute')`),"f")
+  }
+  assert.equal(sql("select relrowsecurity from pg_class where oid='public.publishing_checkout_attempts'::regclass"),"t")
+})
 test("checkout retry reuses one local order and hosted checkout; redirect is canonical", async () => {
   const attempt=randomUUID()
   const request=() => new NextRequest("https://example.com/api/publish/checkout",{method:"POST",headers:{origin:"https://attacker.example"},body:checkoutForm(attempt)})

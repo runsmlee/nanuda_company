@@ -9,6 +9,7 @@ import { renderCover } from "@/lib/publishing/cover"
 import { listBookSpecs, getCalculatedSize, assertSupplierEnvironment } from "@/lib/publishing/sweetbook"
 import { typeset, type TextSize } from "@/lib/publishing/typeset"
 import { SITE_URL } from "@/lib/site-config"
+import { checkoutObservation } from "@/lib/publishing/checkout-observation"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -20,6 +21,21 @@ export const maxDuration = 60
  * 믿으면 값을 조작해 헐값에 책을 만들 수 있다.
  */
 export async function POST(req: NextRequest) {
+  const observation = checkoutObservation(req.headers)
+  await observation.checkpoint("received")
+  let response: NextResponse
+  try {
+    response = await prepareCheckout(req, observation)
+  } catch {
+    response = NextResponse.json({ error: "주문 준비에 실패했습니다. 잠시 후 다시 시도해주세요." }, { status: 502 })
+  }
+  await observation.finish(response.status)
+  response.headers.set("X-Checkout-Request-Id", observation.id)
+  response.headers.set("Cache-Control", "private, no-store")
+  return response
+}
+
+async function prepareCheckout(req: NextRequest, observation: ReturnType<typeof checkoutObservation>) {
   if (!PUBLISH_ENABLED) {
     return NextResponse.json({ error: "현재 주문을 받고 있지 않습니다." }, { status: 503 })
   }
@@ -28,6 +44,7 @@ export async function POST(req: NextRequest) {
 
   let form: FormData
   try {
+    await observation.checkpoint("form")
     form = await req.formData()
   } catch {
     return NextResponse.json({ error: "요청 형식이 올바르지 않습니다." }, { status: 400 })
@@ -49,6 +66,8 @@ export async function POST(req: NextRequest) {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(attemptId)) {
     return NextResponse.json({ error: "주문 요청을 새로 시작해주세요." }, { status: 400 })
   }
+  observation.attemptId = attemptId
+  observation.stage = "options"
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 100
     || !["small", "normal", "large"].includes(textSize)
     || !["ivory", "charcoal", "photo"].includes(coverTheme)
@@ -57,6 +76,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "제작 옵션과 입력 길이를 확인해주세요." }, { status: 400 })
   }
 
+  observation.stage = "manuscript"
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "원고 파일이 필요합니다." }, { status: 400 })
   }
@@ -67,11 +87,13 @@ export async function POST(req: NextRequest) {
   if (coverTheme === "photo" && (!(coverImage instanceof File) || coverImage.size === 0)) {
     return NextResponse.json({ error: "사진 표지에 사용할 JPG·PNG 이미지를 올려주세요." }, { status: 400 })
   }
+  observation.stage = "email"
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return NextResponse.json({ error: "연락받을 이메일을 확인해주세요." }, { status: 400 })
   }
 
   // 판매 대상은 실물 책 제작이다. PDF는 조판 과정에서만 쓰인다.
+  observation.stage = "shipping"
   const shipping = {
     recipient_name: String(form.get("recipientName") ?? "").trim(),
     recipient_phone: String(form.get("recipientPhone") ?? "").trim(),
@@ -97,18 +119,21 @@ export async function POST(req: NextRequest) {
   let savedToken: string | undefined
   let checkoutLease: string | undefined
   try {
+    await observation.checkpoint("configuration")
     if (!process.env.PUBLISH_WORKER_SECRET || process.env.PUBLISH_WORKER_SECRET.length < 32) throw new PaymentError(503, "현재 주문 접수를 준비 중입니다.")
     const provider = getPaymentProvider()
     const variantId = process.env.LEMONSQUEEZY_VARIANT_ID ?? process.env.LEMONSQUEEZY_VARIANT_PHYSICAL
     if (!variantId || !/^\d+$/.test(variantId)) throw new PaymentError(503, "결제 상품이 설정되지 않았습니다.")
     const testMode = paymentTestMode()
     assertPaymentEnvironment(testMode)
+    await observation.checkpoint("supplier")
     await assertSupplierEnvironment(testMode)
     const specs = await listBookSpecs()
     const spec = specs.find((s) => s.bookSpecUid === specUid)
     if (!spec) return NextResponse.json({ error: "선택한 판형을 확인해주세요." }, { status: 400 })
     if (!hasBookPricing(spec)) return NextResponse.json({ error: "제작 단가를 확인 중입니다. 잠시 후 다시 시도해주세요." }, { status: 503 })
 
+    await observation.checkpoint("parse")
     const buffer = Buffer.from(await file.arrayBuffer())
     const parsed = await parseManuscriptFile(file.name, buffer)
     if (parsed.charCount === 0) {
@@ -116,6 +141,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 서버에서 조판해 쪽수를 확정한다 — 가격의 유일한 근거.
+    await observation.checkpoint("typeset")
     const inner = await typeset(parsed.chapters, {
       trimWidthMm: spec.innerTrimWidthMm,
       trimHeightMm: spec.innerTrimHeightMm,
@@ -156,6 +182,7 @@ export async function POST(req: NextRequest) {
       hash.update(coverBuf)
     }
     if (coverTheme === "photo") {
+      await observation.checkpoint("cover")
       const size = await getCalculatedSize(spec.bookSpecUid, inner.pageCount)
       try {
         await renderCover(size, spec.bleedMm, {
@@ -168,6 +195,7 @@ export async function POST(req: NextRequest) {
     }
     const requestHash = hash.digest("hex")
     const projectId = attemptId
+    await observation.checkpoint("project")
     const { data: existing, error: lookupError } = await db().from("publishing_projects")
       .select("*").eq("id", projectId).maybeSingle<Project & { request_hash: string }>()
     if (lookupError) throw new Error("프로젝트 조회 실패")
@@ -194,12 +222,14 @@ export async function POST(req: NextRequest) {
       project = data
     }
     savedToken = project.access_token
+    await observation.checkpoint("order")
     const { error: oErr } = await db().from("publishing_orders").insert({
       id: attemptId, project_id: projectId, request_hash: requestHash, kind, quantity, price_krw: price,
       expected_store_id: process.env.LEMONSQUEEZY_STORE_ID, expected_variant_id: variantId,
       payment_test_mode: testMode, payment_currency: process.env.LEMONSQUEEZY_STORE_CURRENCY, ...shipping,
     })
     if (oErr && oErr.code !== "23505") throw new Error("주문 생성 실패")
+    observation.orderId = attemptId
     const { data: order, error: orderError } = await db().from("publishing_orders").select("*")
       .eq("id", attemptId).single<Order>()
     if (orderError || !order || order.request_hash !== requestHash) throw new Error("주문 조회 실패")
@@ -233,6 +263,7 @@ export async function POST(req: NextRequest) {
     if (!lease) return NextResponse.json({ error: "동일한 주문을 준비 중입니다. 잠시 후 다시 확인해주세요.", orderUrl }, { status: 409 })
 
     checkoutLease = leaseToken
+    await observation.checkpoint("payment")
     const checkout = await provider.createCheckout({
       lines: [
         {
@@ -248,6 +279,7 @@ export async function POST(req: NextRequest) {
       successUrl: `${SITE_URL}${orderUrl}`,
     })
 
+    await observation.checkpoint("quote")
     const { data: quoted, error: checkoutError } = await db().from("publishing_orders").update({
       checkout_url: checkout.url, checkout_id: checkout.providerCheckoutId,
       checkout_expires_at: checkout.expiresAt, checkout_lease_until: null, checkout_lease_token: null,
@@ -267,8 +299,6 @@ export async function POST(req: NextRequest) {
     if (e instanceof PaymentError) {
       return NextResponse.json({ error: e.detail, ...recovery }, { status: e.status >= 500 ? 502 : e.status })
     }
-    const msg = e instanceof Error ? e.message : "주문 준비에 실패했습니다."
-    console.error("[publish/checkout]", msg)
     return NextResponse.json({ error: "주문 준비에 실패했습니다. 잠시 후 다시 시도해주세요.", ...recovery }, { status: 502 })
   }
 }
