@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       } catch (e) { checks.supplier = { ok: false, detail: e instanceof SweetBookError ? `Supplier API lookup failed (${e.status})` : "Supplier API or catalog unavailable" } }
     }
     try {
-      const { error } = await db().from("publishing_orders").select("id,expected_store_id").limit(1)
+      const { error } = await db().from("publishing_orders").select("id,expected_store_id,archived_at").limit(1)
       checks.database = { ok: !error }
     } catch { checks.database = { ok: false } }
     const ready = Object.values(checks).every(c => c.ok)
@@ -39,11 +39,11 @@ export async function POST(req: NextRequest) {
   }
   try {
     const { error: expireError } = await db().from("publishing_orders").update({ status: "cancelled" })
-      .eq("status", "pending").is("payment_order_id", null).lt("checkout_expires_at", new Date().toISOString())
+      .eq("status", "pending").is("archived_at", null).is("payment_order_id", null).lt("checkout_expires_at", new Date().toISOString())
     if (expireError) throw expireError
     const processed = await runPaymentWork() || await reconcileSubmittedOrder()
     const { data: exceptions, count, error } = await db().from("publishing_orders").select("id, failure_reason, cancellation_status", { count: "exact" })
-      .eq("review_required", true)
+      .eq("review_required", true).is("archived_at", null)
     if (error) throw error
     // A failed scheduled run is an operational alert; do not hide monetary exceptions behind 200.
     return NextResponse.json({ processed, reviewRequired: count, exceptions }, { status: count ? 409 : 200 })

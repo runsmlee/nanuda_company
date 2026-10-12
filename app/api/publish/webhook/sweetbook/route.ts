@@ -18,6 +18,10 @@ export async function POST(req: NextRequest) {
     event = parseSweetbookEvent(raw)
     if (!event.eventUid || !event.orderUid) throw new Error("Missing identity")
   } catch { return NextResponse.json({ error: "이벤트 형식이 올바르지 않습니다." }, { status: 400 }) }
+  const { data: own, error: lookupError } = await db().from("publishing_orders").select("id,archived_at")
+    .eq("print_order_uid", event.orderUid).maybeSingle()
+  if (lookupError) return NextResponse.json({ error: "주문 조회를 다시 시도해주세요." }, { status: 503 })
+  if (own?.archived_at) return NextResponse.json({ ok: true, ignored: true })
   let status: string
   try {
     const current = await getOrder(event.orderUid)

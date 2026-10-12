@@ -203,6 +203,7 @@ export async function POST(req: NextRequest) {
     const { data: order, error: orderError } = await db().from("publishing_orders").select("*")
       .eq("id", attemptId).single<Order>()
     if (orderError || !order || order.request_hash !== requestHash) throw new Error("주문 조회 실패")
+    if (order.archived_at) return NextResponse.json({ error: "종료된 테스트 주문입니다. 새 주문을 시작해주세요.", restart: true }, { status: 409 })
     savedOrderId = order.id
     const orderUrl = `/publish/orders/done?ref=${order.id}&token=${savedToken}`
     const reply = (quoted: Order) => NextResponse.json({ checkoutUrl: quoted.checkout_url, orderId: order.id, orderUrl,
@@ -226,7 +227,7 @@ export async function POST(req: NextRequest) {
     const leaseToken = crypto.randomUUID()
     const { data: lease, error: leaseError } = await db().from("publishing_orders")
       .update({ checkout_lease_token: leaseToken, checkout_lease_until: new Date(Date.now() + 90_000).toISOString() }).eq("id", order.id)
-      .is("checkout_url", null).or(`checkout_lease_until.is.null,checkout_lease_until.lt.${now}`)
+      .is("archived_at", null).is("checkout_url", null).or(`checkout_lease_until.is.null,checkout_lease_until.lt.${now}`)
       .select("id").maybeSingle()
     if (leaseError) throw new Error("결제 준비 기록 실패")
     if (!lease) return NextResponse.json({ error: "동일한 주문을 준비 중입니다. 잠시 후 다시 확인해주세요.", orderUrl }, { status: 409 })

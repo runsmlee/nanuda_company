@@ -31,7 +31,7 @@ async function syncPayment(order: Order) {
 /** Round-robin check for lost callbacks after successful fulfillment, including later refunds. */
 export async function reconcileSubmittedOrder(): Promise<boolean> {
   const { data: order, error } = await db().from("publishing_orders").select("*")
-    .eq("status", "submitted").eq("review_required", false).eq("kind", "physical").not("print_order_uid", "is", null)
+    .eq("status", "submitted").eq("review_required", false).is("archived_at", null).eq("kind", "physical").not("print_order_uid", "is", null)
     .order("updated_at", { ascending: true }).limit(1).maybeSingle<Order>()
   if (error) throw new Error("Submitted order lookup failed")
   if (!order) return false

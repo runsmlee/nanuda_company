@@ -52,6 +52,7 @@ export interface Order {
   expected_store_id: string | null
   expected_variant_id: string | null
   status: "pending" | "paid" | "submitted" | "failed" | "refunded" | "cancelled"
+  archived_at: string | null
   payment_provider: string | null
   payment_order_id: string | null
   print_order_uid: string | null
@@ -107,7 +108,7 @@ export async function getManuscript(path: string): Promise<Buffer> {
 export async function authorizedOrder(value: string, token: string | undefined, byPrintUid = false): Promise<Order | null> {
   if (!token || !/^[A-Za-z0-9_-]{32}$/.test(token)) return null
   const { data: order, error } = await db().from("publishing_orders").select("*")
-    .eq(byPrintUid ? "print_order_uid" : "id", value).maybeSingle<Order>()
+    .eq(byPrintUid ? "print_order_uid" : "id", value).is("archived_at", null).maybeSingle<Order>()
   if (error) throw new Error("주문 조회 실패")
   if (!order) return null
   const { data: project, error: projectError } = await db().from("publishing_projects")
